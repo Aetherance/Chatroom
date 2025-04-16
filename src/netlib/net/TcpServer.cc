@@ -29,7 +29,8 @@ TcpServer::TcpServer(EventLoop * loop,const InetAddress & listenAddr)
            connectionCallback_(),
            messageCallback_(),
            started_(false),
-           nextConnId_(1)
+           nextConnId_(1),
+           name_(listenAddr.toIpPort())
 {
     acceptor_->setNewConnectionCallback([this](int sockfd,const InetAddress &peerAddr){ newConnection(sockfd,peerAddr); });
 }

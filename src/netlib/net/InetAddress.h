@@ -16,7 +16,7 @@ public:
 
     // std::string toIp() const;
     // unsigned int toPort() const;
-    // std::string toIpPort() const;
+    std::string toIpPort() const;
 
     const sockaddr_in& getSockAddr() const {
         return addr_;
@@ -43,6 +43,15 @@ inline InetAddress::InetAddress(const std::string &ip,unsigned int port) {
 
 inline InetAddress::InetAddress(const sockaddr_in & addr) {
     memcpy(&addr_,&addr,sizeof(addr_));
+}
+
+inline std::string InetAddress::toIpPort() const {
+    std::string ip,port;
+    ip.reserve(1024);
+    inet_ntop(AF_INET,&addr_.sin_addr,ip.data(),1024);
+    port.reserve(64);
+    port = std::to_string(ntohs(addr_.sin_port));
+    return ip + ":" + port;
 }
 
 }

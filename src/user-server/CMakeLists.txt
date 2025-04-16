@@ -1,0 +1,17 @@
+cmake_minimum_required(VERSION 3.10)
+project(user-server)
+
+# 添加可执行文件
+add_executable(user-server
+    main.cc
+    userServer.cc
+)
+
+# 链接netlib库
+target_link_libraries(user-server netlib)
+
+# 包含头文件目录
+target_include_directories(user-server PRIVATE
+    ${CMAKE_SOURCE_DIR}/netlib/base
+    ${CMAKE_SOURCE_DIR}/netlib/net
+)
