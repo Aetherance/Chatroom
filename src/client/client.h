@@ -15,6 +15,8 @@ public:
   ~Client() {}
 
   void Connect();
+  void Send(Buff buff);
+  std::string Recv();
 private:
   ilib::net::Socket sock_;
   Buff buff_;
