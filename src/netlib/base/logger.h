@@ -13,18 +13,20 @@
 #define CONNECT_OFF "disconnected!"
 
 #define COLOR_RESET    "\033[0m"
-#define COLOR_CYAN     "\033[36m"                     // INFO
+#define COLOR_CYAN     "\033[1m\033[36m"              // INFO_SUCCESS
 #define COLOR_YELLOW   "\033[93m"                     // WARNING
 #define COLOR_RED      "\033[91m"                     // ERROR
 #define COLOR_BOLD_RED "\033[1;31m"                   // FATAL
 #define COLOR_RED_BG   "\033[41;37m"                  // FATAL++
+#define COLOR_GREEN    "\033[032m"
 #define COLOR_GREEN__  "\033[1m\033[032m"             // CONNECT
 #define COLOR_RED__    "\033[1m\033[31m"              // DISCONNECT
 
-#define LOG_INFO(event) ilib::log::logger::serverlog(ilib::log::FATAL,event);
+#define LOG_INFO(event) ilib::log::logger::serverlog(ilib::log::INFO,event);
 #define LOG_WARN(event) ilib::log::logger::serverlog(ilib::log::WARNING,event);
 #define LOG_ERROR(event) ilib::log::logger::serverlog(ilib::log::ERROR,event);
 #define LOG_FATAL(event) ilib::log::logger::serverlog(ilib::log::FATAL,event);
+#define LOG_INFO_SUCCESS(event) ilib::log::logger::serverlog(ilib::log::INFO_SUCCESS,event);
 
 #define LOG_CLIENT_INFO(event,fd) ilib::log::logger::clientlog(ilib::log::INFO,fd,event);
 #define LOG_CLIENT_WARN(event,fd) ilib::log::logger::clientlog(ilib::log::WARNIG,fd,event);
@@ -35,6 +37,7 @@ namespace ilib {
 namespace log {
 
 enum STAT {
+    INFO_SUCCESS,
     INFO,
     WARNING,
     ERROR,
@@ -92,6 +95,9 @@ inline void logger::log_client(int type,std::string ip,unsigned int port,std::st
 
     std::string info_type;
     switch (type) {
+    case INFO_SUCCESS:
+        info_type = "INFO:SUCCESS";
+        break;
     case INFO:
         info_type = "INFO";
         break;
@@ -159,6 +165,11 @@ inline void logger::log_server(int type,std::string event) {
 
     std::string info_type;
     switch (type) {
+    case INFO_SUCCESS:
+        info_type = "INFO:SUCCESS";
+        color = COLOR_CYAN;
+        break;
+
     case INFO:
         info_type = "INFO";
         break;
@@ -184,8 +195,8 @@ inline void logger::log_server(int type,std::string event) {
     }
 
     if(isTerminal) {
-        printf("[%s] [%s] Server: %s%s%s\n", 
-            time_str, info_type.c_str(),color,event.data(),reset_color);
+        printf("%s[%s] [%s] Server: %s%s\n", 
+            color, time_str, info_type.c_str(),event.data(),reset_color);
     }
 
     if(isLogfile) {

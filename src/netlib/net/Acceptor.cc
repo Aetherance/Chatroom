@@ -1,5 +1,6 @@
 #include"Acceptor.h"
 #include"InetAddress.h"
+#include"logger.h"
 
 using namespace ilib::net;
 
@@ -15,6 +16,9 @@ void Acceptor::listen() {
     loop_->assertInLoopThread();
     listenning_ = true;
     acceptSocket_.listen();
+
+    LOG_INFO("Listening ...");
+
     acceptChannel_.enableReading();
 }
 

@@ -36,6 +36,7 @@ private:
 
     EventLoop * loop_;
     const std::string name_;
+    
     std::unique_ptr<Acceptor>acceptor_;
     std::shared_ptr<EventLoopThreadPool> threadpool_;
     ConnectionCallback connectionCallback_;

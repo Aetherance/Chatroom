@@ -4,6 +4,8 @@
 using namespace ilib::net;
 
 void TcpServer::newConnection(int sockfd,const InetAddress& peerAddr) {
+    LOG_INFO("A client is going to connect to the server...");
+
     loop_->assertInLoopThread();
     char buff[32];
     snprintf(buff,sizeof(buff),"#%d",nextConnId_);

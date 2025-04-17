@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.28.3)
 project(netlib)
 
 # 收集源文件
@@ -17,7 +17,7 @@ set(NETLIB_SOURCES
     net/TimerQueue.cc
 )
 
-# 创建静态库
+# 创建对象库
 add_library(netlib OBJECT ${NETLIB_SOURCES})
 
 # 包含头文件目录
