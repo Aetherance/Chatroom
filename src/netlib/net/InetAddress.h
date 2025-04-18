@@ -47,7 +47,7 @@ inline InetAddress::InetAddress(const sockaddr_in & addr) {
 
 inline std::string InetAddress::toIpPort() const {
     std::string ip,port;
-    ip.reserve(1024);
+    ip.resize(1024);
     inet_ntop(AF_INET,&addr_.sin_addr,ip.data(),1024);
     port.reserve(64);
     port = std::to_string(ntohs(addr_.sin_port));

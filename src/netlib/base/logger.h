@@ -28,6 +28,7 @@
 #define LOG_FATAL(event) ilib::log::logger::serverlog(ilib::log::FATAL,event);
 #define LOG_INFO_SUCCESS(event) ilib::log::logger::serverlog(ilib::log::INFO_SUCCESS,event);
 
+#define LOG_CLIENT_INFO_ADDR(event,ip_port) ilib::log::logger::clientlog(ilib::log::INFO,ip_port,event);
 #define LOG_CLIENT_INFO(event,fd) ilib::log::logger::clientlog(ilib::log::INFO,fd,event);
 #define LOG_CLIENT_WARN(event,fd) ilib::log::logger::clientlog(ilib::log::WARNIG,fd,event);
 #define LOG_CLIENT_ERROR(event,fd) ilib::log::logger::clientlog(ilib::log::ERROR,fd,event);
@@ -49,6 +50,7 @@ class logger : noncopyable
 public:
     static void serverlog(int type,std::string event);
     static void clientlog(int type,int fd,std::string event);
+    static void clientlog(int type,std::string ip_port,std::string event);
 private:
     void log_server(int type,std::string event);
     void log_client(int type,std::string ip,unsigned int port,std::string event);
@@ -216,6 +218,13 @@ inline void logger::serverlog(int type,std::string event) {
 inline void logger::clientlog(int type,int fd,std::string event) {
     static logger logger_;
     logger_.log_client(type,fd,event);
+}
+
+inline void logger::clientlog(int type,std::string ip_port,std::string event) {
+    std::string ip(ip_port,0,ip_port.find(':'));
+    std::string port(ip_port,ip_port.find(':')+1,ip_port.size());
+    logger log;
+    log.log_client(type,ip,std::stoi(port),event);
 }
 
 }

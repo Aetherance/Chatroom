@@ -39,9 +39,9 @@ void TcpConnection::handleRead(Timestamp receiveTime) {
 }
 
 void TcpConnection::handleClose() {
+    LOG_CLIENT_INFO(CONNECT_OFF,peerAddr_.toIpPort());
     loop_->assertInLoopThread();
     assert(state_ == kConnected || state_ == kDisconnecting);
-    LOG_CLIENT_INFO(CONNECT_OFF,channel_->fd());
     channel_->disableAll();
     closeCallback_(shared_from_this());
 }
@@ -66,7 +66,9 @@ void TcpConnection::handleWrite() {
 }
 
 void TcpConnection::handleError() {
-    if(errno == ECONNRESET) {
+    if(errno == 0) {
+        return;
+    } else if(errno == ECONNRESET) {
         LOG_WARN(std::string(strerror(errno)));
     } else {
         LOG_ERROR(std::string(strerror(errno)));

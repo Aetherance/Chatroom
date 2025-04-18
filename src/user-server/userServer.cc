@@ -21,7 +21,11 @@ void UserServer::onConnection(const net::TcpConnectionPtr & conn) {
 void UserServer::onMessage(const net::TcpConnectionPtr & conn,net::Buffer* buff,Timestamp time) {
   std::string logInfo = "receive a message from " + conn->peerAddress().toIpPort();
   LOG_INFO(logInfo);
+  std::string Message(buff->peek(),buff->readableBytes());
+  buff->retrieveAll();
+  printf("%s\n",Message.c_str());
   conn->send("hello!");
+  buff->retrieveAll();
 }
 
 void UserServer::run() {

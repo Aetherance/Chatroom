@@ -17,6 +17,7 @@ public:
     size_t writableBytes() const;
     size_t prependableBytes() const;
 
+    // 可读数据的起始地址
     const char * peek() const;
 
     void swap(Buffer & rhs);

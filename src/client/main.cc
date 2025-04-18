@@ -1,13 +1,12 @@
-#include"client.h"
+#include"UserClient.h"
 #include<iostream>
 
 int main() {
-  Client client;
-  client.Connect();
-  client.Send("hello server!");
-  std::cout<<"发送了一条消息!\n";
+  UserClient userClient;
+  userClient.Connect();
+  userClient.RequestRegister("2085163736@qq.com");
 
-  std::cout<<client.Recv();
+  getchar();
 
   return 0;
 }
