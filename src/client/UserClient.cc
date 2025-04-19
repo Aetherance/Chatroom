@@ -17,35 +17,75 @@ UserClient::UserClient()
   : sock_(::socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)) 
 {}
 
+/* 发送请求 */
 void UserClient::Send(std::string msg) {
   ::send(sock_.fd(),msg.data(),msg.size(),0);
 }
 
-std::string UserClient::Recv() {
+/* 接收服务端响应码 */
+/* 服务端只会回复响应码 简化客户端处理流程 */
+int UserClient::Recv() {
   int recvCode = -1;
   ::recv(sock_.fd(),&recvCode,sizeof(int),0);
   if(recvCode == -1) {
     LOG_ERROR("UserClient::Recv() : No response received");
-  }  
+  }
+  return recvCode;
 }
 
-std::string UserClient::ConstructBindMessage(const std::string &email) {
-  Json::Value BindRequestMessage;
-  BindRequestMessage["action"] = BIND_REQUEST;
-  BindRequestMessage["email"] = email;
+/* REGISTER PARSE */
+void UserClient::RequestRegister(const std::string email,const std::string & user_name,const std::string passwd) {
+  SendRegister1(email);
+  int recv = -1;
+  std::cout<<(recv = Recv())<<std::endl;
+  if(recv == USER_OK) {
+    SendRegister2(email,user_name,passwd);
+    std::cout<<(recv = Recv())<<std::endl;
+  } else if(recv == EMAIL_ALREADY_REGISTERED) {
+    std::cout<<"email registered!\n";
+  }
+}
+
+/* REGISTER 1 */
+void UserClient::SendRegister1(const std::string& email) {
+  std::string Register1Msg = ConstructRegister1(email);
+  Send(Register1Msg);
+}
+
+std::string UserClient::ConstructRegister1(const std::string email) {
+  Json::Value Register1RequestMessage;
+  Register1RequestMessage["action"] = REGISTER1;
+  Register1RequestMessage["email"] = email;
 
   Json::StreamWriterBuilder writer;
-  std::string BindMessage = Json::writeString(writer,BindRequestMessage);
+  std::string Register1Msg = Json::writeString(writer,Register1RequestMessage);
 
-  return BindMessage;
+  return Register1Msg;
 }
 
-void UserClient::SendBindRequest(const std::string& email) {
-  std::string BindMessage = ConstructBindMessage(email);
-  Send(BindMessage);
+/* REGISTER 2 */
+void UserClient::SendRegister2(const std::string email,const std::string & user_name,const std::string & passwd) {
+  std::cout<<"请输入验证码: \n";
+  std::string code;
+  std::cin>>code;
+  std::string Register2Msg = ConstructRegister2(email,user_name,passwd,code);
+  Send(Register2Msg);
 }
 
-void UserClient::RequestRegister(const std::string & email) {
-  SendBindRequest(email);
-}
+std::string UserClient::ConstructRegister2(const std::string email,const std::string user_name,const std::string passwd,const std::string code) {
+  /* 构造用户信息 */
+  Json::Value UserInfo;
+  UserInfo["email"] = email;
+  UserInfo["username"] = user_name;
+  UserInfo["passwd"] = passwd;
 
+  Json::Value Register2RequestMessage;
+  Register2RequestMessage["action"] = REGISTER2;
+  Register2RequestMessage["userInfo"] = UserInfo;
+  Register2RequestMessage["code"] = code;
+
+  Json::StreamWriterBuilder writer;
+  std::string Register2Msg = Json::writeString(writer,Register2RequestMessage);
+
+  return Register2Msg;
+}

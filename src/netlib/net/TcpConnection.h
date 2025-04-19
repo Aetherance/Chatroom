@@ -41,6 +41,7 @@ public:
     void send(const std::string& message);
 
     void shutdown();
+    int fd() const { return channel_->fd(); }
 
 private:
     enum StateE { kConnecting, kConnected , kDisconnecting , kDisconnected };

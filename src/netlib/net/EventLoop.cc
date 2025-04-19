@@ -15,7 +15,8 @@ IgnoreSigPipe __on;
 EventLoop::EventLoop() : 
     looping_(false) , threadid_(std::this_thread::get_id()) , 
     poller_(std::make_unique<Epoller>(this)) , wakeupFd_(makeWakeUpFd()) ,
-    wakeupChannel_(new Channel(this,wakeupFd_))
+    wakeupChannel_(new Channel(this,wakeupFd_)),
+    timerqueue_(new TimerQueue(this))
 {
     // 已经存在Eventloop对象
     if(t_loopInThisThread) {

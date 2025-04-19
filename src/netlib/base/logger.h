@@ -30,7 +30,7 @@
 
 #define LOG_CLIENT_INFO_ADDR(event,ip_port) ilib::log::logger::clientlog(ilib::log::INFO,ip_port,event);
 #define LOG_CLIENT_INFO(event,fd) ilib::log::logger::clientlog(ilib::log::INFO,fd,event);
-#define LOG_CLIENT_WARN(event,fd) ilib::log::logger::clientlog(ilib::log::WARNIG,fd,event);
+#define LOG_CLIENT_WARN(event,fd) ilib::log::logger::clientlog(ilib::log::WARNING,fd,event);
 #define LOG_CLIENT_ERROR(event,fd) ilib::log::logger::clientlog(ilib::log::ERROR,fd,event);
 #define LOG_CLIENT_FATAL(event,fd) ilib::log::logger::clientlog(ilib::log::FATAL,fd,event);
 

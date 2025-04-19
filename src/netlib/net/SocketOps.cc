@@ -16,6 +16,7 @@ void socket::bindOrDie(int sockfd, const sockaddr_in & addr) {
     int stat = ::bind(sockfd,reinterpret_cast<const sockaddr*>(&addr),sizeof(addr));
     if(stat < 0) {
         LOG_FATAL("SocketOps: Bind failed!");
+        exit(-1);
     }
 }
 
