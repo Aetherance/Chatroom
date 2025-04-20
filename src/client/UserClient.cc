@@ -46,6 +46,13 @@ void UserClient::RequestRegister(const std::string email,const std::string & use
   }
 }
 
+void UserClient::RequestLogin(const std::string& email,const std::string & passwd) {
+  SendLogin(email,passwd);
+  int recv = -1;
+  recv = Recv();
+  std::cout<<recv<<"\n";
+}
+
 /* REGISTER 1 */
 void UserClient::SendRegister1(const std::string& email) {
   std::string Register1Msg = ConstructRegister1(email);
@@ -88,4 +95,21 @@ std::string UserClient::ConstructRegister2(const std::string email,const std::st
   std::string Register2Msg = Json::writeString(writer,Register2RequestMessage);
 
   return Register2Msg;
+}
+
+/* LOGIN */
+void UserClient::SendLogin(const std::string & email,const std::string & passwd) {
+  std::string LogMsg = ConstructLogin(email,passwd);
+  Send(LogMsg);
+}
+
+std::string UserClient::ConstructLogin(const std::string & email,const std::string & passwd) {
+  Json::Value LoginRequestMessage;
+  LoginRequestMessage["action"] = LOGIN;
+  LoginRequestMessage["email"] = email;
+  LoginRequestMessage["passwd"] = passwd;
+
+  Json::StreamWriterBuilder writer;
+  std::string LogMsg = Json::writeString(writer,LoginRequestMessage);
+  return LogMsg;
 }

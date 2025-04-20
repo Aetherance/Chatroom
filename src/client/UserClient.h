@@ -16,22 +16,25 @@ public:
   void Connect();
 
   void RequestRegister(const std::string email,const std::string & user_name,const std::string passwd);
-  void RequestLogin();
+  void RequestLogin(const std::string & email,const std::string & passwd);
   
 private:
   void Send(std::string msg);
   int Recv();
 
-  /* 构造REGISTER1 报文 */
   std::string ConstructRegister1(const std::string email);
 
   std::string ConstructRegister2(const std::string email,
               const std::string user_name,const std::string passwd,const std::string code);
 
+  std::string ConstructLogin(const std::string & email,const std::string & passwd);
+
   void SendRegister1(const std::string & email);
   
   void SendRegister2(const std::string email,
               const std::string & user_name,const std::string& passwd);
+
+  void SendLogin(const std::string & email,const std::string & passwd);
 
   ilib::net::Socket sock_;
 };

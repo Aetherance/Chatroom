@@ -16,3 +16,4 @@
 /* 客户端请求 action 字段定义 */
 #define REGISTER1 "REGISTER1"
 #define REGISTER2 "REGISTER2"
+#define LOGIN     "LOGIN"

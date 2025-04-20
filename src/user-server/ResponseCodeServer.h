@@ -18,6 +18,7 @@
 /* 客户端请求 action 字段定义 */
 #define REGISTER1 "REGISTER1"
 #define REGISTER2 "REGISTER2"
+#define LOGIN     "LOGIN"
 
 void SendResponseCode(int code,int fd) {
   ::send(fd,&code,sizeof(int),0);

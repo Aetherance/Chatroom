@@ -51,7 +51,7 @@ void UserServer::run() {
 }
 
 /* 注册: 第一步 */
-void UserServer::Register1(const std::string & email,const TcpConnectionPtr & conn) {
+void UserServer::onRegister1(const std::string & email,const TcpConnectionPtr & conn) {
   /* 检查邮箱是不是已经存在了 */
   auto future = redis_.hexists(RedisUserInfosHashEmail_,email);
   redis_.sync_commit();
@@ -72,7 +72,7 @@ void UserServer::Register1(const std::string & email,const TcpConnectionPtr & co
 }
 
 /* 注册: 第二步 */ 
-void UserServer::Register2(const std::string & userInfo,const std::string & email,const std::string & code,const TcpConnectionPtr & conn) {
+void UserServer::onRegister2(const std::string & userInfo,const std::string & email,const std::string & code,const TcpConnectionPtr & conn) {
   auto future_code = redis_.hget(RedisEmailCodeHash_,email);
   redis_.sync_commit();
   auto reply = future_code.get();
@@ -82,12 +82,35 @@ void UserServer::Register2(const std::string & userInfo,const std::string & emai
   }
   redis_.hset(RedisUserInfosHashEmail_,email,userInfo);
   redis_.sync_commit();
+  LOG_INFO("A user registered! Info:\n" + userInfo);
   SendResponseCode(USER_OK,conn->fd());
 }
 
 std::string fromJsonObjToStr(Json::Value & root) {
   Json::StreamWriterBuilder writer;
   return Json::writeString(writer,root);
+}
+
+/* 登录 */
+void UserServer::onLogin(const std::string& email,const std::string& passwd,const TcpConnectionPtr & conn) {
+  auto future_userinfo = redis_.hget(RedisUserInfosHashEmail_,email);
+  redis_.sync_commit();
+  std::string reply_userinfo_str = future_userinfo.get().as_string();
+  
+  Json::Value userInfoVal;
+  Json::CharReaderBuilder readerBuilder;
+  std::istringstream Stream(reply_userinfo_str);
+  Json::parseFromStream(readerBuilder,Stream,&userInfoVal,nullptr);
+
+  std::string reply_passwd = userInfoVal["passwd"].asString();
+  
+  if(passwd == reply_passwd) {
+    SendResponseCode(USER_OK,conn->fd());
+    std::string user_name = userInfoVal["username"].asString();
+    LOG_INFO_SUCCESS(user_name + " log in to the server.");
+  } else {
+    SendResponseCode(PASSWORD_INCORRECT,conn->fd());
+  }
 }
 
 void UserServer::parseMessage(const std::string & MessageStr,const TcpConnectionPtr & conn) {
@@ -101,8 +124,10 @@ void UserServer::parseMessage(const std::string & MessageStr,const TcpConnection
   std::string action = message["action"].asString();
 
   if(action == REGISTER1) {
-    Register1(message["email"].asString(),conn);
+    onRegister1(message["email"].asString(),conn);
   } else if(action == REGISTER2) {
-    Register2(fromJsonObjToStr(message["userInfo"]),message["userInfo"]["email"].asString(),message["code"].asString(),conn);
+    onRegister2(fromJsonObjToStr(message["userInfo"]),message["userInfo"]["email"].asString(),message["code"].asString(),conn);
+  } else if(action == LOGIN) {
+    onLogin(message["email"].asString(),message["passwd"].asString(),conn);
   }
 }

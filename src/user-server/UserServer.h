@@ -29,15 +29,18 @@ private:
   void parseMessage(const std::string & Messgae,const net::TcpConnectionPtr & conn);
 
   /* 注册功能 */
-  void Register1(const std::string & email,const net::TcpConnectionPtr & conn);
-  void Register2(const std::string & userInfo,const std::string & email,const std::string & code,const net::TcpConnectionPtr & conn);
+  void onRegister1(const std::string & email,const net::TcpConnectionPtr & conn);
+  void onRegister2(const std::string & userInfo,const std::string & email,const std::string & code,const net::TcpConnectionPtr & conn);
 
   /* 注册功能: 验证码API */
-  /* redis email-code 哈希表的名称 */
-  inline static const std::string RedisEmailCodeHash_ = "email_code";
   std::string GenerateVerifiCode();
   void SendCodeToEmall(const std::string &code,const std::string & email);
-
+  
+  /* 登录功能 */
+  void onLogin(const std::string& email,const std::string& passwd,const net::TcpConnectionPtr & conn);
+  
+  /* redis email-code 哈希表的名称 */
+  inline static const std::string RedisEmailCodeHash_ = "email_code";
   /* redis 用户信息哈希表的名称 */
   inline static const std::string RedisUserInfosHashEmail_ = "email_userinfos";
 };
