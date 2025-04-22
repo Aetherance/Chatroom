@@ -10,11 +10,14 @@ void UserClient::Connect() {
   int stat = connect(sock_.fd(),reinterpret_cast<sockaddr*>(&peerAddr),sizeof(peerAddr));
   if(stat < 0) {
     LOG_ERROR("UserClient::Connect() : connect failed!");
+  } else {
+    isConnected_ = true;
   }
 }
 
 UserClient::UserClient()
-  : sock_(::socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)) 
+  : sock_(::socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)) ,
+    isConnected_(false)
 {}
 
 /* 发送请求 */
@@ -34,29 +37,31 @@ int UserClient::Recv() {
 }
 
 /* REGISTER PARSE */
-void UserClient::RequestRegister(const std::string email,const std::string & user_name,const std::string passwd) {
-  SendRegister1(email);
-  int recv = -1;
-  std::cout<<(recv = Recv())<<std::endl;
-  if(recv == USER_OK) {
-    SendRegister2(email,user_name,passwd);
-    std::cout<<(recv = Recv())<<std::endl;
-  } else if(recv == EMAIL_ALREADY_REGISTERED) {
-    std::cout<<"email registered!\n";
-  }
-}
+// void UserClient::RequestRegister(const std::string email,const std::string & user_name,const std::string passwd) {
+//   SendRegister1(email);
+//   int recv = -1;
+//   std::cout<<(recv = Recv())<<std::endl;
+//   if(recv == USER_OK) {
+//     SendRegister2(email,user_name,passwd);
+//     std::cout<<(recv = Recv())<<std::endl;
+//   } else if(recv == EMAIL_ALREADY_REGISTERED) {
+//     std::cout<<"email registered!\n";
+//   }
+// }
 
-void UserClient::RequestLogin(const std::string& email,const std::string & passwd) {
+int UserClient::RequestLogin(const std::string& email,const std::string & passwd) {
   SendLogin(email,passwd);
   int recv = -1;
   recv = Recv();
   std::cout<<recv<<"\n";
+  return recv;
 }
 
 /* REGISTER 1 */
-void UserClient::SendRegister1(const std::string& email) {
+int UserClient::SendRegister1(const std::string& email) {
   std::string Register1Msg = ConstructRegister1(email);
   Send(Register1Msg);
+  return Recv();
 }
 
 std::string UserClient::ConstructRegister1(const std::string email) {
@@ -71,12 +76,13 @@ std::string UserClient::ConstructRegister1(const std::string email) {
 }
 
 /* REGISTER 2 */
-void UserClient::SendRegister2(const std::string email,const std::string & user_name,const std::string & passwd) {
+int UserClient::SendRegister2(const std::string email,const std::string & user_name,const std::string & passwd) {
   std::cout<<"请输入验证码: \n";
   std::string code;
   std::cin>>code;
   std::string Register2Msg = ConstructRegister2(email,user_name,passwd,code);
   Send(Register2Msg);
+  return Recv();
 }
 
 std::string UserClient::ConstructRegister2(const std::string email,const std::string user_name,const std::string passwd,const std::string code) {

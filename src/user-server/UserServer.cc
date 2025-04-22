@@ -110,6 +110,7 @@ void UserServer::onLogin(const std::string& email,const std::string& passwd,cons
     LOG_INFO_SUCCESS(user_name + " log in to the server.");
   } else {
     SendResponseCode(PASSWORD_INCORRECT,conn->fd());
+    LOG_WARN("User " + email + " Login failed: password incorrect!");
   }
 }
 

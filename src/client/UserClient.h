@@ -15,9 +15,14 @@ public:
 
   void Connect();
 
-  void RequestRegister(const std::string email,const std::string & user_name,const std::string passwd);
-  void RequestLogin(const std::string & email,const std::string & passwd);
+  // void RequestRegister(const std::string email,const std::string & user_name,const std::string passwd);
   
+  int SendRegister1(const std::string & email);
+  int SendRegister2(const std::string email,const std::string & user_name,const std::string& passwd);
+  
+  int RequestLogin(const std::string & email,const std::string & passwd);
+  
+  bool isConnected() { return isConnected_; } ;
 private:
   void Send(std::string msg);
   int Recv();
@@ -29,12 +34,10 @@ private:
 
   std::string ConstructLogin(const std::string & email,const std::string & passwd);
 
-  void SendRegister1(const std::string & email);
-  
-  void SendRegister2(const std::string email,
-              const std::string & user_name,const std::string& passwd);
 
   void SendLogin(const std::string & email,const std::string & passwd);
+
+  bool isConnected_;
 
   ilib::net::Socket sock_;
 };
