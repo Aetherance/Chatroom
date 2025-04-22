@@ -1,4 +1,4 @@
-#include"Client.h"
+#include"client.h"
 
 using namespace ftxui;
  
@@ -133,8 +133,7 @@ void Client::RegisterController() {
     } else {
       return false;
     }
-  });;
-
+  });
 
   registerScreen_.Loop(renderer);
 }

@@ -1,7 +1,7 @@
-#include"UserClient.h"
+#include"user.h"
 #include"InetAddress.h"
 #include"jsoncpp/json/json.h"
-#include"ResponseCode.h"
+#include"responsecode.h"
 #include"logger.h"
 
 void UserClient::Connect() {

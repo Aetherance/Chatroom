@@ -9,5 +9,5 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # 添加子目录
 add_subdirectory(src/netlib)
-add_subdirectory(src/user-server)
+add_subdirectory(src/server)
 add_subdirectory(src/client)

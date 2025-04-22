@@ -1,10 +1,10 @@
-#include"Client.h"
+#include"client.h"
 #include<iostream>
 #include<regex>
 
 using namespace ftxui;
 
-
+/* 构造函数 : 初始化UI界面 */
 Client::Client() : loginScreen_(ScreenInteractive::Fullscreen()),
                    registerScreen_(ScreenInteractive::Fullscreen()),
                    mainScreen_(ScreenInteractive::Fullscreen())
@@ -14,9 +14,13 @@ Client::~Client() {
 
 }
 
+/* 运行客户端程序 */
 void Client::run() {
+  /* 先进行身份验证操作(包含登录和注册) */
   Verify();
 
+  /* 聊天室聊天功能 */
+  
 }
 
 void Client::Verify() {

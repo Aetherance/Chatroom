@@ -18,6 +18,8 @@ target_link_libraries(user-server
 
 # 包含头文件目录
 target_include_directories(user-server PRIVATE
-    ${CMAKE_SOURCE_DIR}/netlib/base
-    ${CMAKE_SOURCE_DIR}/netlib/net
+    ${CMAKE_SOURCE_DIR}/src/base
+    ${CMAKE_SOURCE_DIR}/src/server/include
+    ${CMAKE_SOURCE_DIR}/src/netlib/base
+    ${CMAKE_SOURCE_DIR}/src/netlib/net
 )

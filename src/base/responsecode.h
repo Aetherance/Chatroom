@@ -20,6 +20,6 @@
 #define REGISTER2 "REGISTER2"
 #define LOGIN     "LOGIN"
 
-void SendResponseCode(int code,int fd) {
+inline void SendResponseCode(int code,int fd) {
   ::send(fd,&code,sizeof(int),0);
 }
