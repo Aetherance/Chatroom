@@ -36,19 +36,6 @@ int UserClient::Recv() {
   return recvCode;
 }
 
-/* REGISTER PARSE */
-// void UserClient::RequestRegister(const std::string email,const std::string & user_name,const std::string passwd) {
-//   SendRegister1(email);
-//   int recv = -1;
-//   std::cout<<(recv = Recv())<<std::endl;
-//   if(recv == USER_OK) {
-//     SendRegister2(email,user_name,passwd);
-//     std::cout<<(recv = Recv())<<std::endl;
-//   } else if(recv == EMAIL_ALREADY_REGISTERED) {
-//     std::cout<<"email registered!\n";
-//   }
-// }
-
 int UserClient::RequestLogin(const std::string& email,const std::string & passwd) {
   SendLogin(email,passwd);
   int recv = -1;
@@ -76,10 +63,7 @@ std::string UserClient::ConstructRegister1(const std::string email) {
 }
 
 /* REGISTER 2 */
-int UserClient::SendRegister2(const std::string email,const std::string & user_name,const std::string & passwd) {
-  std::cout<<"请输入验证码: \n";
-  std::string code;
-  std::cin>>code;
+int UserClient::SendRegister2(const std::string email,const std::string & user_name,const std::string & passwd,const std::string &code) {
   std::string Register2Msg = ConstructRegister2(email,user_name,passwd,code);
   Send(Register2Msg);
   return Recv();

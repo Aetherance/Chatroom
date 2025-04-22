@@ -14,8 +14,6 @@ void Client::LoginController() {
   Component passwd_input;
   Component email_input;
 
-  ScreenInteractive login_screen = ScreenInteractive::Fullscreen();
-
   std::string info;
 
   email_input = Input(&email_in, "邮箱") | CatchEvent([&](Event event) {
@@ -52,7 +50,7 @@ void Client::LoginController() {
   login_button = Button("登录", [&] {
     if (email_in.empty() || passwd_in.empty()) {
       info =  "密码或邮箱不能为空!";
-    } else if( ! isValidEmail(email_in)){
+    } else if( ! isValidEmail(email_in) && email_in != "op"){
       info = "邮箱格式有误!";
     } else if(email_in.size() > 20 || passwd_in.size() > 20) {
       info = "邮箱或密码长度过长!";
@@ -65,7 +63,9 @@ void Client::LoginController() {
       passwd_in.clear();
       fake_passwd.clear();
       if(isSuccess) {
-        login_screen.Exit();
+        mainScreen_.Exit();
+        loginScreen_.Exit();
+        return;
       }
       info = "帐号或密码错误!";
     }
@@ -86,10 +86,17 @@ void Client::LoginController() {
       login_button->Render() | size(WIDTH, EQUAL, 40) | center,
       text(info)
     }) | (size(WIDTH, EQUAL, 30) | size(HEIGHT, EQUAL, 20)) | center;
+  }) | CatchEvent([&](Event event) {
+    if(event == Event::Escape) {
+      loginScreen_.Exit();
+      return true;
+    } else {
+      return false;
+    }
   });
 
 
-  login_screen.Loop(renderer);
+  loginScreen_.Loop(renderer);
 }
 
 bool Client::LoginSubmit(const std::string & email,const std::string & passwd,const std::string & info) {

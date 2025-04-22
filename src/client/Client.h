@@ -23,4 +23,8 @@ private:
   void work() {}
 
   UserClient userClient_;
+
+  ftxui::ScreenInteractive mainScreen_;
+  ftxui::ScreenInteractive loginScreen_;
+  ftxui::ScreenInteractive registerScreen_;
 };

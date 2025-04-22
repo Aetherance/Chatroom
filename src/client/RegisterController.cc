@@ -19,8 +19,6 @@ void Client::RegisterController() {
   Component code_input;
   Component send_code_button;
 
-  ScreenInteractive register_screen = ScreenInteractive::Fullscreen();
-
   std::string info;
 
   username_input = Input(&username_in, "昵称") | CatchEvent([&](Event event) {
@@ -73,14 +71,16 @@ void Client::RegisterController() {
       return false;
     });
 
+  std::string email_save,passwd_save,username_save;
   send_code_button = Button("发送验证码",[&]{
-    if (email_in.empty() || passwd_in.empty()) {
+    if (email_in.empty() || passwd_in.empty() || username_in.empty()) {
       info =  "密码或邮箱不能为空!";
     } else if( ! isValidEmail(email_in)){
       info = "邮箱格式有误!";
     } else if(email_in.size() > 20 || passwd_in.size() > 20) {
       info = "邮箱或密码长度过长!";
     } else {
+      email_save = email_in , passwd_save = passwd_in , username_save = username_in;
       int recv = userClient_.SendRegister1(email_in);
       if(recv == USER_OK) {
         info = "验证码已发送!";
@@ -93,11 +93,13 @@ void Client::RegisterController() {
   register_button = Button("完成注册", [&] {
     if( ! userClient_.isConnected()) {
       info = "注册服务器未连接!";
+    } else if(email_in.empty() || passwd_in.empty() || username_in.empty() || code_in.empty()) {
+      info = "有一项为空!";
     } else {
       info = "验证中";
-      int recv = userClient_.SendRegister2(email_in,username_in,passwd_in);
+      int recv = userClient_.SendRegister2(email_save,username_save,passwd_save,code_in);
       if(recv == USER_OK) {
-        register_screen.Exit();
+        registerScreen_.Exit();
       }
       info = "验证码错误!";
     }
@@ -124,17 +126,15 @@ void Client::RegisterController() {
       register_button->Render() | size(WIDTH, EQUAL, 40) | center,
       text(info)
     }) | (size(WIDTH, EQUAL, 30) | size(HEIGHT, EQUAL, 30)) | center;
-  });
+  }) | CatchEvent([&](Event event) {
+    if(event == Event::Escape) {
+      registerScreen_.Exit();
+      return true;
+    } else {
+      return false;
+    }
+  });;
 
 
-  register_screen.Loop(renderer);
+  registerScreen_.Loop(renderer);
 }
-
-// bool Client::LoginSubmit(const std::string & email,const std::string & passwd,const std::string & info) {
-//   int recv = -1;
-//   if(userClient_.RequestLogin(email,passwd) == USER_OK) {
-//     return true;
-//   } else {
-//     return false;
-//   }
-// }

@@ -15,10 +15,8 @@ public:
 
   void Connect();
 
-  // void RequestRegister(const std::string email,const std::string & user_name,const std::string passwd);
-  
   int SendRegister1(const std::string & email);
-  int SendRegister2(const std::string email,const std::string & user_name,const std::string& passwd);
+  int SendRegister2(const std::string email,const std::string & user_name,const std::string& passwd,const std::string & code);
   
   int RequestLogin(const std::string & email,const std::string & passwd);
   
