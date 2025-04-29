@@ -17,8 +17,8 @@ Client::~Client() {
 /* 运行客户端程序 */
 void Client::run() {
   /* 先进行身份验证操作(包含登录和注册) */
-  Verify();
-
+  // Verify();
+  Msg();
   /* 聊天室聊天功能 */
   
 }
@@ -65,4 +65,8 @@ bool isValidEmail(const std::string& email) {
       R"(^(?!.*[.]{2})[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$)"
   );
   return std::regex_match(email, pattern);
+}
+
+void Client::Msg() {
+  
 }

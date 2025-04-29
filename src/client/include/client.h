@@ -22,7 +22,7 @@ private:
   void RegisterController();
 
   /* ... */
-  void work() {}
+  void Msg();
 
   /* 登录注册客户端 */
   UserClient userClient_;
