@@ -1,6 +1,7 @@
 #include"client.h"
 #include<iostream>
 #include<regex>
+#include<termios.h>
 
 using namespace ftxui;
 
@@ -26,8 +27,11 @@ void Client::run() {
 void Client::Verify() {
   userClient_.Connect();
 
-  Component login_button = Button("登录",[&]{ LoginController(); });
+  /* 登录回调 */
+  Component login_button = Button("登录",[&]{ LoginController(); mainScreen_.Exit(); });
+  /* 注册回调 */
   Component register_button = Button("注册",[&]{ RegisterController(); });
+  /* 退出 */
   Component exit_button = Button("退出",[&]{ mainScreen_.Exit(); });
 
   Component container;
@@ -68,5 +72,7 @@ bool isValidEmail(const std::string& email) {
 }
 
 void Client::Msg() {
-  
+  msgClient_.connect();
+  msgClient_.sendMsgTo("op","hello world!");
+  msgClient_.recvMsgLoop();
 }

@@ -4,6 +4,7 @@
 #include <ftxui/component/screen_interactive.hpp>
 #include"user.h"
 #include"responsecode.h"
+#include"msg.h"
 
 class Client
 {
@@ -26,6 +27,9 @@ private:
 
   /* 登录注册客户端 */
   UserClient userClient_;
+
+  /* 聊天客户端 */
+  MsgClient msgClient_;
 
   /* UI界面 */
   ftxui::ScreenInteractive mainScreen_;

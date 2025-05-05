@@ -8,6 +8,7 @@ add_executable(client
     loginController.cc
     registerController.cc
     ${CMAKE_SOURCE_DIR}/src/protobuf/msg.pb.cc
+    msg.cc
 )
 
 find_package(ftxui REQUIRED COMPONENTS component dom)
@@ -21,7 +22,7 @@ target_link_libraries(client
     protobuf
 )
 
-target_include_directories(client PRIVATE
+target_include_directories(client PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/src/base
     ${CMAKE_SOURCE_DIR}/src/protobuf

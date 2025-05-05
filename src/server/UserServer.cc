@@ -3,11 +3,13 @@
 #include<cpp_redis/cpp_redis>
 #include"responsecode.h"
 #include<jsoncpp/json/json.h>
+#include<map>
 
 using namespace net;
 
 #define USER_SERVER_REACTOR_NUM_ 4
 
+extern std::unordered_map<std::string,std::string>AddrHashOnlineUser;
 
 UserServer::UserServer()
           : addr_(SERVER_PORT),
@@ -23,7 +25,7 @@ UserServer::UserServer()
 }
 
 void UserServer::onConnection(const net::TcpConnectionPtr & conn) {
-  
+
 }
 
 void UserServer::onMessage(const net::TcpConnectionPtr & conn,net::Buffer* buff,Timestamp time) {
@@ -31,20 +33,20 @@ void UserServer::onMessage(const net::TcpConnectionPtr & conn,net::Buffer* buff,
   LOG_INFO(logInfo);
   std::string Message(buff->peek(),buff->readableBytes());
   
+  LOG_CLIENT_INFO("sent\n" + Message, conn->fd());
   /* 处理消息 */
   parseMessage(Message,conn);
   
   /* 打印日志 */
   buff->retrieveAll();
-  LOG_CLIENT_INFO("sent\n" + Message, conn->fd());
 }
 
 /* 启动服务器 */
 void UserServer::run() {
-  LOG_INFO("The server is starting up...");
+  LOG_INFO("The User Server is starting up...");
   server_.start();
   
-  std::string success = "The server is running on " + addr_.toIpPort() + " now !";
+  std::string success = "The User Server is running on " + addr_.toIpPort() + " now !";
   LOG_INFO_SUCCESS(success);
   
   loop_.loop();
@@ -83,6 +85,10 @@ void UserServer::onRegister2(const std::string & userInfo,const std::string & em
   redis_.hset(RedisUserInfosHashEmail_,email,userInfo);
   redis_.sync_commit();
   LOG_INFO("A user registered! Info:\n" + userInfo);
+  
+  redis_.sadd(allUserset,{email});
+  redis_.sync_commit();
+
   SendResponseCode(USER_OK,conn->fd());
 }
 
@@ -108,6 +114,10 @@ void UserServer::onLogin(const std::string& email,const std::string& passwd,cons
     SendResponseCode(USER_OK,conn->fd());
     std::string user_name = userInfoVal["username"].asString();
     LOG_INFO_SUCCESS(user_name + " log in to the server.");
+    LOG_INFO_SUCCESS(email + " is on " + conn->peerAddress().toIpPort());
+    AddrHashOnlineUser[conn->peerAddress().toIpPort()] = email;
+    redis_.sadd(onlineUserSet,{email});
+    redis_.sync_commit();
   } else {
     SendResponseCode(PASSWORD_INCORRECT,conn->fd());
     LOG_WARN("User " + email + " Login failed: password incorrect!");

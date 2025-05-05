@@ -63,7 +63,6 @@ void Client::LoginController() {
       passwd_in.clear();
       fake_passwd.clear();
       if(isSuccess) {
-        mainScreen_.Exit();
         loginScreen_.Exit();
         return;
       }
@@ -102,6 +101,8 @@ void Client::LoginController() {
 bool Client::LoginSubmit(const std::string & email,const std::string & passwd,const std::string & info) {
   int recv = -1;
   if(userClient_.RequestLogin(email,passwd) == USER_OK) {
+    loginScreen_.Exit();
+    mainScreen_.Exit();
     return true;
   } else {
     return false;

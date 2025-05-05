@@ -14,7 +14,7 @@ public:
     InetAddress(const std::string &ip,unsigned int port);
     InetAddress(const sockaddr_in & addr);
 
-    // std::string toIp() const;
+    std::string toIp() const;
     // unsigned int toPort() const;
     std::string toIpPort() const;
 
@@ -23,6 +23,8 @@ public:
     }
 
     socklen_t getSockLen() const { return sizeof(addr_); };
+
+    bool operator==(const InetAddress & addr);
 private:
     sockaddr_in addr_;
 };
@@ -54,6 +56,16 @@ inline std::string InetAddress::toIpPort() const {
     return ip + ":" + port;
 }
 
+inline std::string InetAddress::toIp() const {
+    std::string ip;
+    ip.resize(1024);
+    inet_ntop(AF_INET,&addr_.sin_addr,ip.data(),1024);
+    return ip;
+}
+
+inline bool InetAddress::operator==(const InetAddress & addr) {
+    return this->addr_.sin_addr.s_addr == addr.addr_.sin_addr.s_addr && this->addr_.sin_port == addr.addr_.sin_port;
+}
 
 }
 }
