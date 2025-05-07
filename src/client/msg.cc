@@ -21,8 +21,9 @@ void MsgClient::connect() {
   ::connect(chatServerfd_,(sockaddr*)&chatServerAddr_.getSockAddr(),chatServerAddr_.getSockLen());
 }
 
-void MsgClient::updatePeer(const std::string &newPeer) {
-  msgPeer_ = newPeer;
+void MsgClient::updatePeer(const std::string &newPeerEmail,const std::string & newPeerUsername) {
+  msgPeerEmail_ = newPeerEmail;
+  msgPeerUsername_ = newPeerUsername;
 }
 
 void MsgClient::sendMsgTo(const std::string & who,const std::string & msgtext) {

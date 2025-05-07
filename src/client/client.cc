@@ -72,21 +72,21 @@ bool isValidEmail(const std::string& email) {
 
 void Client::Msg() {
   msgClient_.connect();
-  msgClient_.updatePeer("op");
+  FriendList();
+  // msgClient_.updatePeer("op");
 
-  std::thread sendThread([this]{
-    std::string email;
-    std::cin>>email;
-    msgClient_.setEmail(email);
-    while(true) {
-      std::string temp_cin;
-      std::cin>>temp_cin;
-      msgClient_.sendMsgPeer(temp_cin);
-  }});
+  // std::thread sendThread([this]{
+  //   std::string email;
+  //   std::cin>>email;
+  //   msgClient_.setEmail(email);
+  //   while(true) {
+  //     std::string temp_cin;
+  //     std::cin>>temp_cin;
+  //     msgClient_.sendMsgPeer(temp_cin);
+  // }});
 
   // MsgController();
-  std::thread recvLoopThread([this]{ msgClient_.recvMsgLoop(); });
-  // FriendList();
-  recvLoopThread.join();
-  sendThread.join();
+  // std::thread recvLoopThread([this]{ msgClient_.recvMsgLoop(); });
+  // recvLoopThread.join();
+  // sendThread.join();
 }

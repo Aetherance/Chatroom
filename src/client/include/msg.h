@@ -9,13 +9,17 @@ public:
   MsgClient();
   ~MsgClient();
   void connect();
-  inline void sendMsgPeer(const std::string & msg) { sendMsgTo(msgPeer_,msg); }
-  void updatePeer(const std::string &newPeer);
+  inline void sendMsgPeer(const std::string & msg) { sendMsgTo(msgPeerEmail_,msg); }
+  void updatePeer(const std::string &newPeerEmail,const std::string & newPeerUsername);
   void recvMsgLoop();
   void onMessage();
 
   void setEmail(const std::string & email) { email_ = email; }
-private:
+
+  std::string peerUsername() { return msgPeerUsername_; }
+  std::string peerEmail() { return msgPeerEmail_; }
+
+  private:
   void sendMsgTo(const std::string & who,const std::string & msg);
   void echoMsg(const std::string & sourceMsg,std::string & echoMsg);
 
@@ -25,7 +29,8 @@ private:
 
   /* 当前聊天对象信息 */
   /* 群号或邮箱 */
-  std::string msgPeer_;
+  std::string msgPeerEmail_;
+  std::string msgPeerUsername_;
   
   ilib::net::InetAddress chatServerAddr_;
   int chatServerfd_;

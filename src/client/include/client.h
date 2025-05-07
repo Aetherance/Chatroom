@@ -27,7 +27,7 @@ private:
   
   void FriendList();
 
-  // void MsgController();
+  void MsgController();
 
 
   /* 登录注册客户端 */
