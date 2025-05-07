@@ -97,7 +97,7 @@ void TcpConnection::send(const std::string & msg) {
     }
 }
 
-void TcpConnection::sendInLoop(const std::string & msg) {
+void TcpConnection::sendInLoop(const std::string msg) {
     loop_->assertInLoopThread();
     ssize_t nwrote = 0;
     if(!channel_->isWriting() && outputBuffer_.readableBytes() == 0) {
@@ -112,15 +112,18 @@ void TcpConnection::sendInLoop(const std::string & msg) {
             }
         } else {
             // 写入失败...
+            if(msg == "") {
+                return ;
+            }
             nwrote = 0;
             if(errno != EWOULDBLOCK) {
-                LOG_FATAL("sendInLoop: send failed!");
+                LOG_FATAL("sendInLoop: send failed!" + std::string(strerror(errno)));
             }
         }
     }
 
     assert(nwrote >= 0);
-
+    
     // 处理未发送数据...
     if(static_cast<size_t>(nwrote) < msg.size()) {
         outputBuffer_.append(msg.data() + nwrote,msg.size() - nwrote);

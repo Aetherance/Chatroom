@@ -9,6 +9,8 @@ add_executable(client
     registerController.cc
     ${CMAKE_SOURCE_DIR}/src/protobuf/msg.pb.cc
     msg.cc
+    friendlist.cc
+    msgController.cc
 )
 
 find_package(ftxui REQUIRED COMPONENTS component dom)

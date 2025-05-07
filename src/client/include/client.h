@@ -22,8 +22,13 @@ private:
   /* 注册控制器 */
   void RegisterController();
 
-  /* ... */
+  /* Msg */
   void Msg();
+  
+  void FriendList();
+
+  // void MsgController();
+
 
   /* 登录注册客户端 */
   UserClient userClient_;

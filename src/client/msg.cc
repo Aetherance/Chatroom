@@ -28,14 +28,20 @@ void MsgClient::updatePeer(const std::string &newPeer) {
 void MsgClient::sendMsgTo(const std::string & who,const std::string & msgtext) {
   Message msg;
   base::Timestamp now = base::Timestamp::now();
-  msg.set_from(username_);
+  msg.set_from(email_);
   msg.set_to(who);
   msg.set_text(msgtext);
   msg.set_timestamp(now.microSecondsSinceEpoch());
   std::string message = msg.SerializeAsString();
   
-  int LengthHead = htonl(message.size());
-  ::send(chatServerfd_,&LengthHead,sizeof(LengthHead),0);
+  constexpr uint32_t MAX_MSG_SIZE = 10 * 1024 * 1024;  // 10MB
+    if (message.size() > MAX_MSG_SIZE) {
+      return;
+  }
+
+  uint32_t msg_len = static_cast<uint32_t>(message.size());
+  uint32_t LengthHead = htonl(msg_len);
+  ::send(chatServerfd_, &LengthHead, sizeof(LengthHead), 0);
   ::send(chatServerfd_,message.data(),message.size(),0);
   std::cout<<msg.text()<<"\n";
 }
@@ -58,10 +64,18 @@ void MsgClient::onMessage() {
     if(recvBuff_.readableBytes() >= headLen + TCP_HEAD_LEN) {
       recvBuff_.retrieve(TCP_HEAD_LEN);
       std::string msg(recvBuff_.peek(),headLen);
-      std::cout<<msg<<"\n"; // 暂时使用cout
+      std::string temp_____;
+      echoMsg(msg,temp_____);
       recvBuff_.retrieve(headLen);
     } else {
       break;
     }
   }
+}
+
+void MsgClient::echoMsg(const std::string & sourceMsg,std::string & echoMsg) {
+  Message proMsg;
+  proMsg.ParseFromString(sourceMsg);
+  echoMsg = proMsg.text();
+  std::cout<<echoMsg<<"\n";
 }

@@ -51,7 +51,7 @@ private:
     void handleClose();
     void handleWrite();
     void handleError();
-    void sendInLoop(const std::string & msg);
+    void sendInLoop(const std::string msg);
     void shutdownInLoop();
 
     EventLoop * loop_;

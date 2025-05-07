@@ -27,7 +27,12 @@ private:
 
   void sendMsgToUser(const std::string & Msg,const net::TcpConnectionPtr & conn);
 
+  bool isUserOnline(const std::string & user_email);
+
+  void onOfflineMsg(const std::string & who,const std::string & msg);
+
   /* redis userset 哈希表的名称 */
   inline static const std::string allUserset = "allUserSet";
   inline static const std::string onlineUserSet = "onlineUserSet";
+  inline static const std::string offlineUserMsgSet = "offlineUserMsgSet";
 };

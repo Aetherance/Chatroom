@@ -11,7 +11,7 @@ std::unordered_map<std::string,std::string> AddrHashOnlineUser;
 std::unordered_map<std::string,net::TcpConnectionPtr> userHashConn;
 
 ChatServer::ChatServer() : addr_(7070),
-                         server_(&loop_,addr_)
+                           server_(&loop_,addr_)
 {
   server_.setThreadNum(CHAT_SERVER_REACTOR_NUM_);
   server_.setConnectionCallback([this](const TcpConnectionPtr & conn){ onConnection(conn); });
@@ -32,13 +32,23 @@ void ChatServer::run() {
 
 void ChatServer::onMessage(const net::TcpConnectionPtr & conn,net::Buffer* buff,Timestamp time) {
   // TCP粘包处理
+  constexpr uint32_t MAX_MSG_SIZE = 10 * 1024 * 1024;  // 10MB
+
   while(buff->readableBytes() >= TCP_HEAD_LEN) {
     const char * data = buff->peek();
-    int headLen = ntohl( *(int *)data );
-    if(buff->readableBytes() >= headLen + TCP_HEAD_LEN) {
+    uint32_t headLen;
+    memcpy(&headLen, data, sizeof(headLen));
+    headLen = ntohl(headLen);
+
+  if(buff->readableBytes() >= headLen + TCP_HEAD_LEN) {
       buff->retrieve(TCP_HEAD_LEN);
+      LOG_INFO(std::to_string(headLen) + " bytes was forwarded by the server!");
+      if (headLen <= 0 || headLen > MAX_MSG_SIZE) {
+        LOG_ERROR("Invalid headLen: " + std::to_string(headLen));
+        conn->shutdown();
+        return;
+      }
       std::string msg(buff->peek(),headLen);
-      LOG_INFO(headLen + " bytes was forwarded by the server!");
       parseMessage(msg,conn);
       buff->retrieve(headLen);
     } else {
@@ -46,38 +56,6 @@ void ChatServer::onMessage(const net::TcpConnectionPtr & conn,net::Buffer* buff,
     }
   }
 }
-
-void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnectionPtr & conn) {
-  Message msg;
-  LOG_INFO("A message is about to send!");
-  if(!msg.ParseFromString(msg_str)) {
-    perror("Protobuf: ChatServer");
-    return ;
-  }
-  
-  bool isExists = false;
-  redis_.sismember(allUserset,msg.to(),[&isExists](cpp_redis::reply & reply){ isExists = reply.as_integer(); });
-  redis_.sync_commit();
-  
-  if(isExists == false) {
-    LOG_ERROR("parseMessage: User Not Found!");
-    return ;
-  }
-
-  bool isOnline = false;
-  redis_.sismember(onlineUserSet,msg.to(),[&isOnline](cpp_redis::reply & reply){ isOnline = reply.as_integer(); });
-  redis_.sync_commit();
-
-  if(isOnline == false) {
-    LOG_ERROR("parseMessage: User is offline now!");
-    return ;
-  }
-
-  LOG_INFO(msg.from() + " says \n" + msg.text() + "\n to " + msg.to());
-
-  assert(userHashConn[msg.to()]);
-  sendMsgToUser(msg_str,userHashConn[msg.to()]);
-};
 
 void ChatServer::onConnection(const net::TcpConnectionPtr & conn) {
   /* DEBUG */
@@ -94,16 +72,4 @@ void ChatServer::onConnection(const net::TcpConnectionPtr & conn) {
     LOG_INFO("User " + AddrHashOnlineUser[conn->peerAddress().toIpPort()] + " on " + conn->peerAddress().toIpPort() + " left!");
     AddrHashOnlineUser[conn->peerAddress().toIpPort()] = "";
   }
-}
-
-void ChatServer::sendMsgToUser(const std::string & Msg,const net::TcpConnectionPtr & conn) {
-  Buffer sendBuff;
-
-  int HeadLen = htonl(Msg.size());
-  
-  sendBuff.append(&HeadLen,sizeof(HeadLen));
-  sendBuff.append(Msg);
-
-  assert(conn);
-  conn->send(sendBuff.retrieveAsString());
 }

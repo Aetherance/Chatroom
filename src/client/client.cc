@@ -26,7 +26,6 @@ void Client::run() {
 
 void Client::Verify() {
   userClient_.Connect();
-
   /* 登录回调 */
   Component login_button = Button("登录",[&]{ LoginController(); mainScreen_.Exit(); });
   /* 注册回调 */
@@ -73,6 +72,21 @@ bool isValidEmail(const std::string& email) {
 
 void Client::Msg() {
   msgClient_.connect();
-  msgClient_.sendMsgTo("op","hello world!");
-  msgClient_.recvMsgLoop();
+  msgClient_.updatePeer("op");
+
+  std::thread sendThread([this]{
+    std::string email;
+    std::cin>>email;
+    msgClient_.setEmail(email);
+    while(true) {
+      std::string temp_cin;
+      std::cin>>temp_cin;
+      msgClient_.sendMsgPeer(temp_cin);
+  }});
+
+  // MsgController();
+  std::thread recvLoopThread([this]{ msgClient_.recvMsgLoop(); });
+  // FriendList();
+  recvLoopThread.join();
+  sendThread.join();
 }

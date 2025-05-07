@@ -4,9 +4,10 @@ project(Chatroom)
 # 添加可执行文件
 add_executable(server
     main.cc
-    UserServer.cc
-    VerifiCode.cc
-    ChatServer.cc
+    chat/chatServer.cc
+    chat/msgHandler.cc
+    user/userServer.cc
+    user/verifiCode.cc
     ${CMAKE_SOURCE_DIR}/src/protobuf/msg.pb.cc
 )
 
