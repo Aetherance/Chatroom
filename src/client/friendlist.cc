@@ -24,12 +24,16 @@ void Client::FriendList() {
     
   });
 
+  Component delete_button = Button("删除好友", [&] {
+    
+  });
+
   // 好友列表容器
   Component friends_container = Container::Vertical({});
   
   // 主界面组件
   auto main_component = Container::Vertical({
-    Container::Horizontal({input, add_button , verify_button}),
+    Container::Horizontal({input, add_button , verify_button , delete_button}),
     friends_container
   });
 
@@ -52,11 +56,14 @@ void Client::FriendList() {
     }
     
     return vbox({
+      text("Chatroom") | bold | center,
       hbox({
         input->Render() | flex,
         add_button->Render(),
-        verify_button->Render()
+        verify_button->Render(),
+        delete_button->Render()
       }) | border,
+      text("好友列表"),
       friends_container->Render() | vscroll_indicator | frame | flex,
     }) | border;
   }) | CatchEvent([&](Event event) -> bool { 

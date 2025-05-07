@@ -40,21 +40,38 @@ void Client::MsgController() {
       chat_lines.push_back(text(msg));
     }
 
-    return vbox({
-      text(msgClient_.peerUsername()) | bold | center,
-      text(msgClient_.peerEmail()) | center,
-      separator(),
-      vbox(chat_lines) 
-        | vscroll_indicator 
-        | frame 
-        | yflex 
-        | flex_shrink 
-        | border,
-      separator(),
-      hbox({
-        input->Render() | flex,
-        send_btn->Render()
-      }) | border
+    // 基本边栏框架
+    auto sidebar = vbox({
+        text("Sidebar") | bold | center,
+        separator(),
+        vbox({text("Content Area") | center}) 
+          | vscroll_indicator 
+          | frame 
+          | flex
+      }) 
+      | border 
+      | size(WIDTH, EQUAL, 16); // 固定宽度25字符
+
+    return hbox({
+      // 主聊天区域
+      vbox({
+        text("Chat with ") | bold | center,
+        separator(),
+        vbox(chat_lines) 
+          | vscroll_indicator 
+          | frame 
+          | yflex 
+          | flex_shrink 
+          | border,
+        separator(),
+        hbox({
+          input->Render() | flex,
+          send_btn->Render()
+        }) | border
+      }) | flex,
+      
+      // 右侧边栏
+      sidebar
     }) | border | flex;
   }) | CatchEvent([&](Event event) -> bool {
     if(event == Event::Escape) {
