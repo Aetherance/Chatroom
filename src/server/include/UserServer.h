@@ -39,6 +39,30 @@ private:
   /* 登录功能 */
   void onLogin(const std::string& email,const std::string& passwd,const net::TcpConnectionPtr & conn);
   
+
+  /* 好友及群聊服务 */
+
+  void onAddFriend();
+
+  void onDeleteFriend();
+
+  void onVerifyFriend();
+
+  void onBlackoutFriend();
+
+  void onBlockFriend();
+
+  void onAddGroup();
+
+  void onQuitGroup();
+
+  void onCreateGroup();
+
+  void onRmGroupMember();
+
+  void onBreakGroup();
+
+
   /* redis email-code 哈希表的名称 */
   inline static const std::string RedisEmailCodeHash_ = "email_code";
   /* redis 用户信息哈希表的名称 */
@@ -47,4 +71,5 @@ private:
   /* redis userset 哈希表的名称 */
   inline static const std::string allUserset = "allUserset";
   inline static const std::string onlineUserSet = "onlineUserSet";
+
 };

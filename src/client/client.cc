@@ -21,7 +21,6 @@ void Client::run() {
   // Verify();
   Msg();
   /* 聊天室聊天功能 */
-  
 }
 
 void Client::Verify() {

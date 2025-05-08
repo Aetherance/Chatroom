@@ -25,10 +25,17 @@ private:
   /* Msg */
   void Msg();
   
-  void FriendList();
+ /* ftxui controllers */
 
+  void FriendList();
+  
   void MsgController();
 
+  void VerifyFriend();
+
+  void DeleteFriend();
+
+  void GroupList();
 
   /* 登录注册客户端 */
   UserClient userClient_;

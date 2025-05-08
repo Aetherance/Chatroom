@@ -5,12 +5,15 @@ add_executable(client
     user.cc
     main.cc
     client.cc
-    loginController.cc
-    registerController.cc
-    ${CMAKE_SOURCE_DIR}/src/protobuf/msg.pb.cc
     msg.cc
-    friendlist.cc
-    msgController.cc
+    controllers/loginController.cc
+    controllers/registerController.cc
+    controllers/friendlist.cc
+    controllers/msgController.cc
+    controllers/friendVerify.cc
+    controllers/deleteFriend.cc
+    controllers/grouplist.cc
+    ${CMAKE_SOURCE_DIR}/src/protobuf/msg.pb.cc
 )
 
 find_package(ftxui REQUIRED COMPONENTS component dom)

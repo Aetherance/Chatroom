@@ -6,6 +6,16 @@
 #define SERVER_PORT 8080
 
 #include"Socket.h"
+#include<vector>
+
+struct Friend;
+struct Group;
+
+/* 好友列表 */
+extern std::vector<Friend>FriendList;
+
+/* 群聊列表 */
+extern std::vector<Group> GroupList;
 
 class UserClient
 {
@@ -20,7 +30,34 @@ public:
   
   int RequestLogin(const std::string & email,const std::string & passwd);
   
-  bool isConnected() { return isConnected_; } ;
+  bool isConnected() { return isConnected_; }
+
+  /* 功能函数实现 */
+
+  void SerializeSend(const std::string & action,const std::string & Requestor,const std::string & obj,const std::vector<std::string>& args = {});
+
+  void addFriend();
+
+  void deleteFriend();
+
+  void verifyFriend();
+
+  void blackoutFriend();
+
+  void blockFriend();
+
+  void addGroup();
+
+  void quitGroup();
+
+  void createGroup();
+
+  /* 群管理 */
+
+  void rmGroupMember();
+
+  void breakGroup();
+
 private:
   void Send(std::string msg);
   int Recv();

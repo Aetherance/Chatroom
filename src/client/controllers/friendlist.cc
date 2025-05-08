@@ -3,7 +3,7 @@
 using namespace ftxui;
 
 void Client::FriendList() {
-  std::vector<std::string> friends = {"op"};
+  std::vector<std::string> friends = {"op","op2"};
   std::string new_friend;
   bool in_chat = false;
 
@@ -21,20 +21,24 @@ void Client::FriendList() {
   });
 
   Component verify_button = Button("验证信息", [&] {
-    
+    VerifyFriend();
   });
 
   Component delete_button = Button("删除好友", [&] {
-    
+    DeleteFriend();
+  });
+
+  Component group_button = Button("群聊", [&] {
+    GroupList();
   });
 
   // 好友列表容器
   Component friends_container = Container::Vertical({});
-  
+
   // 主界面组件
   auto main_component = Container::Vertical({
-    Container::Horizontal({input, add_button , verify_button , delete_button}),
-    friends_container
+    Container::Horizontal({input, add_button , verify_button , delete_button , group_button}),
+    friends_container,
   });
 
   // 渲染逻辑
@@ -54,17 +58,20 @@ void Client::FriendList() {
       });
       friends_container->Add(btn);
     }
-    
+
     return vbox({
       text("Chatroom") | bold | center,
       hbox({
         input->Render() | flex,
         add_button->Render(),
         verify_button->Render(),
-        delete_button->Render()
+        delete_button->Render(),
+        group_button->Render()
       }) | border,
-      text("好友列表"),
-      friends_container->Render() | vscroll_indicator | frame | flex,
+      vbox({
+        text("好友列表"),
+        friends_container->Render() | vscroll_indicator | frame,
+      }) | flex
     }) | border;
   }) | CatchEvent([&](Event event) -> bool { 
     if(event == Event::Escape && in_chat) {

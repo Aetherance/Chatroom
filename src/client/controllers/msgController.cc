@@ -10,7 +10,7 @@ void Client::MsgController() {
   // 状态变量
   std::vector<std::string> messages;
   int scroll_offset = 0;       // 当前滚动位置
-  int visible_lines = Terminal::Size().dimy - 12;
+  int visible_lines = Terminal::Size().dimy - 13;
   std::string input_content;
 
 
@@ -18,6 +18,10 @@ void Client::MsgController() {
   auto input_option = InputOption();
   input_option.on_enter = [&] {
     if (!input_content.empty()) {
+      if(input_content == "\n") {
+        input_content.clear();
+        return;
+      }
       messages.push_back("You: " + input_content);
       input_content.clear();
       // 新消息自动滚动到底部
@@ -126,7 +130,7 @@ void Client::MsgController() {
 
   // 初始化测试消息
   for(int i = 0; i < 100; i++) {
-    messages.push_back("msg test" + std::to_string(i + 1));
+    messages.push_back("Server: msg test" + std::to_string(i + 1));
   }
   // 初始位置在底部
   scroll_offset = std::max(0, static_cast<int>(messages.size()) - visible_lines);
