@@ -9,8 +9,6 @@ using namespace net;
 
 #define USER_SERVER_REACTOR_NUM_ 4
 
-extern std::unordered_map<std::string,std::string>AddrHashOnlineUser;
-
 UserServer::UserServer()
           : addr_(SERVER_PORT),
             server_(&loop_,addr_)
@@ -115,7 +113,6 @@ void UserServer::onLogin(const std::string& email,const std::string& passwd,cons
     std::string user_name = userInfoVal["username"].asString();
     LOG_INFO_SUCCESS(user_name + " log in to the server.");
     LOG_INFO_SUCCESS(email + " is on " + conn->peerAddress().toIpPort());
-    AddrHashOnlineUser[conn->peerAddress().toIpPort()] = email;
     redis_.sadd(onlineUserSet,{email});
     redis_.sync_commit();
   } else {

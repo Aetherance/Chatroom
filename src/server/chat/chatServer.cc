@@ -7,7 +7,6 @@ using namespace net;
 #define CHAT_SERVER_REACTOR_NUM_ 16
 #define TCP_HEAD_LEN sizeof(int)
 
-std::unordered_map<std::string,std::string> AddrHashOnlineUser;
 std::unordered_map<std::string,net::TcpConnectionPtr> userHashConn;
 
 ChatServer::ChatServer() : addr_(7070),
@@ -48,8 +47,11 @@ void ChatServer::onMessage(const net::TcpConnectionPtr & conn,net::Buffer* buff,
         conn->shutdown();
         return;
       }
+      
       std::string msg(buff->peek(),headLen);
+
       parseMessage(msg,conn);
+
       buff->retrieve(headLen);
     } else {
       break;
@@ -58,18 +60,11 @@ void ChatServer::onMessage(const net::TcpConnectionPtr & conn,net::Buffer* buff,
 }
 
 void ChatServer::onConnection(const net::TcpConnectionPtr & conn) {
-  /* DEBUG */
-  AddrHashOnlineUser[conn->peerAddress().toIpPort()] = "op";
-  /* DEBUG */
-  
   if( conn->connected()) {
     assert(conn);
-    LOG_INFO(AddrHashOnlineUser[conn->peerAddress().toIpPort()]);
-    userHashConn[AddrHashOnlineUser[conn->peerAddress().toIpPort()]] = conn;
   } else if( !conn->connected()) {
-    // redis_.srem(onlineUserSet,{AddrHashOnlineUser[conn->peerAddress().toIpPort()]});
-    // redis_.sync_commit();
-    LOG_INFO("User " + AddrHashOnlineUser[conn->peerAddress().toIpPort()] + " on " + conn->peerAddress().toIpPort() + " left!");
-    AddrHashOnlineUser[conn->peerAddress().toIpPort()] = "";
+    redis_.srem(onlineUserSet,{conn->user_email()});
+    redis_.sync_commit();
+    LOG_INFO("User " + conn->user_email() + " on " + conn->peerAddress().toIpPort() + " left!");
   }
 }

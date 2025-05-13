@@ -3,9 +3,18 @@
 #include<thread>
 
 int main() {
-  // UserServer userServer;
-  ChatServer chatServer;
-  chatServer.run();
+  std::thread user([&]{
+    UserServer userServer;
+    userServer.run();
+  });
+
+  std::thread chat([&]{
+    ChatServer chatServer;
+    chatServer.run();
+  });
+
+  user.join();
+  chat.join();
   
   return 0;
 }

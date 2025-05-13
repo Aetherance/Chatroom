@@ -6,6 +6,7 @@ add_executable(client
     main.cc
     client.cc
     msg.cc
+    func.cc
     controllers/loginController.cc
     controllers/registerController.cc
     controllers/friendlist.cc

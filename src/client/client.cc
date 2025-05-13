@@ -70,22 +70,26 @@ bool isValidEmail(const std::string& email) {
 }
 
 void Client::Msg() {
-  msgClient_.connect();
-  FriendList();
-  // msgClient_.updatePeer("op");
+  // FriendList();
+  MsgClient client;
+  
+  std::string email;
+  std::cin>>email;
+  client.setEmail(email);
 
-  // std::thread sendThread([this]{
-  //   std::string email;
-  //   std::cin>>email;
-  //   msgClient_.setEmail(email);
-  //   while(true) {
-  //     std::string temp_cin;
-  //     std::cin>>temp_cin;
-  //     msgClient_.sendMsgPeer(temp_cin);
-  // }});
+  client.connect();
+  
+  client.updatePeer("2085163736@qq.com","op");
 
-  // MsgController();
-  // std::thread recvLoopThread([this]{ msgClient_.recvMsgLoop(); });
-  // recvLoopThread.join();
-  // sendThread.join();
+  std::thread a([&]{
+    while(true) {
+      std::string input;
+      std::cin>>input;
+      client.sendMsgPeer(input);
+    }
+  });
+
+  client.recvMsgLoop();
+
+  a.join();
 }

@@ -22,10 +22,12 @@ namespace _pbi = _pb::internal;
 
 PROTOBUF_CONSTEXPR Message::Message(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.from_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+    /*decltype(_impl_.args_)*/{}
+  , /*decltype(_impl_.from_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.to_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.text_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.timestamp_)*/int64_t{0}
+  , /*decltype(_impl_.isservice_)*/false
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct MessageDefaultTypeInternal {
   PROTOBUF_CONSTEXPR MessageDefaultTypeInternal()
@@ -51,6 +53,8 @@ const uint32_t TableStruct_msg_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(prot
   PROTOBUF_FIELD_OFFSET(::Message, _impl_.to_),
   PROTOBUF_FIELD_OFFSET(::Message, _impl_.text_),
   PROTOBUF_FIELD_OFFSET(::Message, _impl_.timestamp_),
+  PROTOBUF_FIELD_OFFSET(::Message, _impl_.args_),
+  PROTOBUF_FIELD_OFFSET(::Message, _impl_.isservice_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::Message)},
@@ -61,13 +65,14 @@ static const ::_pb::Message* const file_default_instances[] = {
 };
 
 const char descriptor_table_protodef_msg_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\tmsg.proto\"D\n\007Message\022\014\n\004from\030\001 \001(\t\022\n\n\002"
+  "\n\tmsg.proto\"e\n\007Message\022\014\n\004from\030\001 \001(\t\022\n\n\002"
   "to\030\002 \001(\t\022\014\n\004text\030\003 \001(\t\022\021\n\ttimestamp\030\004 \001("
-  "\003b\006proto3"
+  "\003\022\014\n\004args\030\005 \003(\t\022\021\n\tisService\030\006 \001(\010b\006prot"
+  "o3"
   ;
 static ::_pbi::once_flag descriptor_table_msg_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_msg_2eproto = {
-    false, false, 89, descriptor_table_protodef_msg_2eproto,
+    false, false, 122, descriptor_table_protodef_msg_2eproto,
     "msg.proto",
     &descriptor_table_msg_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_msg_2eproto::offsets,
@@ -97,10 +102,12 @@ Message::Message(const Message& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   Message* const _this = this; (void)_this;
   new (&_impl_) Impl_{
-      decltype(_impl_.from_){}
+      decltype(_impl_.args_){from._impl_.args_}
+    , decltype(_impl_.from_){}
     , decltype(_impl_.to_){}
     , decltype(_impl_.text_){}
     , decltype(_impl_.timestamp_){}
+    , decltype(_impl_.isservice_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -128,7 +135,9 @@ Message::Message(const Message& from)
     _this->_impl_.text_.Set(from._internal_text(), 
       _this->GetArenaForAllocation());
   }
-  _this->_impl_.timestamp_ = from._impl_.timestamp_;
+  ::memcpy(&_impl_.timestamp_, &from._impl_.timestamp_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.isservice_) -
+    reinterpret_cast<char*>(&_impl_.timestamp_)) + sizeof(_impl_.isservice_));
   // @@protoc_insertion_point(copy_constructor:Message)
 }
 
@@ -137,10 +146,12 @@ inline void Message::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.from_){}
+      decltype(_impl_.args_){arena}
+    , decltype(_impl_.from_){}
     , decltype(_impl_.to_){}
     , decltype(_impl_.text_){}
     , decltype(_impl_.timestamp_){int64_t{0}}
+    , decltype(_impl_.isservice_){false}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.from_.InitDefault();
@@ -168,6 +179,7 @@ Message::~Message() {
 
 inline void Message::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.args_.~RepeatedPtrField();
   _impl_.from_.Destroy();
   _impl_.to_.Destroy();
   _impl_.text_.Destroy();
@@ -183,10 +195,13 @@ void Message::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  _impl_.args_.Clear();
   _impl_.from_.ClearToEmpty();
   _impl_.to_.ClearToEmpty();
   _impl_.text_.ClearToEmpty();
-  _impl_.timestamp_ = int64_t{0};
+  ::memset(&_impl_.timestamp_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.isservice_) -
+      reinterpret_cast<char*>(&_impl_.timestamp_)) + sizeof(_impl_.isservice_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -230,6 +245,29 @@ const char* Message::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
           _impl_.timestamp_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated string args = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            auto str = _internal_add_args();
+            ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+            CHK_(ptr);
+            CHK_(::_pbi::VerifyUTF8(str, "Message.args"));
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      // bool isService = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 48)) {
+          _impl_.isservice_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -299,6 +337,22 @@ uint8_t* Message::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteInt64ToArray(4, this->_internal_timestamp(), target);
   }
 
+  // repeated string args = 5;
+  for (int i = 0, n = this->_internal_args_size(); i < n; i++) {
+    const auto& s = this->_internal_args(i);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      s.data(), static_cast<int>(s.length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "Message.args");
+    target = stream->WriteString(5, s, target);
+  }
+
+  // bool isService = 6;
+  if (this->_internal_isservice() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteBoolToArray(6, this->_internal_isservice(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -314,6 +368,14 @@ size_t Message::ByteSizeLong() const {
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
+
+  // repeated string args = 5;
+  total_size += 1 *
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.args_.size());
+  for (int i = 0, n = _impl_.args_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      _impl_.args_.Get(i));
+  }
 
   // string from = 1;
   if (!this->_internal_from().empty()) {
@@ -341,6 +403,11 @@ size_t Message::ByteSizeLong() const {
     total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(this->_internal_timestamp());
   }
 
+  // bool isService = 6;
+  if (this->_internal_isservice() != 0) {
+    total_size += 1 + 1;
+  }
+
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -359,6 +426,7 @@ void Message::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOB
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
+  _this->_impl_.args_.MergeFrom(from._impl_.args_);
   if (!from._internal_from().empty()) {
     _this->_internal_set_from(from._internal_from());
   }
@@ -370,6 +438,9 @@ void Message::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOB
   }
   if (from._internal_timestamp() != 0) {
     _this->_internal_set_timestamp(from._internal_timestamp());
+  }
+  if (from._internal_isservice() != 0) {
+    _this->_internal_set_isservice(from._internal_isservice());
   }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -390,6 +461,7 @@ void Message::InternalSwap(Message* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _impl_.args_.InternalSwap(&other->_impl_.args_);
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &_impl_.from_, lhs_arena,
       &other->_impl_.from_, rhs_arena
@@ -402,7 +474,12 @@ void Message::InternalSwap(Message* other) {
       &_impl_.text_, lhs_arena,
       &other->_impl_.text_, rhs_arena
   );
-  swap(_impl_.timestamp_, other->_impl_.timestamp_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(Message, _impl_.isservice_)
+      + sizeof(Message::_impl_.isservice_)
+      - PROTOBUF_FIELD_OFFSET(Message, _impl_.timestamp_)>(
+          reinterpret_cast<char*>(&_impl_.timestamp_),
+          reinterpret_cast<char*>(&other->_impl_.timestamp_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Message::GetMetadata() const {

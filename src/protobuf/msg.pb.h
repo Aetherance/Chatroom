@@ -174,11 +174,37 @@ class Message final :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kArgsFieldNumber = 5,
     kFromFieldNumber = 1,
     kToFieldNumber = 2,
     kTextFieldNumber = 3,
     kTimestampFieldNumber = 4,
+    kIsServiceFieldNumber = 6,
   };
+  // repeated string args = 5;
+  int args_size() const;
+  private:
+  int _internal_args_size() const;
+  public:
+  void clear_args();
+  const std::string& args(int index) const;
+  std::string* mutable_args(int index);
+  void set_args(int index, const std::string& value);
+  void set_args(int index, std::string&& value);
+  void set_args(int index, const char* value);
+  void set_args(int index, const char* value, size_t size);
+  std::string* add_args();
+  void add_args(const std::string& value);
+  void add_args(std::string&& value);
+  void add_args(const char* value);
+  void add_args(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& args() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_args();
+  private:
+  const std::string& _internal_args(int index) const;
+  std::string* _internal_add_args();
+  public:
+
   // string from = 1;
   void clear_from();
   const std::string& from() const;
@@ -230,6 +256,15 @@ class Message final :
   void _internal_set_timestamp(int64_t value);
   public:
 
+  // bool isService = 6;
+  void clear_isservice();
+  bool isservice() const;
+  void set_isservice(bool value);
+  private:
+  bool _internal_isservice() const;
+  void _internal_set_isservice(bool value);
+  public:
+
   // @@protoc_insertion_point(class_scope:Message)
  private:
   class _Internal;
@@ -238,10 +273,12 @@ class Message final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> args_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr from_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr to_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr text_;
     int64_t timestamp_;
+    bool isservice_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -426,6 +463,101 @@ inline void Message::_internal_set_timestamp(int64_t value) {
 inline void Message::set_timestamp(int64_t value) {
   _internal_set_timestamp(value);
   // @@protoc_insertion_point(field_set:Message.timestamp)
+}
+
+// repeated string args = 5;
+inline int Message::_internal_args_size() const {
+  return _impl_.args_.size();
+}
+inline int Message::args_size() const {
+  return _internal_args_size();
+}
+inline void Message::clear_args() {
+  _impl_.args_.Clear();
+}
+inline std::string* Message::add_args() {
+  std::string* _s = _internal_add_args();
+  // @@protoc_insertion_point(field_add_mutable:Message.args)
+  return _s;
+}
+inline const std::string& Message::_internal_args(int index) const {
+  return _impl_.args_.Get(index);
+}
+inline const std::string& Message::args(int index) const {
+  // @@protoc_insertion_point(field_get:Message.args)
+  return _internal_args(index);
+}
+inline std::string* Message::mutable_args(int index) {
+  // @@protoc_insertion_point(field_mutable:Message.args)
+  return _impl_.args_.Mutable(index);
+}
+inline void Message::set_args(int index, const std::string& value) {
+  _impl_.args_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set:Message.args)
+}
+inline void Message::set_args(int index, std::string&& value) {
+  _impl_.args_.Mutable(index)->assign(std::move(value));
+  // @@protoc_insertion_point(field_set:Message.args)
+}
+inline void Message::set_args(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.args_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:Message.args)
+}
+inline void Message::set_args(int index, const char* value, size_t size) {
+  _impl_.args_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:Message.args)
+}
+inline std::string* Message::_internal_add_args() {
+  return _impl_.args_.Add();
+}
+inline void Message::add_args(const std::string& value) {
+  _impl_.args_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:Message.args)
+}
+inline void Message::add_args(std::string&& value) {
+  _impl_.args_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:Message.args)
+}
+inline void Message::add_args(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.args_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:Message.args)
+}
+inline void Message::add_args(const char* value, size_t size) {
+  _impl_.args_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:Message.args)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+Message::args() const {
+  // @@protoc_insertion_point(field_list:Message.args)
+  return _impl_.args_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+Message::mutable_args() {
+  // @@protoc_insertion_point(field_mutable_list:Message.args)
+  return &_impl_.args_;
+}
+
+// bool isService = 6;
+inline void Message::clear_isservice() {
+  _impl_.isservice_ = false;
+}
+inline bool Message::_internal_isservice() const {
+  return _impl_.isservice_;
+}
+inline bool Message::isservice() const {
+  // @@protoc_insertion_point(field_get:Message.isService)
+  return _internal_isservice();
+}
+inline void Message::_internal_set_isservice(bool value) {
+  
+  _impl_.isservice_ = value;
+}
+inline void Message::set_isservice(bool value) {
+  _internal_set_isservice(value);
+  // @@protoc_insertion_point(field_set:Message.isService)
 }
 
 #ifdef __GNUC__

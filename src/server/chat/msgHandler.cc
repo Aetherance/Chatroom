@@ -14,7 +14,14 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
     perror("Protobuf: ChatServer");
     return ;
   }
-  
+
+  if(msg.from() == msg.to() && msg.from() == "SET_CONN_USER") {
+    conn->set_user_email(msg.text());
+    userHashConn[msg.text()] = conn;
+    redis_.sadd(onlineUserSet,{msg.text()});
+    return ;
+  }
+
   bool isExists = false;
   redis_.sismember(allUserset,msg.to(),[&isExists](cpp_redis::reply & reply){ isExists = reply.as_integer(); });
   redis_.sync_commit();
@@ -24,24 +31,24 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
     return ;
   }
 
-  bool isOnline = false;
-  redis_.sismember(onlineUserSet,msg.to(),[&isOnline](cpp_redis::reply & reply){ isOnline = reply.as_integer(); });
-  redis_.sync_commit();
 
-  if(isOnline == false) {
-    LOG_ERROR("parseMessage: User is offline now!");
-    return ;
-  }
+  if(msg.isservice()) {
+    std::cout<<"action: "<<msg.text()<<"\n";
+    std::cout<<"requestor: "<<msg.from()<<"\n";
+    std::cout<<"obj: "<<msg.to()<<"\n";    
 
-  LOG_INFO(COLOR_YELLOW + msg.from() + COLOR_RESET + " says" + " to " + COLOR_YELLOW + msg.to() + COLOR_RESET + " : " + msg.text());
-
-  assert(userHashConn[msg.to()]);
-
-  if(isUserOnline(msg.to())) {
-    sendMsgToUser(msg_str,userHashConn[msg.to()]);
   } else {
-    /* 用户不在线 逻辑 */
-    onOfflineMsg(msg.to(),msg_str);
+    LOG_INFO(COLOR_YELLOW + msg.from() + COLOR_RESET + " says" + " to " + COLOR_YELLOW + msg.to() + COLOR_RESET + " : " + msg.text());
+
+    if(isUserOnline(msg.to())) {
+      assert(userHashConn[msg.to()]);
+      sendMsgToUser(msg_str,userHashConn[msg.to()]);
+      LOG_WARN("1");
+    } else {
+      /* 用户不在线 逻辑 */
+      LOG_INFO("User is not online now!")
+      onOfflineMsg(msg.to(),msg_str);
+    }
   }
 };
 
@@ -56,7 +63,7 @@ void ChatServer::sendMsgToUser(const std::string & Msg,const net::TcpConnectionP
   assert(conn);
 
   std::string buffmsg = sendBuff.retrieveAsString();
-
+  
   conn->send(buffmsg);
 }
 

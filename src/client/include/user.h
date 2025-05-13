@@ -32,32 +32,6 @@ public:
   
   bool isConnected() { return isConnected_; }
 
-  /* 功能函数实现 */
-
-  void SerializeSend(const std::string & action,const std::string & Requestor,const std::string & obj,const std::vector<std::string>& args = {});
-
-  void addFriend();
-
-  void deleteFriend();
-
-  void verifyFriend();
-
-  void blackoutFriend();
-
-  void blockFriend();
-
-  void addGroup();
-
-  void quitGroup();
-
-  void createGroup();
-
-  /* 群管理 */
-
-  void rmGroupMember();
-
-  void breakGroup();
-
 private:
   void Send(std::string msg);
   int Recv();
@@ -75,6 +49,8 @@ private:
   bool isConnected_;
 
   ilib::net::Socket sock_;
+
+  std::string email_;
 };
 
 #endif

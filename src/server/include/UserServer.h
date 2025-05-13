@@ -1,6 +1,8 @@
 #include"TcpServer.h"
 #include<cpp_redis/cpp_redis>
 #include<memory>
+#include"responsecode.h"
+#include"logger.h"
 using namespace ilib;
 
 #define SERVER_PORT 8080
@@ -42,21 +44,21 @@ private:
 
   /* 好友及群聊服务 */
 
-  void onAddFriend();
+  void onAddFriend(const std::string & requestor,const std::string & Friend);
 
-  void onDeleteFriend();
+  void onDeleteFriend(const std::string & requestor,const std::string & Friend);
 
-  void onVerifyFriend();
+  void onVerifyFriend(const std::string & requestor,const std::string & Friend);
 
-  void onBlackoutFriend();
+  void onBlackoutFriend(const std::string & requestor,const std::string & Friend);
 
-  void onBlockFriend();
+  void onBlockFriend(const std::string & requestor,const std::string & Friend);
 
-  void onAddGroup();
+  void onCreateGroup(const std::string & requestor,const std::string & group);
 
-  void onQuitGroup();
+  void onAddGroup(const std::string & requestor,const std::string & group);
 
-  void onCreateGroup();
+  void onQuitGroup(const std::string & requestor,const std::string & group);
 
   void onRmGroupMember();
 
@@ -71,5 +73,4 @@ private:
   /* redis userset 哈希表的名称 */
   inline static const std::string allUserset = "allUserset";
   inline static const std::string onlineUserSet = "onlineUserSet";
-
 };

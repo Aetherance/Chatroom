@@ -43,6 +43,10 @@ public:
     void shutdown();
     int fd() const { return channel_->fd(); }
 
+    void set_user_email(const std::string & email) { user_email_ = email; }
+
+    std::string user_email() const { return user_email_; }
+
 private:
     enum StateE { kConnecting, kConnected , kDisconnecting , kDisconnected };
 
@@ -69,6 +73,8 @@ private:
 
     Buffer inputBuffer_;
     Buffer outputBuffer_;
+
+    std::string user_email_;
 };
 
 }

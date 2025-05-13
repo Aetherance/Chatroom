@@ -7,8 +7,9 @@ using namespace ilib;
 
 #define TCP_HEAD_LEN sizeof(int)
 
-MsgClient::MsgClient() : chatServerfd_(socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)),
-                         chatServerAddr_("localhost",7070)   
+MsgClient::MsgClient() : 
+          chatServerfd_(socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)),
+          chatServerAddr_("localhost",7070)   
 {
 
 }
@@ -19,11 +20,23 @@ MsgClient::~MsgClient() {
 
 void MsgClient::connect() {
   ::connect(chatServerfd_,(sockaddr*)&chatServerAddr_.getSockAddr(),chatServerAddr_.getSockLen());
+  Message connSetMsg;
+  connSetMsg.set_from("SET_CONN_USER");
+  connSetMsg.set_to("SET_CONN_USER");
+  connSetMsg.set_text(email_);
+  safeSend(connSetMsg.SerializeAsString());
 }
 
 void MsgClient::updatePeer(const std::string &newPeerEmail,const std::string & newPeerUsername) {
   msgPeerEmail_ = newPeerEmail;
   msgPeerUsername_ = newPeerUsername;
+}
+
+void MsgClient::safeSend(const std::string & message) {
+  uint32_t msg_len = static_cast<uint32_t>(message.size());
+  uint32_t LengthHead = htonl(msg_len);
+  ::send(chatServerfd_, &LengthHead, sizeof(LengthHead), 0);
+  ::send(chatServerfd_,message.data(),message.size(),0);
 }
 
 void MsgClient::sendMsgTo(const std::string & who,const std::string & msgtext) {
@@ -33,6 +46,8 @@ void MsgClient::sendMsgTo(const std::string & who,const std::string & msgtext) {
   msg.set_to(who);
   msg.set_text(msgtext);
   msg.set_timestamp(now.microSecondsSinceEpoch());
+  msg.set_isservice(false);
+
   std::string message = msg.SerializeAsString();
   
   constexpr uint32_t MAX_MSG_SIZE = 10 * 1024 * 1024;  // 10MB
@@ -40,11 +55,7 @@ void MsgClient::sendMsgTo(const std::string & who,const std::string & msgtext) {
       return;
   }
 
-  uint32_t msg_len = static_cast<uint32_t>(message.size());
-  uint32_t LengthHead = htonl(msg_len);
-  ::send(chatServerfd_, &LengthHead, sizeof(LengthHead), 0);
-  ::send(chatServerfd_,message.data(),message.size(),0);
-  std::cout<<msg.text()<<"\n";
+  safeSend(message);
 }
 
 void MsgClient::recvMsgLoop() {
