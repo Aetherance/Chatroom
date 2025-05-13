@@ -93,7 +93,7 @@ void TcpConnection::send(const std::string & msg) {
             std::cout<<msg<<"\n";
             sendInLoop(msg);
         } else {
-            loop_->runInloop([this,msg]{ sendInLoop(std::move(msg)); });
+            loop_->runInloop([this,msg]{ sendInLoop(msg); });
             // 写聊天室时发现的bug 
             /* 原因在于我用lambda表达式捕获了msg的引用，
             并将lambda表达式作为回调函数在别的地方调用，

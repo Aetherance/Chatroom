@@ -68,7 +68,6 @@ void MsgClient::recvMsgLoop() {
 }
 
 void MsgClient::onMessage() {
-  std::cout<<"onMessage!\n";
   recvBuff_.readFd(chatServerfd_,nullptr);
   while(recvBuff_.readableBytes() >= TCP_HEAD_LEN) {
     const char * data = recvBuff_.peek();

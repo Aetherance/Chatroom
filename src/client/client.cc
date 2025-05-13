@@ -79,7 +79,7 @@ void Client::Msg() {
 
   client.connect();
   
-  client.updatePeer("2085163736@qq.com","op");
+  client.updatePeer("op","op");
 
   std::thread a([&]{
     while(true) {

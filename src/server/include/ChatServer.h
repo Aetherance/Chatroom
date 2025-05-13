@@ -1,5 +1,6 @@
 #include"TcpServer.h"
-#include<cpp_redis/cpp_redis>
+#include"DBWriterPool.h"
+
 using namespace ilib;
 
 class ChatServer
@@ -30,6 +31,8 @@ private:
   bool isUserOnline(const std::string & user_email);
 
   void onOfflineMsg(const std::string & who,const std::string & msg);
+
+  DBWriterPool DBWriter_;
 
   /* redis userset 哈希表的名称 */
   inline static const std::string allUserset = "allUserSet";

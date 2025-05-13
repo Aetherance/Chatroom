@@ -43,10 +43,9 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
     if(isUserOnline(msg.to())) {
       assert(userHashConn[msg.to()]);
       sendMsgToUser(msg_str,userHashConn[msg.to()]);
-      LOG_WARN("1");
     } else {
       /* 用户不在线 逻辑 */
-      LOG_INFO("User is not online now!")
+      LOG_INFO("User is not online , message stored!");
       onOfflineMsg(msg.to(),msg_str);
     }
   }
@@ -65,6 +64,8 @@ void ChatServer::sendMsgToUser(const std::string & Msg,const net::TcpConnectionP
   std::string buffmsg = sendBuff.retrieveAsString();
   
   conn->send(buffmsg);
+
+  DBWriter_.enqueue("messages",Msg);
 }
 
 bool ChatServer::isUserOnline(const std::string & user_email) {
@@ -82,5 +83,6 @@ bool ChatServer::isUserOnline(const std::string & user_email) {
 }
 
 void ChatServer::onOfflineMsg(const std::string & who,const std::string & msg) {
-  
+  DBWriter_.enqueue("offlineMessages:"+who,msg);
+  LOG_INFO(who + ": new offline message.");
 }
