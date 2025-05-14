@@ -31,12 +31,10 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
     return ;
   }
 
-
   if(msg.isservice()) {
-    std::cout<<"action: "<<msg.text()<<"\n";
-    std::cout<<"requestor: "<<msg.from()<<"\n";
-    std::cout<<"obj: "<<msg.to()<<"\n";    
-
+    /* 当isservice为真 Message的text字段代表服务的类型 */
+    serviceCallBacks_[msg.text()](conn,msg);
+    
   } else {
     LOG_INFO(COLOR_YELLOW + msg.from() + COLOR_RESET + " says" + " to " + COLOR_YELLOW + msg.to() + COLOR_RESET + " : " + msg.text());
 

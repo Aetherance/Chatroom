@@ -21,14 +21,6 @@
 #define REGISTER1    "REGISTER1"
 #define REGISTER2    "REGISTER2"
 #define LOGIN        "LOGIN"
-#define ADD_FRIEND   "addFriend"
-#define DEL_FRIEND   "deleteFriend"
-#define VER_FRIEND   "verifyFriend"
-#define BLACK_OUT    "blackoutFriend"
-#define BLOCK        "blockFriend"
-#define ADD_GROUP    "addGroup"
-#define QUIT_GROUP   "quitGroup"
-
 
 inline void SendResponseCode(int code,int fd) {
   ::send(fd,&code,sizeof(int),0);
@@ -36,3 +28,16 @@ inline void SendResponseCode(int code,int fd) {
 
 /* redis 用户好友列表集合前缀 */
 inline static const std::string userFriendsSet = "userFriendSet:";
+
+/* chat 服务类别 */
+
+#define ADD_FRIEND   "addFriend"
+#define DEL_FRIEND   "deleteFriend"
+#define VER_FRIEND   "verifyFriend"
+#define BLACK_OUT    "blackoutFriend"
+#define BLOCK        "blockFriend"
+#define ADD_GROUP    "addGroup"
+#define QUIT_GROUP   "quitGroup"
+#define CREATE_GROUP "createGroup"
+#define BREAK_GROUP  "breakGroup"
+#define RM_GROUP_MEM "rmGroupMem"

@@ -10,7 +10,8 @@ using namespace net;
 std::unordered_map<std::string,net::TcpConnectionPtr> userHashConn;
 
 ChatServer::ChatServer() : addr_(7070),
-                           server_(&loop_,addr_)
+                           server_(&loop_,addr_),
+                           serviceHandler_(this)
 {
   server_.setThreadNum(CHAT_SERVER_REACTOR_NUM_);
   server_.setConnectionCallback([this](const TcpConnectionPtr & conn){ onConnection(conn); });

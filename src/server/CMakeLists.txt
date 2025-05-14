@@ -6,6 +6,7 @@ add_executable(server
     main.cc
     chat/chatServer.cc
     chat/msgHandler.cc
+    chat/service.cc
     user/userServer.cc
     user/verifiCode.cc
     ${CMAKE_SOURCE_DIR}/src/protobuf/msg.pb.cc

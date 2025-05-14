@@ -40,30 +40,6 @@ private:
   
   /* 登录功能 */
   void onLogin(const std::string& email,const std::string& passwd,const net::TcpConnectionPtr & conn);
-  
-
-  /* 好友及群聊服务 */
-
-  void onAddFriend(const std::string & requestor,const std::string & Friend);
-
-  void onDeleteFriend(const std::string & requestor,const std::string & Friend);
-
-  void onVerifyFriend(const std::string & requestor,const std::string & Friend);
-
-  void onBlackoutFriend(const std::string & requestor,const std::string & Friend);
-
-  void onBlockFriend(const std::string & requestor,const std::string & Friend);
-
-  void onCreateGroup(const std::string & requestor,const std::string & group);
-
-  void onAddGroup(const std::string & requestor,const std::string & group);
-
-  void onQuitGroup(const std::string & requestor,const std::string & group);
-
-  void onRmGroupMember();
-
-  void onBreakGroup();
-
 
   /* redis email-code 哈希表的名称 */
   inline static const std::string RedisEmailCodeHash_ = "email_code";

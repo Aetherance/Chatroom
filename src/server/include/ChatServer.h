@@ -1,10 +1,16 @@
+#ifndef CHATSERVER_H
+#define CHATSERVER_H
+
 #include"TcpServer.h"
 #include"DBWriterPool.h"
+#include"msg.pb.h"
+#include"ServiceHandler.h"
 
 using namespace ilib;
 
 class ChatServer
 {
+friend class ServiceHandler;
 public:
   ChatServer();
   void run();
@@ -34,8 +40,16 @@ private:
 
   DBWriterPool DBWriter_;
 
+  ServiceHandler serviceHandler_;
+
+  using serviceCallback = std::function<void(const net::TcpConnectionPtr & conn,Message msgProto)>;
+
+  std::unordered_map<std::string,serviceCallback>serviceCallBacks_;
+
   /* redis userset 哈希表的名称 */
   inline static const std::string allUserset = "allUserSet";
   inline static const std::string onlineUserSet = "onlineUserSet";
   inline static const std::string offlineUserMsgSet = "offlineUserMsgSet";
 };
+
+#endif
