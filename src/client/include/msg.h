@@ -17,6 +17,12 @@ struct Group {
   std::string groupname;
 };
 
+struct messageinfo {
+  std::string from;
+  std::string text;
+  int64_t timestamp;
+};
+
 /* 好友列表 */
 inline std::vector<Friend> FriendList;
 
@@ -41,6 +47,8 @@ public:
   void recvMsgLoop();
   
   void onMessage();
+
+  void parseMsg(std::string msg);
 
   void setEmail(const std::string & email) { email_ = email; }
 

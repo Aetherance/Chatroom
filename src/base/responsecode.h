@@ -26,9 +26,6 @@ inline void SendResponseCode(int code,int fd) {
   ::send(fd,&code,sizeof(int),0);
 }
 
-/* redis 用户好友列表集合前缀 */
-inline static const std::string userFriendsSet = "userFriendSet:";
-
 /* chat 服务类别 */
 
 #define ADD_FRIEND   "addFriend"

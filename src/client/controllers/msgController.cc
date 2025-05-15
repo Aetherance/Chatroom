@@ -5,16 +5,31 @@
 
 using namespace ftxui;
 
-void Client::MsgController() {
-  auto screen = ScreenInteractive::Fullscreen();
+extern std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
+
+std::string MessageKey;
+std::string PeerUserName;
+std::string PeerEmail;
+
+ScreenInteractive MsgScreen = ScreenInteractive::Fullscreen();
   // 状态变量
-  std::vector<std::string> messages;
-  int scroll_offset = 0;       // 当前滚动位置
-  int visible_lines = Terminal::Size().dimy - 13;
-  std::string input_content;
+int MsgScreenScrollOffset = 0;  // 当前滚动位置
+int visible_lines = Terminal::Size().dimy - 13;
+std::string input_content;
+
+Component input;
+Component send_btn;
 
 
+Element makeSidebar();
+Component makeRenderer();
+
+void Client::MsgController() {
   // 输入组件及配置
+  MessageKey = msgClient_.peerEmail();
+  PeerUserName = msgClient_.peerUsername();
+  PeerEmail = msgClient_.peerEmail();
+
   auto input_option = InputOption();
   input_option.on_enter = [&] {
     if (!input_content.empty()) {
@@ -22,55 +37,75 @@ void Client::MsgController() {
         input_content.clear();
         return;
       }
-      messages.push_back("You: " + input_content);
+
+      messageMap[MessageKey].push_back({"You", input_content});
+
+      msgClient_.sendMsgPeer(input_content);
       input_content.clear();
       // 新消息自动滚动到底部
-      scroll_offset = std::max(0, static_cast<int>(messages.size()) - visible_lines);
+      MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[MessageKey].size()) - visible_lines);
     }
   };
-  auto input = Input(&input_content, "输入消息", input_option);
+
+  input = Input(&input_content, "输入消息", input_option);
 
   // 发送按钮
-  auto send_btn = Button("发送", [&] {
+  send_btn = Button("发送", [&] {
     if (!input_content.empty()) {
-      messages.push_back("You: " + input_content);
+
+      messageMap[msgClient_.peerEmail()].push_back({"You", input_content});
+
+      msgClient_.sendMsgPeer(input_content);
       input_content.clear();
       // 新消息自动滚动到底部
-      scroll_offset = std::max(0, static_cast<int>(messages.size()) - visible_lines);
+      MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[MessageKey].size()) - visible_lines);
     }
   });
 
-  // 组合布局
-  auto layout = Container::Horizontal({input, send_btn});
+  // 初始位置在底部
+  MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[MessageKey].size()) - visible_lines);
 
-  // 主渲染逻辑
-  auto renderer = Renderer(layout, [&] {
+  auto renderer = makeRenderer();
+  // 运行界面
+  MsgScreen.Loop(renderer);
+}
+
+
+Element makeSidebar() {
+  return vbox({
+    text("Sidebar") | bold | center,
+    separator(),
+    vbox({text("Content Area") | center}) 
+      | vscroll_indicator 
+      | frame 
+      | flex
+  }) 
+  | border 
+  | size(WIDTH, EQUAL, 16);
+}
+
+Component makeRenderer() {
+  auto layout = Container::Horizontal({input, send_btn});
+  
+  return 
+  Renderer(layout, [&] {
     // 计算可见的消息范围
-    int start = std::max(0, scroll_offset);
-    int end = std::min(static_cast<int>(messages.size()), start + visible_lines);
+    int start = std::max(0, MsgScreenScrollOffset);
+    int end = std::min(static_cast<int>(messageMap[MessageKey].size()), start + visible_lines);
 
     Elements visible_elements;
     for (int i = start; i < end; ++i) {
-      visible_elements.push_back(text(messages[i]));
+      visible_elements.push_back(text(messageMap[MessageKey][i].from + ": " + messageMap[MessageKey][i].text));
     }
 
     // 基本边栏框架
-    auto sidebar = vbox({
-        text("Sidebar") | bold | center,
-        separator(),
-        vbox({text("Content Area") | center}) 
-          | vscroll_indicator 
-          | frame 
-          | flex
-      }) 
-      | border 
-      | size(WIDTH, EQUAL, 16);
+    auto sidebar = makeSidebar();
 
     return hbox({
       // 主聊天区域
       vbox({
-        text(msgClient_.peerUsername()) | bold | center,
-        text(msgClient_.peerEmail()) | center,
+        text(PeerUserName) | bold | center,
+        text(PeerEmail) | center,
         separator(),
         vbox(visible_elements)  // 只渲染可见部分
           | vscroll_indicator 
@@ -90,25 +125,25 @@ void Client::MsgController() {
     }) | border | flex;
   }) | CatchEvent([&](Event event) -> bool {
     if (event == Event::Escape) {
-      screen.Exit();
+      MsgScreen.Exit();
       return true;
     }
     
     // 键盘滚动控制
     if (event == Event::ArrowUp) {
-      scroll_offset = std::max(0, scroll_offset - 1);
+      MsgScreenScrollOffset = std::max(0, MsgScreenScrollOffset - 1);
       return true;
     }
     if (event == Event::ArrowDown) {
-      scroll_offset = std::min(static_cast<int>(messages.size()) - visible_lines, scroll_offset + 1);
+      MsgScreenScrollOffset = std::min(static_cast<int>(messageMap[MessageKey].size()) - visible_lines, MsgScreenScrollOffset + 1);
       return true;
     }
     if (event == Event::PageUp) {
-      scroll_offset = std::max(0, scroll_offset - visible_lines);
+      MsgScreenScrollOffset = std::max(0, MsgScreenScrollOffset - visible_lines);
       return true;
     }
     if (event == Event::PageDown) {
-      scroll_offset = std::min(static_cast<int>(messages.size()) - visible_lines, scroll_offset + visible_lines);
+      MsgScreenScrollOffset = std::min(static_cast<int>(messageMap[MessageKey].size()) - visible_lines, MsgScreenScrollOffset + visible_lines);
       return true;
     }
     
@@ -116,25 +151,15 @@ void Client::MsgController() {
     if (event.is_mouse()) {
       auto& mouse = event.mouse();
       if (mouse.button == Mouse::WheelUp) {
-        scroll_offset = std::max(0, scroll_offset - 2);  // 滚轮加速滚动
+        MsgScreenScrollOffset = std::max(0, MsgScreenScrollOffset - 2);  // 滚轮加速滚动
         return true;
       }
       if (mouse.button == Mouse::WheelDown) {
-        scroll_offset = std::min(static_cast<int>(messages.size()) - visible_lines, scroll_offset + 2);
+        MsgScreenScrollOffset = std::min(static_cast<int>(messageMap[MessageKey].size()) - visible_lines, MsgScreenScrollOffset + 2);
         return true;
       }
     }
     
     return false;
   });
-
-  // 初始化测试消息
-  for(int i = 0; i < 100; i++) {
-    messages.push_back("Server: msg test" + std::to_string(i + 1));
-  }
-  // 初始位置在底部
-  scroll_offset = std::max(0, static_cast<int>(messages.size()) - visible_lines);
-
-  // 运行界面
-  screen.Loop(renderer);
 }

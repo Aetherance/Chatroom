@@ -2,10 +2,17 @@
 #include"msg.pb.h"
 #include"Timestamp.h"
 #include"EventLoop.h"
+#include<ftxui/component/screen_interactive.hpp>
 
 using namespace ilib;
 
 #define TCP_HEAD_LEN sizeof(int)
+
+std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
+
+extern ftxui::ScreenInteractive MsgScreen;
+extern int MsgScreenScrollOffset;
+extern int visible_lines;
 
 MsgClient::MsgClient() : 
           chatServerfd_(socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)),
@@ -75,8 +82,7 @@ void MsgClient::onMessage() {
     if(recvBuff_.readableBytes() >= headLen + TCP_HEAD_LEN) {
       recvBuff_.retrieve(TCP_HEAD_LEN);
       std::string msg(recvBuff_.peek(),headLen);
-      std::string temp_____;
-      echoMsg(msg,temp_____);
+      parseMsg(msg);
       recvBuff_.retrieve(headLen);
     } else {
       break;
@@ -84,9 +90,13 @@ void MsgClient::onMessage() {
   }
 }
 
-void MsgClient::echoMsg(const std::string & sourceMsg,std::string & echoMsg) {
-  Message proMsg;
-  proMsg.ParseFromString(sourceMsg);
-  echoMsg = proMsg.text();
-  std::cout<<echoMsg<<"\n";
+void MsgClient::parseMsg(std::string msg) {
+  Message msgProto;
+  msgProto.ParseFromString(msg);
+
+  // std::lock_guard<std::mutex> lock(messageMapMutex); // 加锁
+
+  messageMap[msgProto.from()].push_back({msgProto.from(),msgProto.text(),msgProto.timestamp()});
+  MsgScreen.PostEvent(ftxui::Event::Custom);
+  MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[msgProto.from()].size()) - visible_lines);
 }

@@ -15,7 +15,7 @@ public:
   void onAddFriend(const net::TcpConnectionPtr & conn,Message msgProto);
 
   void onDeleteFriend(const net::TcpConnectionPtr & conn,Message msgProto);
- 
+  
   void onVerifyFriend(const net::TcpConnectionPtr & conn,Message msgProto);
  
   void onBlackoutFriend(const net::TcpConnectionPtr & conn,Message msgProto);
@@ -43,6 +43,8 @@ private:
 
   /* 群聊成员前缀 */
   std::string groupMembers = "groupMembers:";
+
+  ChatServer * chatServer_;
 };
 
 #endif

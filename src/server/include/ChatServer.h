@@ -32,24 +32,27 @@ private:
   /* 消息解析 */
   void parseMessage(const std::string & Messgae,const net::TcpConnectionPtr & conn);
 
+  /* conn是用户对应的连接 */
   void sendMsgToUser(const std::string & Msg,const net::TcpConnectionPtr & conn);
 
   bool isUserOnline(const std::string & user_email);
 
   void onOfflineMsg(const std::string & who,const std::string & msg);
 
+  void offlineMsgConsumer(const net::TcpConnectionPtr & conn);
+  
+  using serviceCallback = std::function<void(const net::TcpConnectionPtr & conn,Message msgProto)>;
+  
+  std::unordered_map<std::string,serviceCallback>serviceCallBacks_;
+  
   DBWriterPool DBWriter_;
 
   ServiceHandler serviceHandler_;
 
-  using serviceCallback = std::function<void(const net::TcpConnectionPtr & conn,Message msgProto)>;
-
-  std::unordered_map<std::string,serviceCallback>serviceCallBacks_;
-
   /* redis userset 哈希表的名称 */
   inline static const std::string allUserset = "allUserSet";
   inline static const std::string onlineUserSet = "onlineUserSet";
-  inline static const std::string offlineUserMsgSet = "offlineUserMsgSet";
+  inline static const std::string offlineMessages = "offlineMessages:";
 };
 
 #endif

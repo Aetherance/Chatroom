@@ -40,6 +40,7 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
 
     if(isUserOnline(msg.to())) {
       assert(userHashConn[msg.to()]);
+      /* to字段存储接收端信息 */
       sendMsgToUser(msg_str,userHashConn[msg.to()]);
     } else {
       /* 用户不在线 逻辑 */
@@ -63,7 +64,7 @@ void ChatServer::sendMsgToUser(const std::string & Msg,const net::TcpConnectionP
   
   conn->send(buffmsg);
 
-  DBWriter_.enqueue("messages",Msg);
+  DBWriter_.enqueue("messages",Msg); 
 }
 
 bool ChatServer::isUserOnline(const std::string & user_email) {
@@ -81,6 +82,25 @@ bool ChatServer::isUserOnline(const std::string & user_email) {
 }
 
 void ChatServer::onOfflineMsg(const std::string & who,const std::string & msg) {
-  DBWriter_.enqueue("offlineMessages:"+who,msg);
+  DBWriter_.enqueue(offlineMessages + who,msg);
   LOG_INFO(who + ": new offline message.");
+}
+
+void ChatServer::offlineMsgConsumer(const TcpConnectionPtr & conn) {
+  std::string offlineMessageKeyname = offlineMessages + conn->user_email();
+  auto future = redis_.smembers(offlineMessageKeyname);
+  redis_.sync_commit();
+  auto reply = future.get();
+
+  if(reply.is_array()) {
+    auto members = reply.as_array();
+    
+    for(auto entry : members) {
+      std::string message = entry.as_string();
+      sendMsgToUser(message,conn);
+      redis_.srem(offlineMessageKeyname,{message});
+    }
+
+    redis_.sync_commit();
+  }
 }

@@ -3,19 +3,21 @@
 using namespace ftxui;
 
 void Client::FriendList() {
-  std::vector<std::string> friends = {"op","op2"};
+  /* 第一个是邮箱 第二个是用户名 */
+  std::vector<std::pair<std::string,std::string>> friends = { {"op","op"}};
   std::string new_friend;
   bool in_chat = false;
 
   auto screen = ScreenInteractive::Fullscreen();
 
   // 输入组件
-  Component input = Input(&new_friend, "添加新好友...");
+  std::string input_show = "添加新好友...";
+  Component input = Input(&new_friend, input_show);
 
   // 添加好友按钮
-  Component add_button = Button("搜索", [&] {
+  Component add_button = Button("添加", [&] {
     if (!new_friend.empty()) {
-      friends.push_back(new_friend);
+      // friends.push_back(onew_friend);
       new_friend.clear();
     }
   });
@@ -52,8 +54,8 @@ void Client::FriendList() {
     // 好友列表界面
     friends_container->DetachAllChildren();
     for (const auto& name : friends) {
-      auto btn = Button(name, [&, name] { 
-        msgClient_.updatePeer("email",name);
+      auto btn = Button(name.second, [&, name] { 
+        msgClient_.updatePeer(name.first,name.second);
         in_chat = true;
       });
       friends_container->Add(btn);
