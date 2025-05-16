@@ -21,10 +21,9 @@ ChatServer::ChatServer() : addr_(7070),
 }
 
 void ChatServer::run() {
-  LOG_INFO("The Chat Server is starting up ...");
   server_.start();
 
-  std::string success = "The Chat Server is running on " + addr_.toIpPort() + " now !";
+  std::string success = "The Chat Server is running on port 7070";
   LOG_INFO_SUCCESS(success);
 
   loop_.loop();

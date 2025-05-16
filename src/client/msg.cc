@@ -30,7 +30,7 @@ void MsgClient::connect() {
   Message connSetMsg;
   connSetMsg.set_from("SET_CONN_USER");
   connSetMsg.set_to("SET_CONN_USER");
-  connSetMsg.set_text(email_);
+  connSetMsg.set_text(LocalEmail_);
   safeSend(connSetMsg.SerializeAsString());
 }
 
@@ -49,7 +49,7 @@ void MsgClient::safeSend(const std::string & message) {
 void MsgClient::sendMsgTo(const std::string & who,const std::string & msgtext) {
   Message msg;
   base::Timestamp now = base::Timestamp::now();
-  msg.set_from(email_);
+  msg.set_from(LocalEmail_);
   msg.set_to(who);
   msg.set_text(msgtext);
   msg.set_timestamp(now.microSecondsSinceEpoch());
@@ -93,8 +93,6 @@ void MsgClient::onMessage() {
 void MsgClient::parseMsg(std::string msg) {
   Message msgProto;
   msgProto.ParseFromString(msg);
-
-  // std::lock_guard<std::mutex> lock(messageMapMutex); // 加锁
 
   messageMap[msgProto.from()].push_back({msgProto.from(),msgProto.text(),msgProto.timestamp()});
   MsgScreen.PostEvent(ftxui::Event::Custom);

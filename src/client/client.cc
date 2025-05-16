@@ -19,7 +19,7 @@ Client::~Client() {
 void Client::run() {
   /* 先进行身份验证操作(包含登录和注册) */
   // Verify();
-  Msg();
+  // Msg();
   /* 聊天室聊天功能 */
 }
 
@@ -70,24 +70,25 @@ bool isValidEmail(const std::string& email) {
 }
 
 void Client::Msg() {
-  printf("\a");
-  
-  int debug;
-  std::cin>>debug;
+  // int debug;
+  // std::cin>>debug;
 
-  if(debug) {
-    msgClient_.setEmail("op");
-    msgClient_.connect();  
-    msgClient_.updatePeer("2085163736@qq.com","the_ink");
-    while (true) {
-      getchar();
-      msgClient_.sendMsgPeer("Hello World!");
-    }
-  }
+  // if(debug) {
+  //   msgClient_.setEmail("op");
+  //   msgClient_.connect();  
+  //   msgClient_.updatePeer("2085163736@qq.com","the_ink");
+  //   while (true) {
+  //     std::string in;
+  //     std::cin>>in;
+  //     msgClient_.sendMsgPeer(in);
+  //   }
+  // }
   
   std::thread recvThread([this]{ msgClient_.recvMsgLoop(); });
   
-  msgClient_.setEmail("2085163736@qq.com");
+  msgClient_.setEmail("op");
+
   msgClient_.connect();
+  
   FriendList();
 }

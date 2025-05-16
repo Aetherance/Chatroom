@@ -64,7 +64,7 @@ void ChatServer::sendMsgToUser(const std::string & Msg,const net::TcpConnectionP
   
   conn->send(buffmsg);
 
-  DBWriter_.enqueue("messages",Msg); 
+  DBWriter_.enqueue("messages",Msg);
 }
 
 bool ChatServer::isUserOnline(const std::string & user_email) {

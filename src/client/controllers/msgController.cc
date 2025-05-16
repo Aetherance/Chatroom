@@ -20,7 +20,6 @@ std::string input_content;
 Component input;
 Component send_btn;
 
-
 Element makeSidebar();
 Component makeRenderer();
 
@@ -37,7 +36,7 @@ void Client::MsgController() {
         input_content.clear();
         return;
       }
-
+      
       messageMap[MessageKey].push_back({"You", input_content});
 
       msgClient_.sendMsgPeer(input_content);

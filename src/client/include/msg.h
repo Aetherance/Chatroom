@@ -50,11 +50,15 @@ public:
 
   void parseMsg(std::string msg);
 
-  void setEmail(const std::string & email) { email_ = email; }
+  void setEmail(const std::string & email) { LocalEmail_ = email; }
 
   std::string peerUsername() { return msgPeerUsername_; }
   
   std::string peerEmail() { return msgPeerEmail_; }
+
+  std::string LocalUsername() const { return LocalUsername_; }
+
+  std::string LocalEmail() const { return LocalEmail_; }
 
   void SerializeSend(const std::string action, const std::string & Requestor,const std::string & obj,const std::vector<std::string>& args = {});
 
@@ -93,8 +97,8 @@ private:
   void echoMsg(const std::string & sourceMsg,std::string & echoMsg);
 
   /* 用户信息 */
-  std::string username_;
-  std::string email_;
+  std::string LocalUsername_;
+  std::string LocalEmail_;
 
   /* 当前聊天对象信息 */
   /* 群号或邮箱 */

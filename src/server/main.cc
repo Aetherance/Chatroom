@@ -1,5 +1,6 @@
 #include"UserServer.h"
 #include"ChatServer.h"
+#include"FtpServer.h"
 #include<thread>
 
 int main() {
@@ -13,8 +14,12 @@ int main() {
     chatServer.run();
   });
 
+  FtpServer ftpServer;
+  ftpServer.run();
+  
   user.join();
   chat.join();
   
+
   return 0;
 }

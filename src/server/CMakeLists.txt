@@ -9,6 +9,7 @@ add_executable(server
     chat/service.cc
     user/userServer.cc
     user/verifiCode.cc
+    ftp/ftpServer.cc
     ${CMAKE_SOURCE_DIR}/src/protobuf/msg.pb.cc
 )
 

@@ -90,7 +90,6 @@ void TcpConnection::shutdownInLoop() {
 void TcpConnection::send(const std::string & msg) {
     if(state_ == kConnected) {
         if(loop_->isInLoopThread()) {
-            std::cout<<msg<<"\n";
             sendInLoop(msg);
         } else {
             loop_->runInloop([this,msg]{ sendInLoop(msg); });

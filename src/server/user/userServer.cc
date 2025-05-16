@@ -41,10 +41,9 @@ void UserServer::onMessage(const net::TcpConnectionPtr & conn,net::Buffer* buff,
 
 /* 启动服务器 */
 void UserServer::run() {
-  LOG_INFO("The User Server is starting up...");
   server_.start();
   
-  std::string success = "The User Server is running on " + addr_.toIpPort() + " now !";
+  std::string success = "The User Server is running on port 8080!";
   LOG_INFO_SUCCESS(success);
   
   loop_.loop();

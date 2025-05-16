@@ -2,9 +2,10 @@
 
 using namespace ftxui;
 
+std::vector<std::pair<std::string,std::string>> friends = { {"op","op"}};
+
 void Client::FriendList() {
   /* 第一个是邮箱 第二个是用户名 */
-  std::vector<std::pair<std::string,std::string>> friends = { {"op","op"}};
   std::string new_friend;
   bool in_chat = false;
 

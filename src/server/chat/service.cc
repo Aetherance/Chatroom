@@ -2,6 +2,7 @@
 #include"ServiceHandler.h"
 #include"responsecode.h"
 #include"msg.pb.h"
+#include"logger.h"
 
 using namespace net;
 
@@ -20,24 +21,36 @@ ServiceHandler::ServiceHandler(ChatServer * server) : chatServer_(server) {
   server->serviceCallBacks_[RM_GROUP_MEM] = std::bind(&ServiceHandler::onRmGroupMember,this,std::placeholders::_1,std::placeholders::_2);
 }
 
+std::string generateGroupNum() {
+  std::string Num;
+  Num.reserve(6);
+  srand((size_t)time(NULL));
+  for(int i = 0;i<6;i++) {
+      Num.push_back((rand() % 10) + '0');
+  }
+  return Num;
+}
+
 void ServiceHandler::onAddFriend(const net::TcpConnectionPtr & conn,Message msgProto) {
+  LOG_INFO(msgProto.from() + "wants to make friend with " + msgProto.to());
   std::string request = msgProto.SerializeAsString();
   chatServer_->sendMsgToUser(request,userHashConn[msgProto.to()]);
 }
 
 /* 验证好友(确认添加好友) */
 void ServiceHandler::onVerifyFriend(const net::TcpConnectionPtr & conn,Message msgProto) {
+  LOG_INFO(msgProto.from() + " and " + msgProto.to() + " became friends.");
   chatServer_->redis_.sadd(friendSet + msgProto.to(),{msgProto.from()});
   chatServer_->redis_.sadd(friendSet + msgProto.from(),{msgProto.to()});
   chatServer_->redis_.sync_commit();
 }
 
 void ServiceHandler::onDeleteFriend(const net::TcpConnectionPtr & conn,Message msgProto) {
+  LOG_INFO(msgProto.from() + " deleted " + msgProto.to());
   chatServer_->redis_.srem(friendSet + msgProto.to(),{msgProto.from()});
   chatServer_->redis_.srem(friendSet + msgProto.from(),{msgProto.to()});
   chatServer_->redis_.sync_commit();
 }
-
 
 void ServiceHandler::onBlackoutFriend(const net::TcpConnectionPtr & conn,Message msgProto) {
   
@@ -48,11 +61,13 @@ void ServiceHandler::onBlockFriend(const net::TcpConnectionPtr & conn,Message ms
 }
 
 void ServiceHandler::onCreateGroup(const net::TcpConnectionPtr & conn,Message msgProto) {
-
+  std::string GroupNum = generateGroupNum();
+  chatServer_->redis_.sadd(groupSet,{msgProto.to()});
+  chatServer_->redis_.sync_commit();
 }
 
 void ServiceHandler::onAddGroup(const net::TcpConnectionPtr & conn,Message msgProto) {
-
+  
 }
 
 void ServiceHandler::onQuitGroup(const net::TcpConnectionPtr & conn,Message msgProto) {
