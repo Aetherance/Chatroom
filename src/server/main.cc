@@ -14,9 +14,9 @@ int main() {
     chatServer.run();
   });
 
-  FtpServer ftpServer;
-  ftpServer.run();
-  
+  // FtpServer ftpServer;
+  // ftpServer.run();
+
   user.join();
   chat.join();
   

@@ -19,23 +19,22 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
     conn->set_user_email(msg.text());
     userHashConn[msg.text()] = conn;
     redis_.sadd(onlineUserSet,{msg.text()});
+    offlineMsgConsumer(conn);
+    serviceHandler_.FriendBeOnline(conn);
     return ;
   }
 
-  bool isExists = false;
-  redis_.sismember(allUserset,msg.to(),[&isExists](cpp_redis::reply & reply){ isExists = reply.as_integer(); });
-  redis_.sync_commit();
+  bool isExists = isUserExist(msg.to());
   
-  if(isExists == false) {
+  if(isExists == false && !msg.isservice()) {
     LOG_ERROR("parseMessage: User Not Found!");
-    return ;
   }
 
   if(msg.isservice()) {
     /* 当isservice为真 Message的text字段代表服务的类型 */
     serviceCallBacks_[msg.text()](conn,msg);
     
-  } else {
+  } else if( !msg.isservice() && isExists) {
     LOG_INFO(COLOR_YELLOW + msg.from() + COLOR_RESET + " says" + " to " + COLOR_YELLOW + msg.to() + COLOR_RESET + " : " + msg.text());
 
     if(isUserOnline(msg.to())) {
@@ -103,4 +102,11 @@ void ChatServer::offlineMsgConsumer(const TcpConnectionPtr & conn) {
 
     redis_.sync_commit();
   }
+}
+
+bool ChatServer::isUserExist(const std::string & user) {
+  bool isExists = false;
+  redis_.sismember(allUserset,user,[&isExists](cpp_redis::reply & reply){ isExists = reply.as_integer(); });
+  redis_.sync_commit();
+  return isExists;
 }

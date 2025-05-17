@@ -38,3 +38,15 @@ inline void SendResponseCode(int code,int fd) {
 #define CREATE_GROUP "createGroup"
 #define BREAK_GROUP  "breakGroup"
 #define RM_GROUP_MEM "rmGroupMem"
+
+/* Service 返回 */
+
+#define ADDFRIEND_BACK "ADDFRIEND_BACK"
+#define ADD_FRIEND_SEND_SUCCESS "ADD_FRIEND_SEND_SUCCESS"
+#define ADD_FRIEND_SEND_FAILED  "USER_NOT_FOUND"
+#define VERI_FRIEND_BACK "VERI_FRIEND_BACK"
+#define VERI_FRIEND_SUCCESS "VERI_FRIEND_SUCCESS"
+#define PULL_FRIEND_LIST "PULL_FRIEND_LIST"
+#define EMAIL_HASH_USERNAME "emailHashUserName"
+#define FRIEND_BE_ONLINE "FriendBeOnline"
+#define FRIEND_BE_OFFLINE "FriendBeOffline"

@@ -3,6 +3,11 @@
 #include"responsecode.h"
 #include"Timestamp.h"
 #include"msg.pb.h"
+#include<ftxui/component/screen_interactive.hpp>
+
+extern std::vector<Friend> friends;
+
+extern ftxui::ScreenInteractive FriendListScreen;
 
 void MsgClient::SerializeSend(const std::string action,const std::string & Requestor,const std::string & obj,const std::vector<std::string>& args) {
   Message ServiceMsg;
@@ -43,4 +48,26 @@ void MsgClient::addGroup(const std::string & requestor,const std::string & obj) 
 
 void MsgClient::quitGroup(const std::string & requestor,const std::string & obj) {
   SerializeSend(QUIT_GROUP,requestor,obj);
+}
+
+void MsgClient::pullFriendList(bool isRecv,Message msg) {
+  if(!isRecv) {
+    SerializeSend(PULL_FRIEND_LIST,LocalEmail(),PULL_FRIEND_LIST);
+    return;
+  } 
+
+  std::vector<std::string> user_email;
+  std::vector<std::string> user_name;
+  
+  for(int i = 0;i<msg.args_size();i++) {
+    std::string arg = msg.args(i);
+    user_email.push_back(arg);
+    int pos = user_email[i].find('\n');
+    bool isOnline = user_email[i][pos+1] == 'O';
+    user_name.emplace_back(user_email[i].begin() + pos + 2,user_email[i].begin() + user_email[i].size());
+    user_email[i].resize(pos);
+    friends.push_back({user_email[i],user_name[i],isOnline});
+  }
+
+  FriendListScreen.PostEvent(ftxui::Event::Custom);
 }

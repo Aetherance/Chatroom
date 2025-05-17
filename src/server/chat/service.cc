@@ -19,6 +19,7 @@ ServiceHandler::ServiceHandler(ChatServer * server) : chatServer_(server) {
   server->serviceCallBacks_[QUIT_GROUP] = std::bind(&ServiceHandler::onQuitGroup,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[BREAK_GROUP] = std::bind(&ServiceHandler::onBreakGroup,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[RM_GROUP_MEM] = std::bind(&ServiceHandler::onRmGroupMember,this,std::placeholders::_1,std::placeholders::_2);
+  server->serviceCallBacks_[PULL_FRIEND_LIST] = std::bind(&ServiceHandler::onPullFriendList,this,std::placeholders::_1,std::placeholders::_2);
 }
 
 std::string generateGroupNum() {
@@ -32,9 +33,26 @@ std::string generateGroupNum() {
 }
 
 void ServiceHandler::onAddFriend(const net::TcpConnectionPtr & conn,Message msgProto) {
-  LOG_INFO(msgProto.from() + "wants to make friend with " + msgProto.to());
+  LOG_INFO(msgProto.from() + " wants to make friend with " + msgProto.to());
   std::string request = msgProto.SerializeAsString();
-  chatServer_->sendMsgToUser(request,userHashConn[msgProto.to()]);
+  
+  Message returnMsg;
+  returnMsg.set_from(ADDFRIEND_BACK);
+  returnMsg.set_to(msgProto.from());
+  returnMsg.set_isservice(true);
+
+  if(chatServer_->isUserExist(msgProto.to())) {
+    if(chatServer_->isUserOnline(msgProto.to())) {
+      chatServer_->sendMsgToUser(request,userHashConn[msgProto.to()]);
+    } else {
+      chatServer_->onOfflineMsg(msgProto.to(),request);
+    }
+    returnMsg.set_text(ADD_FRIEND_SEND_SUCCESS);
+  } else {
+    returnMsg.set_text(ADD_FRIEND_SEND_FAILED);
+  }
+  
+  chatServer_->sendMsgToUser(returnMsg.SerializeAsString(),conn);
 }
 
 /* 验证好友(确认添加好友) */
@@ -43,6 +61,15 @@ void ServiceHandler::onVerifyFriend(const net::TcpConnectionPtr & conn,Message m
   chatServer_->redis_.sadd(friendSet + msgProto.to(),{msgProto.from()});
   chatServer_->redis_.sadd(friendSet + msgProto.from(),{msgProto.to()});
   chatServer_->redis_.sync_commit();
+
+  Message fromMsg,toMsg;
+  fromMsg.set_to(msgProto.from());
+  fromMsg.set_from(VERI_FRIEND_BACK);
+  fromMsg.set_isservice(true);
+
+  toMsg.set_to(msgProto.to());
+  toMsg.set_from(VERI_FRIEND_BACK);
+  toMsg.set_isservice(true);
 }
 
 void ServiceHandler::onDeleteFriend(const net::TcpConnectionPtr & conn,Message msgProto) {
@@ -80,4 +107,67 @@ void ServiceHandler::onBreakGroup(const net::TcpConnectionPtr & conn,Message msg
 
 void ServiceHandler::onRmGroupMember(const net::TcpConnectionPtr & conn,Message msgProto) {
   
+}
+
+void ServiceHandler::onPullFriendList(const net::TcpConnectionPtr & conn,Message msgProto) {
+  auto future = chatServer_->redis_.smembers(friendSet + msgProto.from());
+  chatServer_->redis_.sync_commit();
+  auto reply = future.get();
+  auto replyArr = reply.as_array();
+
+  for(auto & entry : replyArr) {
+    std::string friendInfo;
+    auto future = chatServer_->redis_.hget(EMAIL_HASH_USERNAME,entry.as_string());
+
+    chatServer_->redis_.sync_commit();
+    auto reply = future.get();
+    if(!reply.is_string()) {
+      continue;
+    }
+    friendInfo = entry.as_string() + "\n" + (chatServer_->isUserOnline(entry.as_string()) ? "O" : "U") + reply.as_string();
+    msgProto.add_args(friendInfo);
+  }
+
+  msgProto.set_to(msgProto.from());
+  msgProto.set_from(PULL_FRIEND_LIST);
+  msgProto.set_isservice(true);
+  std::string resp = msgProto.SerializeAsString();
+
+  chatServer_->sendMsgToUser(resp,conn);
+}
+
+void ServiceHandler::FriendBeOnline(const net::TcpConnectionPtr & conn) {
+  Message msg;
+  msg.set_from(conn->user_email());
+  msg.set_text(FRIEND_BE_ONLINE);
+  msg.set_isservice(true);
+
+  auto future = chatServer_->redis_.smembers(friendSet + conn->user_email());
+  chatServer_->redis_.sync_commit();
+  auto reply = future.get();
+  auto replyArr = reply.as_array();
+
+  for(auto & entry : replyArr) {
+    if(chatServer_->isUserOnline(entry.as_string())) {
+      chatServer_->sendMsgToUser(msg.SerializeAsString(),userHashConn[entry.as_string()]);
+    }
+  }
+}
+
+void ServiceHandler::FriendBeOffline(const net::TcpConnectionPtr & conn) {
+  Message msg;
+  msg.set_from(conn->user_email());
+  msg.set_text(FRIEND_BE_OFFLINE);
+  msg.set_isservice(true);
+
+  auto future = chatServer_->redis_.smembers(friendSet + conn->user_email());
+  chatServer_->redis_.sync_commit();
+  auto reply = future.get();
+  auto replyArr = reply.as_array();
+
+  for(auto & entry : replyArr) {
+    if(chatServer_->isUserOnline(entry.as_string())) {
+      chatServer_->sendMsgToUser(msg.SerializeAsString(),userHashConn[entry.as_string()]);
+    }
+  }
 }

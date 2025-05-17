@@ -19,7 +19,7 @@ Client::~Client() {
 void Client::run() {
   /* 先进行身份验证操作(包含登录和注册) */
   // Verify();
-  // Msg();
+  Msg();
   /* 聊天室聊天功能 */
 }
 
@@ -86,7 +86,10 @@ void Client::Msg() {
   
   std::thread recvThread([this]{ msgClient_.recvMsgLoop(); });
   
-  msgClient_.setEmail("op");
+  std::string email;
+  std::cin>>email;
+
+  msgClient_.setEmail(email);
 
   msgClient_.connect();
   

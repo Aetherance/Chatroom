@@ -32,6 +32,12 @@ public:
 
   void onRmGroupMember(const net::TcpConnectionPtr & conn,Message msgProto);
 
+  void onPullFriendList(const net::TcpConnectionPtr & conn,Message msgProto);
+
+  void FriendBeOnline(const net::TcpConnectionPtr & conn);
+
+  void FriendBeOffline(const net::TcpConnectionPtr & conn);
+
 private:
   /* redis 好友与群聊存储 */
   /* 好友列表前缀 */

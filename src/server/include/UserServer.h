@@ -41,6 +41,8 @@ private:
   /* 登录功能 */
   void onLogin(const std::string& email,const std::string& passwd,const net::TcpConnectionPtr & conn);
 
+  void makeEmailNameHash(const std::string & userInfo,const std::string email);
+
   /* redis email-code 哈希表的名称 */
   inline static const std::string RedisEmailCodeHash_ = "email_code";
   /* redis 用户信息哈希表的名称 */

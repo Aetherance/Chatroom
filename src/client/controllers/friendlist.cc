@@ -2,23 +2,31 @@
 
 using namespace ftxui;
 
-std::vector<std::pair<std::string,std::string>> friends = { {"op","op"}};
+std::vector<Friend> friends = {};
+
+std::string show_info;
+
+std::string show_info2;
+
+ScreenInteractive FriendListScreen = ScreenInteractive::Fullscreen();
 
 void Client::FriendList() {
-  /* 第一个是邮箱 第二个是用户名 */
-  std::string new_friend;
-  bool in_chat = false;
+  msgClient_.pullFriendList();
 
-  auto screen = ScreenInteractive::Fullscreen();
+  /* 第一个是邮箱 第二个是用户名 */
+  bool in_chat = false;
+  
+
+  std::string new_friend;
 
   // 输入组件
-  std::string input_show = "添加新好友...";
+  std::string input_show = "输入邮箱以添加新好友...";
   Component input = Input(&new_friend, input_show);
-
+  
   // 添加好友按钮
   Component add_button = Button("添加", [&] {
     if (!new_friend.empty()) {
-      // friends.push_back(onew_friend);
+      msgClient_.addFriend(msgClient_.LocalEmail(),new_friend);
       new_friend.clear();
     }
   });
@@ -55,8 +63,8 @@ void Client::FriendList() {
     // 好友列表界面
     friends_container->DetachAllChildren();
     for (const auto& name : friends) {
-      auto btn = Button(name.second, [&, name] { 
-        msgClient_.updatePeer(name.first,name.second);
+      auto btn = Button((name.isOnline ? " ● " : " ○ ") + name.username, [&, name] { 
+        msgClient_.updatePeer(name.email,name.username);
         in_chat = true;
       });
       friends_container->Add(btn);
@@ -64,6 +72,12 @@ void Client::FriendList() {
 
     return vbox({
       text("Chatroom") | bold | center,
+      hbox({
+        text("💬 " + show_info)
+      }) | size(HEIGHT,EQUAL, show_info.empty() ? 0 : 1) | (show_info.empty() ? size(WIDTH,EQUAL,0) : border),
+      hbox({
+        text("💬 " + show_info2)
+      }) | size(HEIGHT,EQUAL, show_info2.empty() ? 0 : 1) | (show_info2.empty() ? size(WIDTH,EQUAL,0) : border),
       hbox({
         input->Render() | flex,
         add_button->Render(),
@@ -85,5 +99,5 @@ void Client::FriendList() {
     }
   });
 
-  screen.Loop(main_renderer);
+  FriendListScreen.Loop(main_renderer);
 }

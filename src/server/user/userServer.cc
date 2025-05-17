@@ -4,6 +4,7 @@
 #include"responsecode.h"
 #include<jsoncpp/json/json.h>
 #include<map>
+#include<sstream>
 
 using namespace net;
 
@@ -86,6 +87,8 @@ void UserServer::onRegister2(const std::string & userInfo,const std::string & em
   redis_.sadd(allUserset,{email});
   redis_.sync_commit();
 
+  makeEmailNameHash(userInfo,email);
+
   SendResponseCode(USER_OK,conn->fd());
 }
 
@@ -137,4 +140,12 @@ void UserServer::parseMessage(const std::string & MessageStr,const TcpConnection
   } else if(action == LOGIN) {
     onLogin(message["email"].asString(),message["passwd"].asString(),conn);
   }
+}
+
+void UserServer::makeEmailNameHash(const std::string & userInfo,const std::string email) {
+  Json::CharReaderBuilder reader;
+  Json::Value val;
+  std::istringstream str(userInfo);
+  Json::parseFromStream(reader,str,&val,nullptr);
+  redis_.hset(EMAIL_HASH_USERNAME,email,val["username"].asString());
 }

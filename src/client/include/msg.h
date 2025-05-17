@@ -6,10 +6,12 @@
 #include"InetAddress.h"
 #include"Buffer.h"
 #include"responsecode.h"
+#include"msg.pb.h"
 
 struct Friend {
   std::string email;
   std::string username;
+  bool isOnline;
 };
 
 struct Group {
@@ -22,9 +24,6 @@ struct messageinfo {
   std::string text;
   int64_t timestamp;
 };
-
-/* 好友列表 */
-inline std::vector<Friend> FriendList;
 
 /* 群聊列表 */
 inline std::vector<Group> GroupList;
@@ -88,7 +87,7 @@ public:
 
   }
 
-  // void pullFriendList();
+  void pullFriendList(bool isRecv = false,Message msg = {});
   
   // void pushFriendList();
 

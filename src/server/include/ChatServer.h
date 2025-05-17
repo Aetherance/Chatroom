@@ -35,6 +35,8 @@ private:
   /* conn是用户对应的连接 */
   void sendMsgToUser(const std::string & Msg,const net::TcpConnectionPtr & conn);
 
+  bool isUserExist(const std::string & user_email); 
+
   bool isUserOnline(const std::string & user_email);
 
   void onOfflineMsg(const std::string & who,const std::string & msg);
