@@ -2,6 +2,8 @@
 #include<iostream>
 #include<regex>
 #include<termios.h>
+#include<chrono>
+#include<iomanip>
 
 using namespace ftxui;
 

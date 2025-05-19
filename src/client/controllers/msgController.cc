@@ -2,6 +2,7 @@
 #include<iomanip>
 #include<vector>
 #include <chrono>
+#include"Timestamp.h"
 
 using namespace ftxui;
 
@@ -10,6 +11,8 @@ extern std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
 std::string MessageKey;
 std::string PeerUserName;
 std::string PeerEmail;
+
+std::string getTime(int64_t rawtime);
 
 ScreenInteractive MsgScreen = ScreenInteractive::Fullscreen();
   // 状态变量
@@ -37,7 +40,7 @@ void Client::MsgController() {
         return;
       }
       
-      messageMap[MessageKey].push_back({"You", input_content});
+      messageMap[MessageKey].push_back({"You", input_content,ilib::base::Timestamp::now().microSecondsSinceEpoch()});
 
       msgClient_.sendMsgPeer(input_content);
       input_content.clear();
@@ -52,7 +55,7 @@ void Client::MsgController() {
   send_btn = Button("发送", [&] {
     if (!input_content.empty()) {
 
-      messageMap[msgClient_.peerEmail()].push_back({"You", input_content});
+      messageMap[msgClient_.peerEmail()].push_back({"You", input_content, ilib::base::Timestamp::now().microSecondsSinceEpoch()});
 
       msgClient_.sendMsgPeer(input_content);
       input_content.clear();
@@ -94,7 +97,7 @@ Component makeRenderer() {
 
     Elements visible_elements;
     for (int i = start; i < end; ++i) {
-      visible_elements.push_back(text(messageMap[MessageKey][i].from + ": " + messageMap[MessageKey][i].text));
+      visible_elements.push_back(text(getTime(messageMap[MessageKey][i].timestamp) + messageMap[MessageKey][i].from + ": " + messageMap[MessageKey][i].text));
     }
 
     // 基本边栏框架
@@ -160,5 +163,23 @@ Component makeRenderer() {
     }
     
     return false;
-  });
+  }) | color(Color::White) | bgcolor(Color::RGB(22, 22, 30));
+}
+
+std::string getTime(int64_t microSecondsSinceEpoch) {
+  using namespace std::chrono;
+
+  auto timePoint = time_point<system_clock>(microseconds(microSecondsSinceEpoch));
+
+  time_t time = system_clock::to_time_t(timePoint);
+
+  struct tm localTime;
+ 
+  if (localtime_r(&time, &localTime) == nullptr) {
+      return "[Invalid Time] ";
+  }
+  
+  std::stringstream ss;
+  ss << std::put_time(&localTime, "%H:%M");
+  return "[" + ss.str() + "] ";
 }

@@ -2,12 +2,12 @@
 
 using namespace ftxui;
 
+extern std::vector<Friend> friends;
+
 void Client::DeleteFriend() {
   auto screen = ScreenInteractive::Fullscreen();
 
   // 使用多个并行数组管理状态
-  std::vector<std::string> friends = {"Alice", "Bob", "Charlie", "David"};
-  std::vector<bool> deleted(friends.size(), false);
   std::vector<bool> blocked(friends.size(), false);
 
   // 创建垂直容器
@@ -17,7 +17,8 @@ void Client::DeleteFriend() {
   for (size_t i = 0; i < friends.size(); ++i) {
     // 删除按钮回调
     auto delete_btn = Button("删除", [&, i] {
-      deleted[i] = true;
+      msgClient_.deleteFriend(msgClient_.LocalEmail(),friends[i].email);
+      friends.erase(friends.begin() + i);
       screen.PostEvent(Event::Custom);
     });
 
@@ -30,7 +31,7 @@ void Client::DeleteFriend() {
     // 创建带边框的好友条目
     auto entry = Container::Horizontal({
         Renderer([&, i] {
-          return text(" " + friends[i] + 
+          return text(" " + friends[i].username + 
                      (blocked[i] ? " (已拉黑)" : "")) | flex;
         }),
         delete_btn,
@@ -49,14 +50,12 @@ void Client::DeleteFriend() {
 
     // 渲染可见条目
     for (size_t i = 0; i < friends.size(); ++i) {
-      if (!deleted[i]) {
-        auto element = container->ChildAt(i)->Render();
-        if (blocked[i]) {
-          element |= color(Color::RedLight);
-        }
-        entries.push_back(element);
-        entries.push_back(separator());
+      auto element = container->ChildAt(i)->Render();
+      if (blocked[i]) {
+        element |= color(Color::RedLight);
       }
+      entries.push_back(element);
+      entries.push_back(separator());
     }
 
     // 空状态提示
@@ -72,7 +71,7 @@ void Client::DeleteFriend() {
     } else {
       return false;
     }
-  });
+  }) | color(Color::White) | bgcolor(Color::RGB(22, 22, 30));
 
   screen.Loop(renderer);
 }

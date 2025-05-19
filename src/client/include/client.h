@@ -39,6 +39,12 @@ private:
 
   void GroupList();
 
+  void CreateGroup();
+
+  void GroupVerify();
+
+  void DeleteGroup();
+
   /* 登录注册客户端 */
   UserClient userClient_;
 

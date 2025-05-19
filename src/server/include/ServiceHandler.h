@@ -38,6 +38,8 @@ public:
 
   void FriendBeOffline(const net::TcpConnectionPtr & conn);
 
+  void onPullGroupList(const net::TcpConnectionPtr & conn,Message msgProto);
+
 private:
   /* redis 好友与群聊存储 */
   /* 好友列表前缀 */
@@ -46,9 +48,6 @@ private:
   std::string groupSet = "groupSet:";
   /* 屏蔽好友列表前缀 */
   std::string blockedFriendSet = "blockedSet:";
-
-  /* 群聊成员前缀 */
-  std::string groupMembers = "groupMembers:";
 
   ChatServer * chatServer_;
 };

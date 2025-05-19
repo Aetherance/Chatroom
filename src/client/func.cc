@@ -7,7 +7,11 @@
 
 extern std::vector<Friend> friends;
 
+extern std::vector<Group> groups;
+
 extern ftxui::ScreenInteractive FriendListScreen;
+
+extern ftxui::ScreenInteractive GroupListScreen;
 
 void MsgClient::SerializeSend(const std::string action,const std::string & Requestor,const std::string & obj,const std::vector<std::string>& args) {
   Message ServiceMsg;
@@ -70,4 +74,33 @@ void MsgClient::pullFriendList(bool isRecv,Message msg) {
   }
 
   FriendListScreen.PostEvent(ftxui::Event::Custom);
+}
+
+void MsgClient::createGroup(const std::string & creator,const std::string & group,const std::vector<std::string> & members) {
+  Message msg;
+  msg.set_from(creator);
+  msg.set_to(group);
+  msg.set_text(CREATE_GROUP);
+  msg.set_isservice(true);
+  for(auto & str : members) {
+    msg.add_args(str);
+  }
+  std::string message_str = msg.SerializeAsString();
+
+  safeSend(message_str);
+}
+
+void MsgClient::pullGroupList(bool isRecv,Message msg) {
+  if(!isRecv) {
+    SerializeSend(PULL_GROUP_LIST,LocalEmail(),PULL_GROUP_LIST);
+    return;
+  } 
+
+  groups.clear();
+  for(int i = 0;i<msg.args_size();i++) {
+    std::string arg = msg.args(i);
+    groups.push_back({arg});
+  }
+
+  GroupListScreen.PostEvent(ftxui::Event::Custom);
 }

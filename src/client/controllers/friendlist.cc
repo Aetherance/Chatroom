@@ -8,6 +8,8 @@ std::string show_info;
 
 std::string show_info2;
 
+extern std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
+
 ScreenInteractive FriendListScreen = ScreenInteractive::Fullscreen();
 
 void Client::FriendList() {
@@ -73,10 +75,10 @@ void Client::FriendList() {
     return vbox({
       text("Chatroom") | bold | center,
       hbox({
-        text("💬 " + show_info)
+        text(" 💬  " + show_info)
       }) | size(HEIGHT,EQUAL, show_info.empty() ? 0 : 1) | (show_info.empty() ? size(WIDTH,EQUAL,0) : border),
       hbox({
-        text("💬 " + show_info2)
+        text(" 💬 " + show_info2)
       }) | size(HEIGHT,EQUAL, show_info2.empty() ? 0 : 1) | (show_info2.empty() ? size(WIDTH,EQUAL,0) : border),
       hbox({
         input->Render() | flex,
@@ -97,7 +99,7 @@ void Client::FriendList() {
     } else {
       return false;
     }
-  });
+  }) | color(Color::White) | bgcolor(Color::RGB(22, 22, 30));
 
   FriendListScreen.Loop(main_renderer);
 }

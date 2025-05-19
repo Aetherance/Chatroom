@@ -50,3 +50,5 @@ inline void SendResponseCode(int code,int fd) {
 #define EMAIL_HASH_USERNAME "emailHashUserName"
 #define FRIEND_BE_ONLINE "FriendBeOnline"
 #define FRIEND_BE_OFFLINE "FriendBeOffline"
+#define DEL_FRIEND_SUCCESS "DEL_FRIEND_SUCCESS"
+#define PULL_GROUP_LIST "PULL_GROUP_LIST"

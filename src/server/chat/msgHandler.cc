@@ -24,27 +24,31 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
     return ;
   }
 
-  bool isExists = isUserExist(msg.to());
+  if(isGroupMessage(msg.to())) {
+    onGroupMessage(msg.to(),msg_str);
+  } else {
+    bool isExists = isUserExist(msg.to());
   
-  if(isExists == false && !msg.isservice()) {
-    LOG_ERROR("parseMessage: User Not Found!");
-  }
+    if(isExists == false && !msg.isservice()) {
+      LOG_ERROR("parseMessage: User Not Found!");
+    }
 
-  if(msg.isservice()) {
-    /* 当isservice为真 Message的text字段代表服务的类型 */
-    serviceCallBacks_[msg.text()](conn,msg);
-    
-  } else if( !msg.isservice() && isExists) {
-    LOG_INFO(COLOR_YELLOW + msg.from() + COLOR_RESET + " says" + " to " + COLOR_YELLOW + msg.to() + COLOR_RESET + " : " + msg.text());
+    if(msg.isservice()) {
+      /* 当isservice为真 Message的text字段代表服务的类型 */
+      serviceCallBacks_[msg.text()](conn,msg);
 
-    if(isUserOnline(msg.to())) {
-      assert(userHashConn[msg.to()]);
-      /* to字段存储接收端信息 */
-      sendMsgToUser(msg_str,userHashConn[msg.to()]);
-    } else {
-      /* 用户不在线 逻辑 */
-      LOG_INFO("User is not online , message stored!");
-      onOfflineMsg(msg.to(),msg_str);
+    } else if( !msg.isservice() && isExists) {
+      LOG_INFO(COLOR_YELLOW + msg.from() + COLOR_RESET + " says" + " to " + COLOR_YELLOW + msg.to() + COLOR_RESET + " : " + msg.text());
+
+      if(isUserOnline(msg.to())) {
+        assert(userHashConn[msg.to()]);
+        /* to字段存储接收端信息 */
+        sendMsgToUser(msg_str,userHashConn[msg.to()]);
+      } else {
+        /* 用户不在线 逻辑 */
+        LOG_INFO("User is not online , message stored!");
+        onOfflineMsg(msg.to(),msg_str);
+      }
     }
   }
 };
@@ -109,4 +113,30 @@ bool ChatServer::isUserExist(const std::string & user) {
   redis_.sismember(allUserset,user,[&isExists](cpp_redis::reply & reply){ isExists = reply.as_integer(); });
   redis_.sync_commit();
   return isExists;
+}
+
+void ChatServer::onGroupMessage(const std::string & group,const std::string & msg) {
+  auto future = redis_.smembers(groupMembers + group);
+  redis_.sync_commit();
+  auto reply = future.get();
+
+  for(auto & entry : reply.as_array()) {
+    std::string group_member = entry.as_string();
+    if(isUserOnline(group_member)) {
+      sendMsgToUser(msg,userHashConn[group_member]);
+    } else {
+      onOfflineMsg(group_member,msg);
+    }
+  }
+}
+
+bool ChatServer::isGroupMessage(const std::string & who) {
+  auto future = redis_.sismember(allGroupSet,who);
+  redis_.sync_commit();
+  auto reply = future.get();
+  if(reply.as_integer()) {
+    return true;
+  } else {
+    return false;
+  }
 }

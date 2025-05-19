@@ -12,9 +12,15 @@ extern std::string show_info;
 
 extern std::string show_info2;
 
+extern std::string show_info3;
+
+extern std::string show_info4;
+
 extern std::vector<std::string> friendRequests;
 
 extern std::vector<Friend>friends;
+
+extern std::vector<Group> groups;
 
 std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
 
@@ -103,36 +109,65 @@ void MsgClient::parseMsg(std::string msg) {
   msgProto.ParseFromString(msg);
 
   if(msgProto.isservice()) {
-    if(msgProto.from() == ADDFRIEND_BACK) {
-      if(msgProto.text() == ADD_FRIEND_SEND_SUCCESS) {
-        show_info = "好友申请已发送!";
-      } else if(msgProto.text() == ADD_FRIEND_SEND_FAILED) {
-        show_info = "用户不存在!";
-      }
-      std::thread([&]{ sleep(2); show_info = ""; }).detach();    
-    } else if(msgProto.text() == ADD_FRIEND) {
-      show_info2 = "新的好友申请!";
-      friendRequests.push_back(msgProto.from());
-    } else if(msgProto.from() == PULL_FRIEND_LIST) {
-      pullFriendList(true,msgProto);
-    } else if(msgProto.from() == VERI_FRIEND_BACK) {
-      pullFriendList();
-    } else if(msgProto.text() == FRIEND_BE_ONLINE) {
-      for(auto & Friend : friends) {
-        if(Friend.email == msgProto.from()) {
-          Friend.isOnline = true;
-        }
-      }
-    } else if(msgProto.text() == FRIEND_BE_OFFLINE) {
-      for(auto & Friend : friends) {
-        if(Friend.email == msgProto.from()) {
-          Friend.isOnline = false;
-        }
-      }
-    }
+    doService(msgProto);
   } else {
     messageMap[msgProto.from()].push_back({msgProto.from(),msgProto.text(),msgProto.timestamp()});
     MsgScreen.PostEvent(ftxui::Event::Custom);
     MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[msgProto.from()].size()) - visible_lines);
   }
+}
+
+void MsgClient::doService(Message msgProto) {
+  if(msgProto.from() == ADDFRIEND_BACK) {
+    doAddFriendBack(msgProto);    
+  } else if(msgProto.text() == ADD_FRIEND) {
+    doAddFriend(msgProto);
+  } else if(msgProto.from() == PULL_FRIEND_LIST) {
+    pullFriendList(true,msgProto);
+  } else if(msgProto.text() == VERI_FRIEND_BACK) {
+    pullFriendList();
+  } else if(msgProto.text() == FRIEND_BE_ONLINE) {
+    doUpdateFriendState(msgProto,true);
+  } else if(msgProto.text() == FRIEND_BE_OFFLINE) {
+    doUpdateFriendState(msgProto,false);
+  } else if(msgProto.text() == DEL_FRIEND_SUCCESS) {
+    doDeleteFriend(msgProto);
+  } else if(msgProto.text() == CREATE_GROUP) {
+    doCreateGroup(msgProto);
+  } else if(msgProto.from() == PULL_GROUP_LIST) {
+    pullGroupList(true,msgProto);
+  }
+}
+
+void MsgClient::doAddFriendBack(const Message & msgProto) {
+  if(msgProto.text() == ADD_FRIEND_SEND_SUCCESS) {
+    show_info = "好友申请已发送!";
+  } else if(msgProto.text() == ADD_FRIEND_SEND_FAILED) {
+    show_info = "用户不存在!";
+  }
+  std::thread([&]{ sleep(2); show_info = ""; }).detach();
+}
+
+void MsgClient::doAddFriend(const Message & msgProto) {
+  show_info2 = "新的好友申请!";
+  friendRequests.push_back(msgProto.from());
+}
+
+void MsgClient::doUpdateFriendState(const Message & msgProto,bool isOnline) {
+  for(auto & Friend : friends) {
+    if(Friend.email == msgProto.from()) {
+      Friend.isOnline = isOnline;
+    }
+  }
+}
+
+void MsgClient::doDeleteFriend(const Message & msgProto) {
+  friends.clear();
+  pullFriendList();
+  show_info = "您已和" + msgProto.from() + "的好友关系已断开!";
+}
+
+void MsgClient::doCreateGroup(const Message & msgProto) {
+  show_info3 = "已加入新群聊" + msgProto.from();
+  pullGroupList();
 }

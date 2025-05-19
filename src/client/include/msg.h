@@ -15,7 +15,6 @@ struct Friend {
 };
 
 struct Group {
-  std::string groupId;
   std::string groupname;
 };
 
@@ -75,25 +74,30 @@ public:
 
   void quitGroup(const std::string & requestor,const std::string & obj);
 
-  void createGroup() {
+  void createGroup(const std::string & creator, const std::string & group,const std::vector<std::string> & members);
 
-  }
+  void rmGroupMember() {}
 
-  void rmGroupMember() {
-
-  }
-
-  void breakGroup() {
-
-  }
+  void breakGroup() {}
 
   void pullFriendList(bool isRecv = false,Message msg = {});
   
-  // void pushFriendList();
+  void doService(Message msg);
+
+  void doAddFriendBack(const Message & msg);
+
+  void doAddFriend(const Message & msg);
+
+  void doUpdateFriendState(const Message & msg,bool isOnline);
+
+  void doDeleteFriend(const Message & msg);
+
+  void doCreateGroup(const Message & msg);
+
+  void pullGroupList(bool isRecv = false,Message msg = {});
 
 private:
   void sendMsgTo(const std::string & who,const std::string & msg);
-  void echoMsg(const std::string & sourceMsg,std::string & echoMsg);
 
   /* 用户信息 */
   std::string LocalUsername_;

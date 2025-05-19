@@ -43,6 +43,10 @@ private:
 
   void offlineMsgConsumer(const net::TcpConnectionPtr & conn);
   
+  void onGroupMessage(const std::string & group,const std::string & msg);
+
+  bool isGroupMessage(const std::string & obj);
+
   using serviceCallback = std::function<void(const net::TcpConnectionPtr & conn,Message msgProto)>;
   
   std::unordered_map<std::string,serviceCallback>serviceCallBacks_;
@@ -55,6 +59,9 @@ private:
   inline static const std::string allUserset = "allUserSet";
   inline static const std::string onlineUserSet = "onlineUserSet";
   inline static const std::string offlineMessages = "offlineMessages:";
+  inline static const std::string allGroupSet = "allGroupSet";
+  inline static const std::string groupMembers = "groupMembers:";
+  inline static const std::string groupHashOwner = "groupHashOwner";
 };
 
 #endif
