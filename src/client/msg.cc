@@ -22,6 +22,8 @@ extern std::vector<Friend>friends;
 
 extern std::vector<Group> groups;
 
+extern std::vector<GroupApplication> applications;
+
 std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
 
 extern ftxui::ScreenInteractive MsgScreen;
@@ -68,6 +70,7 @@ void MsgClient::sendMsgTo(const std::string & who,const std::string & msgtext) {
   msg.set_text(msgtext);
   msg.set_timestamp(now.microSecondsSinceEpoch());
   msg.set_isservice(false);
+  msg.set_isgroupmessage(false);
 
   std::string message = msg.SerializeAsString();
   
@@ -111,9 +114,14 @@ void MsgClient::parseMsg(std::string msg) {
   if(msgProto.isservice()) {
     doService(msgProto);
   } else {
-    messageMap[msgProto.from()].push_back({msgProto.from(),msgProto.text(),msgProto.timestamp()});
+    if(msgProto.isgroupmessage()) {
+      messageMap[msgProto.to()].push_back({msgProto.from(),msgProto.text(),msgProto.timestamp()});
+      MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[msgProto.to()].size()) - visible_lines);
+    } else {
+      messageMap[msgProto.from()].push_back({msgProto.from(),msgProto.text(),msgProto.timestamp()});
+      MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[msgProto.from()].size()) - visible_lines);
+    }
     MsgScreen.PostEvent(ftxui::Event::Custom);
-    MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[msgProto.from()].size()) - visible_lines);
   }
 }
 
@@ -136,6 +144,12 @@ void MsgClient::doService(Message msgProto) {
     doCreateGroup(msgProto);
   } else if(msgProto.from() == PULL_GROUP_LIST) {
     pullGroupList(true,msgProto);
+  } else if(msgProto.from() == ADDGROUP_BACK) {
+    doAddGroupBack(msgProto);
+  } else if(msgProto.text() == ADD_GROUP) {
+    doAddGroup(msgProto);
+  } else if(msgProto.text() == VERI_GROUP_SUCCESS) {
+    doVeriGroup(msgProto);
   }
 }
 
@@ -170,4 +184,34 @@ void MsgClient::doDeleteFriend(const Message & msgProto) {
 void MsgClient::doCreateGroup(const Message & msgProto) {
   show_info3 = "已加入新群聊" + msgProto.from();
   pullGroupList();
+}
+
+void MsgClient::doAddGroupBack(const Message & msgProto) {
+  if(msgProto.text() == ADD_GROUP_SEND_SUCCESS) {
+    show_info4 = "加群申请已发送";
+  } else {
+    show_info4 = "群聊不存在!";
+  } 
+  std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
+}
+
+void MsgClient::doAddGroup(const Message & msgProto) {
+  applications.push_back({msgProto.from(),msgProto.to()});
+  show_info3 = "有新的加群申请!";
+}
+
+void MsgClient::verifyGroup(const std::string & who, const std::string & group) {
+  SerializeSend(VERI_GROUP,who,group);
+}
+
+void MsgClient::doVeriGroup(const Message & msg) {
+  if(msg.to() == ENTERING_NEW_GROUP) {
+    groups.push_back({msg.from()});
+    show_info4 = "您已经加入" + msg.from();
+    std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
+    pullGroupList();
+  } else if(msg.to() == VERI_GROUP_SUCCESS) {
+    show_info4 = msg.from() + "加入了您的群聊";
+    std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
+  }
 }

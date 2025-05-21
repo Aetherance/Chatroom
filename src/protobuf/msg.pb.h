@@ -180,6 +180,7 @@ class Message final :
     kTextFieldNumber = 3,
     kTimestampFieldNumber = 4,
     kIsServiceFieldNumber = 6,
+    kIsGroupMessageFieldNumber = 7,
   };
   // repeated string args = 5;
   int args_size() const;
@@ -265,6 +266,15 @@ class Message final :
   void _internal_set_isservice(bool value);
   public:
 
+  // bool isGroupMessage = 7;
+  void clear_isgroupmessage();
+  bool isgroupmessage() const;
+  void set_isgroupmessage(bool value);
+  private:
+  bool _internal_isgroupmessage() const;
+  void _internal_set_isgroupmessage(bool value);
+  public:
+
   // @@protoc_insertion_point(class_scope:Message)
  private:
   class _Internal;
@@ -279,6 +289,7 @@ class Message final :
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr text_;
     int64_t timestamp_;
     bool isservice_;
+    bool isgroupmessage_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -558,6 +569,26 @@ inline void Message::_internal_set_isservice(bool value) {
 inline void Message::set_isservice(bool value) {
   _internal_set_isservice(value);
   // @@protoc_insertion_point(field_set:Message.isService)
+}
+
+// bool isGroupMessage = 7;
+inline void Message::clear_isgroupmessage() {
+  _impl_.isgroupmessage_ = false;
+}
+inline bool Message::_internal_isgroupmessage() const {
+  return _impl_.isgroupmessage_;
+}
+inline bool Message::isgroupmessage() const {
+  // @@protoc_insertion_point(field_get:Message.isGroupMessage)
+  return _internal_isgroupmessage();
+}
+inline void Message::_internal_set_isgroupmessage(bool value) {
+  
+  _impl_.isgroupmessage_ = value;
+}
+inline void Message::set_isgroupmessage(bool value) {
+  _internal_set_isgroupmessage(value);
+  // @@protoc_insertion_point(field_set:Message.isGroupMessage)
 }
 
 #ifdef __GNUC__

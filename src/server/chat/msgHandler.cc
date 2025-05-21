@@ -24,8 +24,8 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
     return ;
   }
 
-  if(isGroupMessage(msg.to())) {
-    onGroupMessage(msg.to(),msg_str);
+  if(isGroupMessage(msg.to()) && !msg.isservice()) {
+    onGroupMessage(msg.to(),msg);
   } else {
     bool isExists = isUserExist(msg.to());
   
@@ -37,7 +37,7 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
       /* 当isservice为真 Message的text字段代表服务的类型 */
       serviceCallBacks_[msg.text()](conn,msg);
 
-    } else if( !msg.isservice() && isExists) {
+    } else if( !msg.isservice() && isExists && msg.from() != msg.to()) {
       LOG_INFO(COLOR_YELLOW + msg.from() + COLOR_RESET + " says" + " to " + COLOR_YELLOW + msg.to() + COLOR_RESET + " : " + msg.text());
 
       if(isUserOnline(msg.to())) {
@@ -115,18 +115,19 @@ bool ChatServer::isUserExist(const std::string & user) {
   return isExists;
 }
 
-void ChatServer::onGroupMessage(const std::string & group,const std::string & msg) {
+void ChatServer::onGroupMessage(const std::string & group,Message & msgProto) {
+  msgProto.set_isgroupmessage(true);
+  std::string msg = msgProto.SerializeAsString();
   auto future = redis_.smembers(groupMembers + group);
   redis_.sync_commit();
   auto reply = future.get();
 
   for(auto & entry : reply.as_array()) {
     std::string group_member = entry.as_string();
-    if(isUserOnline(group_member)) {
-      sendMsgToUser(msg,userHashConn[group_member]);
-    } else {
-      onOfflineMsg(group_member,msg);
+    if(group_member == msgProto.from()) {
+      continue;
     }
+    sendOrSave(group_member,msg);
   }
 }
 

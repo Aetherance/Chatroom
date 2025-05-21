@@ -21,6 +21,7 @@ ServiceHandler::ServiceHandler(ChatServer * server) : chatServer_(server) {
   server->serviceCallBacks_[RM_GROUP_MEM] = std::bind(&ServiceHandler::onRmGroupMember,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[PULL_FRIEND_LIST] = std::bind(&ServiceHandler::onPullFriendList,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[PULL_GROUP_LIST] = std::bind(&ServiceHandler::onPullGroupList,this,std::placeholders::_1,std::placeholders::_2);
+  server->serviceCallBacks_[VERI_GROUP] = std::bind(&ServiceHandler::onVerifyGroup,this,std::placeholders::_1,std::placeholders::_2);
 }
 
 std::string generateGroupNum() {
@@ -43,11 +44,7 @@ void ServiceHandler::onAddFriend(const net::TcpConnectionPtr & conn,Message msgP
   returnMsg.set_isservice(true);
 
   if(chatServer_->isUserExist(msgProto.to())) {
-    if(chatServer_->isUserOnline(msgProto.to())) {
-      chatServer_->sendMsgToUser(request,userHashConn[msgProto.to()]);
-    } else {
-      chatServer_->onOfflineMsg(msgProto.to(),request);
-    }
+    chatServer_->sendOrSave(msgProto.to(),request);
     returnMsg.set_text(ADD_FRIEND_SEND_SUCCESS);
   } else {
     returnMsg.set_text(ADD_FRIEND_SEND_FAILED);
@@ -89,11 +86,7 @@ void ServiceHandler::onDeleteFriend(const net::TcpConnectionPtr & conn,Message m
   msg.set_from(conn->user_email());
   msg.set_text(DEL_FRIEND_SUCCESS);
 
-  if(chatServer_->isUserOnline(msgProto.to())) {
-    chatServer_->sendMsgToUser(msg.SerializeAsString(),userHashConn[msgProto.to()]);
-  } else {
-    chatServer_->onOfflineMsg(msgProto.to(),msg.SerializeAsString());
-  }
+  chatServer_->sendOrSave(msgProto.to(),msg.SerializeAsString());
 }
 
 void ServiceHandler::onBlackoutFriend(const net::TcpConnectionPtr & conn,Message msgProto) {
@@ -109,6 +102,7 @@ void ServiceHandler::onCreateGroup(const net::TcpConnectionPtr & conn,Message ms
   std::string group = msgProto.to();
   chatServer_->redis_.sadd(chatServer_->allGroupSet,{group});
   chatServer_->redis_.sadd(groupSet + creator,{group});
+  chatServer_->redis_.sadd(chatServer_->groupMembers + group,{creator});
   LOG_INFO(creator + "创建了群" + group);
   for(int i = 0;i<msgProto.args_size();i++) {
     chatServer_->redis_.sadd(groupSet + msgProto.args(i),{group});
@@ -129,16 +123,52 @@ void ServiceHandler::onCreateGroup(const net::TcpConnectionPtr & conn,Message ms
   }
 
   for(int i = 0;i<msgProto.args_size();i++) {
-    if(chatServer_->isUserOnline(msgProto.args(i))) {
-      chatServer_->sendMsgToUser(msg.SerializeAsString(),userHashConn[msgProto.args(i)]);
-    } else {
-      chatServer_->onOfflineMsg(msgProto.args(i),msg.SerializeAsString());
-    } 
+    chatServer_->sendOrSave(msgProto.args(i),msg.SerializeAsString());
   }
 }
 
 void ServiceHandler::onAddGroup(const net::TcpConnectionPtr & conn,Message msgProto) {
+  LOG_INFO(msgProto.from() + " wants to join " + msgProto.to());
+  std::string request = msgProto.SerializeAsString();
   
+  Message returnMsg;
+  returnMsg.set_from(ADDGROUP_BACK);
+  returnMsg.set_to(msgProto.from());
+  returnMsg.set_isservice(true);
+
+  if(chatServer_->isGroupMessage(msgProto.to())) {
+    auto future = chatServer_->redis_.hget(chatServer_->groupHashOwner,msgProto.to());
+    chatServer_->redis_.sync_commit();
+    auto reply = future.get();
+    auto owner = reply.as_string();
+  
+    chatServer_->sendOrSave(owner,msgProto.SerializeAsString());
+    returnMsg.set_text(ADD_GROUP_SEND_SUCCESS);
+  } else {
+    returnMsg.set_text(ADD_GROUP_SEND_FAILED);
+  }
+  
+  chatServer_->sendOrSave(msgProto.from(),returnMsg.SerializeAsString());
+}
+
+void ServiceHandler::onVerifyGroup(const net::TcpConnectionPtr & conn,Message msgProto) {
+  chatServer_->redis_.sadd(chatServer_->groupMembers + msgProto.to(),{msgProto.from()});
+  chatServer_->redis_.sadd(groupSet + msgProto.from(),{msgProto.to()});
+
+  Message response_new_member;
+  response_new_member.set_from(msgProto.to());
+  response_new_member.set_text(VERI_GROUP_SUCCESS);
+  response_new_member.set_isservice(true);
+  response_new_member.set_to(ENTERING_NEW_GROUP);
+
+  Message response_owner;
+  response_owner.set_from(msgProto.from());
+  response_owner.set_text(VERI_GROUP_SUCCESS);
+  response_owner.set_isservice(true);
+  response_owner.set_to(VERI_GROUP_SUCCESS);
+
+  chatServer_->sendOrSave(msgProto.from(),response_new_member.SerializeAsString());
+  chatServer_->sendOrSave(conn->user_email(),response_owner.SerializeAsString());
 }
 
 void ServiceHandler::onQuitGroup(const net::TcpConnectionPtr & conn,Message msgProto) {
@@ -178,6 +208,7 @@ void ServiceHandler::onPullFriendList(const net::TcpConnectionPtr & conn,Message
   std::string resp = msgProto.SerializeAsString();
 
   chatServer_->sendMsgToUser(resp,conn);
+  LOG_INFO_SUCCESS(conn->user_email() + ": Pull friend list!");
 }
 
 void ServiceHandler::FriendBeOnline(const net::TcpConnectionPtr & conn) {

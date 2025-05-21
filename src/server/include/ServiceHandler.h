@@ -1,8 +1,6 @@
 #ifndef SERVICE_HANDLER_H
 #define SERVICE_HANDLER_H
 
-#include"EventLoop.h"
-
 using namespace ilib;
 
 class ChatServer;
@@ -26,6 +24,8 @@ public:
 
   void onAddGroup(const net::TcpConnectionPtr & conn,Message msgProto);
  
+  void onVerifyGroup(const net::TcpConnectionPtr & conn,Message msgProto);
+
   void onQuitGroup(const net::TcpConnectionPtr & conn,Message msgProto);
 
   void onBreakGroup(const net::TcpConnectionPtr & conn,Message msgProto);
@@ -39,7 +39,6 @@ public:
   void FriendBeOffline(const net::TcpConnectionPtr & conn);
 
   void onPullGroupList(const net::TcpConnectionPtr & conn,Message msgProto);
-
 private:
   /* redis 好友与群聊存储 */
   /* 好友列表前缀 */

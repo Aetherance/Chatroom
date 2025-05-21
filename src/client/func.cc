@@ -63,6 +63,8 @@ void MsgClient::pullFriendList(bool isRecv,Message msg) {
   std::vector<std::string> user_email;
   std::vector<std::string> user_name;
   
+  friends.clear();
+
   for(int i = 0;i<msg.args_size();i++) {
     std::string arg = msg.args(i);
     user_email.push_back(arg);

@@ -43,9 +43,11 @@ private:
 
   void offlineMsgConsumer(const net::TcpConnectionPtr & conn);
   
-  void onGroupMessage(const std::string & group,const std::string & msg);
+  void onGroupMessage(const std::string & group,Message & msg);
 
   bool isGroupMessage(const std::string & obj);
+
+  void sendOrSave(const std::string & to,const std::string & msg);
 
   using serviceCallback = std::function<void(const net::TcpConnectionPtr & conn,Message msgProto)>;
   

@@ -24,8 +24,10 @@ struct messageinfo {
   int64_t timestamp;
 };
 
-/* 群聊列表 */
-inline std::vector<Group> GroupList;
+struct GroupApplication {
+  std::string user;
+  std::string group;
+};
 
 class MsgClient
 {
@@ -76,6 +78,8 @@ public:
 
   void createGroup(const std::string & creator, const std::string & group,const std::vector<std::string> & members);
 
+  void verifyGroup(const std::string & who, const std::string & group);
+
   void rmGroupMember() {}
 
   void breakGroup() {}
@@ -95,6 +99,12 @@ public:
   void doCreateGroup(const Message & msg);
 
   void pullGroupList(bool isRecv = false,Message msg = {});
+
+  void doAddGroupBack(const Message & msg);
+
+  void doAddGroup(const Message & msg);
+
+  void doVeriGroup(const Message & msg);
 
 private:
   void sendMsgTo(const std::string & who,const std::string & msg);

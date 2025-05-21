@@ -28,6 +28,7 @@ PROTOBUF_CONSTEXPR Message::Message(
   , /*decltype(_impl_.text_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.timestamp_)*/int64_t{0}
   , /*decltype(_impl_.isservice_)*/false
+  , /*decltype(_impl_.isgroupmessage_)*/false
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct MessageDefaultTypeInternal {
   PROTOBUF_CONSTEXPR MessageDefaultTypeInternal()
@@ -55,6 +56,7 @@ const uint32_t TableStruct_msg_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(prot
   PROTOBUF_FIELD_OFFSET(::Message, _impl_.timestamp_),
   PROTOBUF_FIELD_OFFSET(::Message, _impl_.args_),
   PROTOBUF_FIELD_OFFSET(::Message, _impl_.isservice_),
+  PROTOBUF_FIELD_OFFSET(::Message, _impl_.isgroupmessage_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::Message)},
@@ -65,14 +67,14 @@ static const ::_pb::Message* const file_default_instances[] = {
 };
 
 const char descriptor_table_protodef_msg_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\tmsg.proto\"e\n\007Message\022\014\n\004from\030\001 \001(\t\022\n\n\002"
+  "\n\tmsg.proto\"}\n\007Message\022\014\n\004from\030\001 \001(\t\022\n\n\002"
   "to\030\002 \001(\t\022\014\n\004text\030\003 \001(\t\022\021\n\ttimestamp\030\004 \001("
-  "\003\022\014\n\004args\030\005 \003(\t\022\021\n\tisService\030\006 \001(\010b\006prot"
-  "o3"
+  "\003\022\014\n\004args\030\005 \003(\t\022\021\n\tisService\030\006 \001(\010\022\026\n\016is"
+  "GroupMessage\030\007 \001(\010b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_msg_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_msg_2eproto = {
-    false, false, 122, descriptor_table_protodef_msg_2eproto,
+    false, false, 146, descriptor_table_protodef_msg_2eproto,
     "msg.proto",
     &descriptor_table_msg_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_msg_2eproto::offsets,
@@ -108,6 +110,7 @@ Message::Message(const Message& from)
     , decltype(_impl_.text_){}
     , decltype(_impl_.timestamp_){}
     , decltype(_impl_.isservice_){}
+    , decltype(_impl_.isgroupmessage_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -136,8 +139,8 @@ Message::Message(const Message& from)
       _this->GetArenaForAllocation());
   }
   ::memcpy(&_impl_.timestamp_, &from._impl_.timestamp_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.isservice_) -
-    reinterpret_cast<char*>(&_impl_.timestamp_)) + sizeof(_impl_.isservice_));
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.isgroupmessage_) -
+    reinterpret_cast<char*>(&_impl_.timestamp_)) + sizeof(_impl_.isgroupmessage_));
   // @@protoc_insertion_point(copy_constructor:Message)
 }
 
@@ -152,6 +155,7 @@ inline void Message::SharedCtor(
     , decltype(_impl_.text_){}
     , decltype(_impl_.timestamp_){int64_t{0}}
     , decltype(_impl_.isservice_){false}
+    , decltype(_impl_.isgroupmessage_){false}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.from_.InitDefault();
@@ -200,8 +204,8 @@ void Message::Clear() {
   _impl_.to_.ClearToEmpty();
   _impl_.text_.ClearToEmpty();
   ::memset(&_impl_.timestamp_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&_impl_.isservice_) -
-      reinterpret_cast<char*>(&_impl_.timestamp_)) + sizeof(_impl_.isservice_));
+      reinterpret_cast<char*>(&_impl_.isgroupmessage_) -
+      reinterpret_cast<char*>(&_impl_.timestamp_)) + sizeof(_impl_.isgroupmessage_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -268,6 +272,14 @@ const char* Message::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
       case 6:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 48)) {
           _impl_.isservice_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // bool isGroupMessage = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 56)) {
+          _impl_.isgroupmessage_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -353,6 +365,12 @@ uint8_t* Message::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteBoolToArray(6, this->_internal_isservice(), target);
   }
 
+  // bool isGroupMessage = 7;
+  if (this->_internal_isgroupmessage() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteBoolToArray(7, this->_internal_isgroupmessage(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -408,6 +426,11 @@ size_t Message::ByteSizeLong() const {
     total_size += 1 + 1;
   }
 
+  // bool isGroupMessage = 7;
+  if (this->_internal_isgroupmessage() != 0) {
+    total_size += 1 + 1;
+  }
+
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -442,6 +465,9 @@ void Message::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOB
   if (from._internal_isservice() != 0) {
     _this->_internal_set_isservice(from._internal_isservice());
   }
+  if (from._internal_isgroupmessage() != 0) {
+    _this->_internal_set_isgroupmessage(from._internal_isgroupmessage());
+  }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -475,8 +501,8 @@ void Message::InternalSwap(Message* other) {
       &other->_impl_.text_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(Message, _impl_.isservice_)
-      + sizeof(Message::_impl_.isservice_)
+      PROTOBUF_FIELD_OFFSET(Message, _impl_.isgroupmessage_)
+      + sizeof(Message::_impl_.isgroupmessage_)
       - PROTOBUF_FIELD_OFFSET(Message, _impl_.timestamp_)>(
           reinterpret_cast<char*>(&_impl_.timestamp_),
           reinterpret_cast<char*>(&other->_impl_.timestamp_));

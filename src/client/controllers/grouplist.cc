@@ -15,21 +15,19 @@ ScreenInteractive GroupListScreen = ScreenInteractive::Fullscreen();
 void Client::GroupList() {
   msgClient_.pullGroupList();
 
-  /* 第一个是邮箱 第二个是用户名 */
-  bool in_chat = false;
-  
+  bool in_chat = false;  
 
-  std::string new_friend;
+  std::string new_group;
 
   // 输入组件
   std::string input_show = "输入群号添加新群聊...";
-  Component input = Input(&new_friend, input_show);
+  Component input = Input(&new_group, input_show);
   
   // 添加好友按钮
   Component add_button = Button("添加", [&] {
-    if (!new_friend.empty()) {
-      msgClient_.addFriend(msgClient_.LocalEmail(),new_friend);
-      new_friend.clear();
+    if (!new_group.empty()) {
+      msgClient_.addGroup(msgClient_.LocalEmail(),new_group);
+      new_group.clear();
     }
   });
 

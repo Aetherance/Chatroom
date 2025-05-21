@@ -66,6 +66,14 @@ void ChatServer::onConnection(const net::TcpConnectionPtr & conn) {
     redis_.srem(onlineUserSet,{conn->user_email()});
     redis_.sync_commit();
     serviceHandler_.FriendBeOffline(conn);
-    LOG_INFO("User " + conn->user_email() + " on " + conn->peerAddress().toIpPort() + " left!");
+    LOG_INFO("User " + conn->user_email() + " left!");
+  }
+}
+
+void ChatServer::sendOrSave(const std::string & to,const std::string & msg) {
+  if(isUserOnline(to)) {
+    sendMsgToUser(msg,userHashConn[to]);
+  } else {
+    onOfflineMsg(to,msg);
   }
 }
