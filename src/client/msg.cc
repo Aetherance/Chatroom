@@ -150,6 +150,10 @@ void MsgClient::doService(Message msgProto) {
     doAddGroup(msgProto);
   } else if(msgProto.text() == VERI_GROUP_SUCCESS) {
     doVeriGroup(msgProto);
+  } else if(msgProto.text() == MEMBER_QUIT_GROUP) {
+    doGroupMemberQuit(msgProto);
+  } else if(msgProto.text() == QUIT_GROUP_BACK) {
+    doQuitGroup(msgProto);
   }
 }
 
@@ -179,11 +183,13 @@ void MsgClient::doDeleteFriend(const Message & msgProto) {
   friends.clear();
   pullFriendList();
   show_info = "您已和" + msgProto.from() + "的好友关系已断开!";
+  std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
 }
 
 void MsgClient::doCreateGroup(const Message & msgProto) {
   show_info3 = "已加入新群聊" + msgProto.from();
   pullGroupList();
+  std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
 }
 
 void MsgClient::doAddGroupBack(const Message & msgProto) {
@@ -214,4 +220,21 @@ void MsgClient::doVeriGroup(const Message & msg) {
     show_info4 = msg.from() + "加入了您的群聊";
     std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
   }
+}
+
+void MsgClient::doGroupMemberQuit(const Message & msg) {
+  show_info4 = "用户 " + msg.from() + " 退出了您的群聊 " + msg.to();
+  std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
+  pullGroupList();
+}
+
+void MsgClient::doQuitGroup(const Message & msg) {
+  if(msg.to() == QUIT_GROUP_SUCCESS) {
+    show_info4 = "已退出群聊" + msg.from();
+  } else if(msg.to() == QUIT_GROUP_FAILED) {
+    show_info4 = "退出失败! 您不能退出自己的群聊。 尝试解散群聊!";
+  }
+  show_info4 = "!!!!!!!!!!!!!!!!";
+  std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
+  pullGroupList();
 }

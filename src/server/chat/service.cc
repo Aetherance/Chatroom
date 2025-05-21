@@ -137,10 +137,7 @@ void ServiceHandler::onAddGroup(const net::TcpConnectionPtr & conn,Message msgPr
   returnMsg.set_isservice(true);
 
   if(chatServer_->isGroupMessage(msgProto.to())) {
-    auto future = chatServer_->redis_.hget(chatServer_->groupHashOwner,msgProto.to());
-    chatServer_->redis_.sync_commit();
-    auto reply = future.get();
-    auto owner = reply.as_string();
+    auto owner = getGroupOwner(msgProto.to());
   
     chatServer_->sendOrSave(owner,msgProto.SerializeAsString());
     returnMsg.set_text(ADD_GROUP_SEND_SUCCESS);
@@ -172,7 +169,37 @@ void ServiceHandler::onVerifyGroup(const net::TcpConnectionPtr & conn,Message ms
 }
 
 void ServiceHandler::onQuitGroup(const net::TcpConnectionPtr & conn,Message msgProto) {
+  std::string requestor = msgProto.from();
+  std::string group = msgProto.to();
+  std::string group_owner = getGroupOwner(group);
+  
+  if(group_owner != requestor) {
+    chatServer_->redis_.srem(groupSet + requestor,{group});
+    chatServer_->redis_.srem(chatServer_->groupMembers + group,{requestor});
+  }
 
+  Message response_owner;
+  response_owner.set_from(requestor);
+  response_owner.set_text(MEMBER_QUIT_GROUP);
+  response_owner.set_isservice(true);
+  response_owner.set_to(group);
+
+  Message response_requestor;
+  response_owner.set_from(group);
+  response_owner.set_text(QUIT_GROUP_BACK);
+  response_owner.set_isservice(true);
+
+  if(group_owner == requestor) {
+    response_requestor.set_to(QUIT_GROUP_FAILED);
+  } else {
+    response_requestor.set_to(QUIT_GROUP_SUCCESS);
+  }
+
+  if(response_requestor.to() == QUIT_GROUP_SUCCESS) {
+    chatServer_->sendOrSave(group_owner,response_owner.SerializeAsString());
+    LOG_INFO(requestor + " quited " + group);
+  }
+  chatServer_->sendOrSave(requestor,response_requestor.SerializeAsString());
 }
 
 void ServiceHandler::onBreakGroup(const net::TcpConnectionPtr & conn,Message msgProto) {
@@ -263,4 +290,12 @@ void ServiceHandler::onPullGroupList(const net::TcpConnectionPtr & conn,Message 
   std::string resp = msgProto.SerializeAsString();
 
   chatServer_->sendMsgToUser(resp,conn);
+}
+
+std::string ServiceHandler::getGroupOwner(const std::string & group) const {
+  auto future = chatServer_->redis_.hget(chatServer_->groupHashOwner,group);
+  chatServer_->redis_.sync_commit();
+  auto reply = future.get();
+  auto owner = reply.as_string();
+  return owner;
 }

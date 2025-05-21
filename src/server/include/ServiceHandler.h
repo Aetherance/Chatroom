@@ -39,6 +39,9 @@ public:
   void FriendBeOffline(const net::TcpConnectionPtr & conn);
 
   void onPullGroupList(const net::TcpConnectionPtr & conn,Message msgProto);
+
+  std::string getGroupOwner(const std::string & group) const; 
+
 private:
   /* redis 好友与群聊存储 */
   /* 好友列表前缀 */

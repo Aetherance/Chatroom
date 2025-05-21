@@ -106,6 +106,10 @@ public:
 
   void doVeriGroup(const Message & msg);
 
+  void doGroupMemberQuit(const Message & msg);
+
+  void doQuitGroup(const Message & msg);
+
 private:
   void sendMsgTo(const std::string & who,const std::string & msg);
 
