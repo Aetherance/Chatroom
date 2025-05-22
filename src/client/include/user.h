@@ -21,7 +21,7 @@ class UserClient
 {
 public:
   UserClient();
-  ~UserClient() { sock_.shutdownWrite(); }
+  ~UserClient() { }
 
   void Connect();
 
@@ -31,7 +31,6 @@ public:
   int RequestLogin(const std::string & email,const std::string & passwd);
   
   bool isConnected() { return isConnected_; }
-
 private:
   void Send(std::string msg);
   int Recv();

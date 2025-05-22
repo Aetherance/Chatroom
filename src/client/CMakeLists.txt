@@ -17,6 +17,7 @@ add_executable(client
     controllers/createGroup.cc
     controllers/deleteGroup.cc
     controllers/groupVerify.cc
+    controllers/settings.cc
     ${CMAKE_SOURCE_DIR}/src/protobuf/msg.pb.cc
 )
 

@@ -7,6 +7,7 @@
 #include"Buffer.h"
 #include"responsecode.h"
 #include"msg.pb.h"
+#include"EventLoop.h"
 
 struct Friend {
   std::string email;
@@ -112,8 +113,11 @@ public:
 
   bool isPeerGroup() const;
 
-  void setIsPeerGroup(bool is) { isPeerGroup_ = is; };
+  void setIsPeerGroup(bool is) { isPeerGroup_ = is; }
 
+  void CancelAccount(const std::string & account);
+
+  void ExitLoop() { loop_->quit(); }
 private:
   void sendMsgTo(const std::string & who,const std::string & msg);
 
@@ -132,6 +136,8 @@ private:
   ilib::net::Buffer recvBuff_;
 
   bool isPeerGroup_;
+
+  ilib::net::EventLoop * loop_;
 };
 
 #endif

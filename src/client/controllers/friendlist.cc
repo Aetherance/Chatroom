@@ -18,7 +18,6 @@ void Client::FriendList() {
   /* 第一个是邮箱 第二个是用户名 */
   bool in_chat = false;
   
-
   std::string new_friend;
 
   // 输入组件
@@ -45,6 +44,13 @@ void Client::FriendList() {
     GroupList();
   });
 
+  Component cancel_button = Button("设置...", [&] {
+    Settings();
+    if(isExit) {
+      FriendListScreen.Exit();
+    }
+  });
+
   Component reload = Button("↻ 刷新", [&] {
     msgClient_.pullFriendList();
   });
@@ -56,6 +62,7 @@ void Client::FriendList() {
   auto main_component = Container::Vertical({
     Container::Horizontal({input, add_button , verify_button , delete_button , group_button , reload}),
     friends_container,
+    cancel_button
   });
 
   // 渲染逻辑
@@ -95,7 +102,8 @@ void Client::FriendList() {
       }) | border,
       vbox({
         text("好友列表"),
-        friends_container->Render() | vscroll_indicator | frame,
+        friends_container->Render() | vscroll_indicator | frame | flex,
+        cancel_button->Render()
       }) | flex
     }) | border;
   }) | CatchEvent([&](Event event) -> bool { 

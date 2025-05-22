@@ -22,16 +22,7 @@ ServiceHandler::ServiceHandler(ChatServer * server) : chatServer_(server) {
   server->serviceCallBacks_[PULL_FRIEND_LIST] = std::bind(&ServiceHandler::onPullFriendList,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[PULL_GROUP_LIST] = std::bind(&ServiceHandler::onPullGroupList,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[VERI_GROUP] = std::bind(&ServiceHandler::onVerifyGroup,this,std::placeholders::_1,std::placeholders::_2);
-}
-
-std::string generateGroupNum() {
-  std::string Num;
-  Num.reserve(6);
-  srand((size_t)time(NULL));
-  for(int i = 0;i<6;i++) {
-      Num.push_back((rand() % 10) + '0');
-  }
-  return Num;
+  server->serviceCallBacks_[CANCEL] = std::bind(&ServiceHandler::onCancel,this,std::placeholders::_1,std::placeholders::_2);
 }
 
 void ServiceHandler::onAddFriend(const net::TcpConnectionPtr & conn,Message msgProto) {
@@ -190,7 +181,8 @@ void ServiceHandler::onQuitGroup(const net::TcpConnectionPtr & conn,Message msgP
   response_owner.set_isservice(true);
 
   if(group_owner == requestor) {
-    response_requestor.set_to(QUIT_GROUP_FAILED);
+    onBreakGroup(conn,msgProto);
+    LOG_INFO("Group " + group + " 's owner want to quit, the group break");
   } else {
     response_requestor.set_to(QUIT_GROUP_SUCCESS);
   }
@@ -325,4 +317,39 @@ std::string ServiceHandler::getGroupOwner(const std::string & group) const {
     LOG_FATAL("getGroupOwner: reply is not a string");
     return "";
   }
+}
+
+void ServiceHandler::onCancel(const net::TcpConnectionPtr & conn,Message msgProto) {
+  std::string user = msgProto.from();
+  chatServer_->redis_.srem(chatServer_->allUserset,{user});
+  
+  auto future_friends = chatServer_->redis_.smembers(friendSet + user);
+  chatServer_->redis_.sync_commit();
+  auto reply_friends = future_friends.get();
+  
+  for(auto & entry : reply_friends.as_array()) {
+    std::string entryFriend = entry.as_string();
+    Message deleteFriendMsg = msgProto;
+    deleteFriendMsg.set_to(entry.as_string());
+    deleteFriendMsg.set_text(DEL_FRIEND);
+    onDeleteFriend(conn,deleteFriendMsg);
+  }
+
+  auto future_groups = chatServer_->redis_.smembers(groupSet + user);
+  chatServer_->redis_.sync_commit();
+  auto reply_groups = future_groups.get();
+
+  for(auto & entry : reply_groups.as_array()) {
+    std::string entryGroup = entry.as_string();
+    Message quitGroupMsg = msgProto;
+    quitGroupMsg.set_to(entryGroup);
+    quitGroupMsg.set_text(QUIT_GROUP);
+    onQuitGroup(conn,quitGroupMsg); 
+  }
+
+  chatServer_->redis_.del({chatServer_->offlineMessages + user});
+  chatServer_->redis_.srem(chatServer_->onlineUserSet,{user});
+  chatServer_->redis_.hdel("email_userinfos",{user});
+  chatServer_->redis_.srem("emailHashUserName",{user});
+  chatServer_->redis_.sync_commit();
 }

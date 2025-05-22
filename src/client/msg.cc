@@ -83,12 +83,13 @@ void MsgClient::sendMsgTo(const std::string & who,const std::string & msgtext) {
 }
 
 void MsgClient::recvMsgLoop() {
-  net::EventLoop recvLoop;
-  net::Channel recvChannel(&recvLoop,chatServerfd_);
+  net::EventLoop loop;
+  loop_ = &loop;
+  net::Channel recvChannel(&loop,chatServerfd_);
   recvChannel.setReadCallback([this](Timestamp){ onMessage(); });
   recvChannel.enableReading();
   
-  recvLoop.loop();
+  loop.loop();
 }
 
 void MsgClient::onMessage() {
@@ -241,4 +242,8 @@ void MsgClient::doQuitGroup(const Message & msg) {
 
 bool MsgClient::isPeerGroup() const {
   return isPeerGroup_;
+}
+
+void MsgClient::CancelAccount(const std::string & account) {
+  SerializeSend(CANCEL,LocalEmail_,LocalEmail_);
 }

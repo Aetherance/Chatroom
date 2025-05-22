@@ -45,7 +45,11 @@ private:
 
   void DeleteGroup();
 
+  void Settings();
+
   bool parseCommand(std::string & cmd);
+
+  void flush_terminal_input();
 
   /* 登录注册客户端 */
   UserClient userClient_;
@@ -57,4 +61,6 @@ private:
   ftxui::ScreenInteractive mainScreen_;
   ftxui::ScreenInteractive loginScreen_;
   ftxui::ScreenInteractive registerScreen_;
+
+  bool isExit = false;
 };

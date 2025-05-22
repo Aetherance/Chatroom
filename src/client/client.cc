@@ -18,15 +18,15 @@ Client::Client() : loginScreen_(ScreenInteractive::Fullscreen()),
 {}
 
 Client::~Client() {
-
+  
 }
 
 /* 运行客户端程序 */
 void Client::run() {
-  /* 先进行身份验证操作(包含登录和注册) */
+  /* 身份验证 */
   // Verify();
-  Msg();
   /* 聊天室聊天功能 */
+  Msg();
 }
 
 void Client::Verify() {
@@ -75,21 +75,7 @@ bool isValidEmail(const std::string& email) {
   return std::regex_match(email, pattern);
 }
 
-void Client::Msg() {
-  // int debug;
-  // std::cin>>debug;
-
-  // if(debug) {
-  //   msgClient_.setEmail("op");
-  //   msgClient_.connect();  
-  //   msgClient_.updatePeer("2085163736@qq.com","the_ink");
-  //   while (true) {
-  //     std::string in;
-  //     std::cin>>in;
-  //     msgClient_.sendMsgPeer(in);
-  //   }
-  // }
-  
+void Client::Msg() { 
   std::thread recvThread([this]{ msgClient_.recvMsgLoop(); });
   
   std::string email;
@@ -100,6 +86,12 @@ void Client::Msg() {
   msgClient_.connect();
   
   FriendList();
+
+  msgClient_.ExitLoop();
+
+  recvThread.join();
+
+  flush_terminal_input();
 }
 
 std::vector<std::string> split(const std::string s,char ch)
@@ -148,4 +140,24 @@ bool Client::parseCommand(std::string & input) {
   
   
   return true;
+}
+
+void Client::flush_terminal_input() {
+  struct TermiosGuard { // RAII自动恢复终端设置
+    termios original;
+    TermiosGuard() { tcgetattr(STDIN_FILENO, &original); }
+    ~TermiosGuard() { tcsetattr(STDIN_FILENO, TCSANOW, &original); }
+} guard;
+
+termios settings = guard.original;
+settings.c_lflag &= ~(ICANON | ECHO);
+settings.c_cc[VMIN] = 0;
+settings.c_cc[VTIME] = 1;
+
+tcsetattr(STDIN_FILENO, TCSANOW, &settings);
+
+std::string buf;
+  for (char c; read(STDIN_FILENO, &c, 1) == 1;) {
+    if (c == '\n') break;
+  }
 }
