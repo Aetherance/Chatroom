@@ -15,6 +15,9 @@ void Client::Settings() {
 
   auto button2 = Button("注销...", [&]{
     msgClient_.CancelAccount(msgClient_.LocalEmail());
+    isExit = true;
+    setting_screen.Exit();
+    FriendListScreen.Exit();
   });
 
   auto button3 = Button("返回...", [&]{ 

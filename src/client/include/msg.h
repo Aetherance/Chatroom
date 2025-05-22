@@ -118,6 +118,8 @@ public:
   void CancelAccount(const std::string & account);
 
   void ExitLoop() { loop_->quit(); }
+
+  void enMapYouMessage(Message msgProto);
 private:
   void sendMsgTo(const std::string & who,const std::string & msg);
 

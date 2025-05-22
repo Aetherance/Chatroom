@@ -247,3 +247,14 @@ bool MsgClient::isPeerGroup() const {
 void MsgClient::CancelAccount(const std::string & account) {
   SerializeSend(CANCEL,LocalEmail_,LocalEmail_);
 }
+
+void MsgClient::enMapYouMessage(Message msgProto) {
+  if(msgProto.isgroupmessage()) {
+    messageMap[msgProto.to()].push_back({"You",msgProto.text(),msgProto.timestamp()});
+    MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[msgProto.to()].size()) - visible_lines);
+  } else {
+    messageMap[msgProto.from()].push_back({"You",msgProto.text(),msgProto.timestamp()});
+    MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[msgProto.from()].size()) - visible_lines);
+  }
+  MsgScreen.PostEvent(ftxui::Event::Custom);
+}

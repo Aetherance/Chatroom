@@ -51,6 +51,14 @@ private:
 
   void flush_terminal_input();
 
+  ftxui::Element makeSidebar();
+
+  ftxui::Component makeRenderer();
+
+  void storageMessage();
+
+  void readMessage();
+
   /* 登录注册客户端 */
   UserClient userClient_;
 
@@ -63,4 +71,8 @@ private:
   ftxui::ScreenInteractive registerScreen_;
 
   bool isExit = false;
+
+  std::string localUser_;
+
+  std::vector<std::string> peerGroupMembers;
 };

@@ -23,9 +23,6 @@ std::string input_content;
 Component input;
 Component send_btn;
 
-Element makeSidebar();
-Component makeRenderer();
-
 void Client::MsgController() {
   // 输入组件及配置
   MessageKey = msgClient_.peerEmail();
@@ -83,20 +80,33 @@ void Client::MsgController() {
 }
 
 
-Element makeSidebar() {
-  return vbox({
-    text("Sidebar") | bold | center,
-    separator(),
-    vbox({text("Content Area") | center}) 
-      | vscroll_indicator 
-      | frame 
-      | flex
-  }) 
-  | border 
-  | size(WIDTH, EQUAL, 16);
+Element Client::makeSidebar() {
+  if(msgClient_.isPeerGroup()) {
+    return vbox({
+      text("") | bold | center,
+      separator(),
+      vbox({text("群成员") | center}) 
+        | vscroll_indicator 
+        | frame 
+        | flex
+    }) 
+    | border 
+    | size(WIDTH, EQUAL, 16);  
+  } else {
+    return vbox({
+      text("") | bold | center,
+      separator(),
+      vbox({text("文件") | center}) 
+        | vscroll_indicator 
+        | frame 
+        | flex
+    }) 
+    | border 
+    | size(WIDTH, EQUAL, 16);
+  }
 }
 
-Component makeRenderer() {
+Component Client::makeRenderer() {
   auto layout = Container::Horizontal({input, send_btn});
   
   return 

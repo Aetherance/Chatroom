@@ -4,6 +4,9 @@
 #include<termios.h>
 #include<chrono>
 #include<iomanip>
+#include<fstream>
+
+#define HISTORY_MESSAGE_FILE "data"
 
 using namespace ftxui;
 
@@ -17,16 +20,21 @@ Client::Client() : loginScreen_(ScreenInteractive::Fullscreen()),
                    mainScreen_(ScreenInteractive::Fullscreen())
 {}
 
-Client::~Client() {
-  
-}
+Client::~Client() 
+{}
 
 /* 运行客户端程序 */
 void Client::run() {
   /* 身份验证 */
-  // Verify();
+  Verify();
+
   /* 聊天室聊天功能 */
+  
+  readMessage();
+
   Msg();
+
+  storageMessage();
 }
 
 void Client::Verify() {
@@ -57,8 +65,7 @@ void Client::Verify() {
       exit_button->Render() | bold
     }) | (size(WIDTH, EQUAL, 30) | size(HEIGHT, EQUAL, 20)) | center;
   }) | CatchEvent([&](Event event){
-    if(event == Event::Escape) {
-      mainScreen_.Exit();
+    if(event == Event::CtrlC) {
       return true;
     } else {
       return false;
@@ -78,10 +85,10 @@ bool isValidEmail(const std::string& email) {
 void Client::Msg() { 
   std::thread recvThread([this]{ msgClient_.recvMsgLoop(); });
   
-  std::string email;
-  std::cin>>email;
+  // std::string email;
+  // std::cin>>email;
 
-  msgClient_.setEmail(email);
+  msgClient_.setEmail(localUser_);
 
   msgClient_.connect();
   
@@ -159,5 +166,48 @@ tcsetattr(STDIN_FILENO, TCSANOW, &settings);
 std::string buf;
   for (char c; read(STDIN_FILENO, &c, 1) == 1;) {
     if (c == '\n') break;
+  }
+}
+
+void Client::readMessage() {
+  std::ifstream file(localUser_ + HISTORY_MESSAGE_FILE,std::ios::binary);
+  int message_len;
+  while(file.peek() != EOF) {
+    std::string buff;
+    file.read(reinterpret_cast<char*>(&message_len),sizeof(message_len));
+    if(file.eof()) {
+      break;
+    }
+    buff.resize(message_len);
+    file.read(buff.data(),message_len);
+    Message history_msg;
+    history_msg.ParseFromString(buff);
+    if(history_msg.from() == "You") {
+      history_msg.set_from(history_msg.to());
+      msgClient_.enMapYouMessage(history_msg);
+    } else {
+      msgClient_.parseMsg(buff);
+    }
+  }
+}
+
+void Client::storageMessage() {
+  std::ofstream file(localUser_ + HISTORY_MESSAGE_FILE,std::ios::binary);
+  Message histroy_message;
+  if (file.is_open()) {
+    for(auto & pair : messageMap) {
+      for(auto & entry : pair.second) {
+        histroy_message.set_from(entry.from);
+        histroy_message.set_text(entry.text);
+        histroy_message.set_timestamp(entry.timestamp);
+        if(histroy_message.from() == "You") {
+          histroy_message.set_to(pair.first);
+        }
+        std::string perMessage = histroy_message.SerializeAsString();
+        int messageLen = perMessage.size();
+        file.write((char*)&messageLen,sizeof(messageLen));
+        file.write(perMessage.data(),perMessage.size());
+      }
+    }
   }
 }
