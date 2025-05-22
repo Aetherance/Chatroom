@@ -45,12 +45,16 @@ void Client::FriendList() {
     GroupList();
   });
 
+  Component reload = Button("↻ 刷新", [&] {
+    msgClient_.pullFriendList();
+  });
+
   // 好友列表容器
   Component friends_container = Container::Vertical({});
 
   // 主界面组件
   auto main_component = Container::Vertical({
-    Container::Horizontal({input, add_button , verify_button , delete_button , group_button}),
+    Container::Horizontal({input, add_button , verify_button , delete_button , group_button , reload}),
     friends_container,
   });
 
@@ -58,6 +62,7 @@ void Client::FriendList() {
   auto main_renderer = Renderer(main_component, [&] {
     if (in_chat) {
       // 聊天界面
+      msgClient_.setIsPeerGroup(false);
       MsgController();
       in_chat = false;
     }
@@ -85,7 +90,8 @@ void Client::FriendList() {
         add_button->Render(),
         verify_button->Render(),
         delete_button->Render(),
-        group_button->Render()
+        group_button->Render(),
+        reload->Render()
       }) | border,
       vbox({
         text("好友列表"),

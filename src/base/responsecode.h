@@ -62,3 +62,4 @@ inline void SendResponseCode(int code,int fd) {
 #define QUIT_GROUP_BACK "QUIT_GROUP_BACK"
 #define QUIT_GROUP_SUCCESS "QUIT_GROUP_SUCCESS"
 #define QUIT_GROUP_FAILED "QUIT_GROUP_FAILED"
+#define GROUP_BROKEN "GROUP_BROKEN"  

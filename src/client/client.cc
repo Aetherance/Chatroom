@@ -7,6 +7,10 @@
 
 using namespace ftxui;
 
+extern std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
+
+extern ScreenInteractive MsgScreen;
+
 /* 构造函数 : 初始化UI界面 */
 Client::Client() : loginScreen_(ScreenInteractive::Fullscreen()),
                    registerScreen_(ScreenInteractive::Fullscreen()),
@@ -96,4 +100,52 @@ void Client::Msg() {
   msgClient_.connect();
   
   FriendList();
+}
+
+std::vector<std::string> split(const std::string s,char ch)
+{
+  std::vector<std::string>result;
+  int pos = 0;
+  while (s[pos]==ch) {
+    pos++;
+  }
+    
+  while (pos< s.size()) {
+    int n = 0;
+    while (s[pos+n]!=ch&&pos+n<s.size()) {
+      n++;
+    }
+    result.push_back(s.substr(pos,n));
+    pos += n;
+    while (s[pos] ==ch&&pos<s.size()) {
+      pos++;
+    }
+  }
+  return result;
+}
+
+
+bool Client::parseCommand(std::string & input) {
+  if(input[0] != '/') {
+    return false;
+  }
+
+  if(input[input.size() - 1] == '\n') {
+    input.resize(input.size() - 1);
+  }
+
+  const std::vector<std::string> cmds = split(input,' ');
+
+  input.clear();
+  
+  if(cmds[0] == "/break" && msgClient_.isPeerGroup()) {
+    messageMap[msgClient_.peerEmail()].clear();
+    msgClient_.breakGroup(msgClient_.LocalEmail(),msgClient_.peerEmail());
+    MsgScreen.Exit();
+    msgClient_.pullGroupList();
+    return true;
+  }
+  
+  
+  return true;
 }

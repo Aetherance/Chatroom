@@ -54,6 +54,10 @@ void MsgClient::quitGroup(const std::string & requestor,const std::string & obj)
   SerializeSend(QUIT_GROUP,requestor,obj);
 }
 
+void MsgClient::breakGroup(const std::string & requestor,const std::string & obj) {
+  SerializeSend(BREAK_GROUP,requestor,obj);
+}
+
 void MsgClient::pullFriendList(bool isRecv,Message msg) {
   if(!isRecv) {
     SerializeSend(PULL_FRIEND_LIST,LocalEmail(),PULL_FRIEND_LIST);

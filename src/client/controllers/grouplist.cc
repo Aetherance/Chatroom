@@ -47,19 +47,23 @@ void Client::GroupList() {
     GroupListScreen.Exit();
   });
 
+  Component reload = Button("↻ 刷新", [&] {
+    msgClient_.pullGroupList();
+  });
+
   // 好友列表容器
   Component friends_container = Container::Vertical({});
 
   // 主界面组件
   auto main_component = Container::Vertical({
-    Container::Horizontal({input, add_button , create_button , verify_button , delete_button , group_button}),
+    Container::Horizontal({input, add_button , create_button , verify_button , delete_button , group_button , reload}),
     friends_container,
   });
 
   // 渲染逻辑
   auto main_renderer = Renderer(main_component, [&] {
     if (in_chat) {
-      // 聊天界面
+      msgClient_.setIsPeerGroup(true);
       MsgController();
       in_chat = false;
     }
@@ -88,7 +92,8 @@ void Client::GroupList() {
         create_button->Render(),
         verify_button->Render(),
         delete_button->Render(),
-        group_button->Render()
+        group_button->Render(),
+        reload->Render()
       }) | border,
       vbox({
         text("群聊列表"),

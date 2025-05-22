@@ -203,7 +203,28 @@ void ServiceHandler::onQuitGroup(const net::TcpConnectionPtr & conn,Message msgP
 }
 
 void ServiceHandler::onBreakGroup(const net::TcpConnectionPtr & conn,Message msgProto) {
-
+  std::string requestor = msgProto.from();
+  std::string group = msgProto.to();
+  std::string group_owner = getGroupOwner(group);
+  if(group_owner == requestor) {
+    chatServer_->redis_.srem(chatServer_->allGroupSet,{group});
+    auto future = chatServer_->redis_.smembers(chatServer_->groupMembers + group);
+    chatServer_->redis_.sync_commit();
+    auto reply = future.get();
+    for(auto & entry : reply.as_array()) {
+      Message response;
+      response.set_from(group);
+      response.set_text(GROUP_BROKEN);
+      response.set_isservice(true);
+      chatServer_->redis_.srem(groupSet + entry.as_string(),{group});
+      chatServer_->sendOrSave(entry.as_string(),response.SerializeAsString());
+    }
+    chatServer_->redis_.srem(chatServer_->allGroupSet,{group});
+    chatServer_->redis_.hdel(chatServer_->groupHashOwner,{group});
+    chatServer_->redis_.del({chatServer_->groupMembers + group});
+    chatServer_->redis_.sync_commit();
+    LOG_INFO("Group " + group + " was broken!");
+  }
 }
 
 void ServiceHandler::onRmGroupMember(const net::TcpConnectionPtr & conn,Message msgProto) {
@@ -290,12 +311,18 @@ void ServiceHandler::onPullGroupList(const net::TcpConnectionPtr & conn,Message 
   std::string resp = msgProto.SerializeAsString();
 
   chatServer_->sendMsgToUser(resp,conn);
+  LOG_INFO_SUCCESS(conn->user_email() + ": Pull group list!");
 }
 
 std::string ServiceHandler::getGroupOwner(const std::string & group) const {
   auto future = chatServer_->redis_.hget(chatServer_->groupHashOwner,group);
   chatServer_->redis_.sync_commit();
   auto reply = future.get();
-  auto owner = reply.as_string();
-  return owner;
+  if(reply.is_string()) {
+    auto owner = reply.as_string();
+    return owner;
+  } else {
+    LOG_FATAL("getGroupOwner: reply is not a string");
+    return "";
+  }
 }

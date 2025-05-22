@@ -82,7 +82,7 @@ public:
 
   void rmGroupMember() {}
 
-  void breakGroup() {}
+  void breakGroup(const std::string & requestor,const std::string & obj);
 
   void pullFriendList(bool isRecv = false,Message msg = {});
   
@@ -110,6 +110,10 @@ public:
 
   void doQuitGroup(const Message & msg);
 
+  bool isPeerGroup() const;
+
+  void setIsPeerGroup(bool is) { isPeerGroup_ = is; };
+
 private:
   void sendMsgTo(const std::string & who,const std::string & msg);
 
@@ -126,6 +130,8 @@ private:
   int chatServerfd_;
 
   ilib::net::Buffer recvBuff_;
+
+  bool isPeerGroup_;
 };
 
 #endif

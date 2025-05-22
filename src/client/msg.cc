@@ -238,3 +238,7 @@ void MsgClient::doQuitGroup(const Message & msg) {
   std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
   pullGroupList();
 }
+
+bool MsgClient::isPeerGroup() const {
+  return isPeerGroup_;
+}

@@ -45,6 +45,8 @@ private:
 
   void DeleteGroup();
 
+  bool parseCommand(std::string & cmd);
+
   /* 登录注册客户端 */
   UserClient userClient_;
 

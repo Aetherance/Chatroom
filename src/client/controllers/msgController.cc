@@ -34,17 +34,22 @@ void Client::MsgController() {
 
   auto input_option = InputOption();
   input_option.on_enter = [&] {
-    if (!input_content.empty()) {
+    if (!input_content.empty()) {   
+      if(parseCommand(input_content)) {
+        return;
+      }
+
       if(input_content == "\n") {
         input_content.clear();
         return;
       }
-      
+
       messageMap[MessageKey].push_back({"You", input_content,ilib::base::Timestamp::now().microSecondsSinceEpoch()});
 
       msgClient_.sendMsgPeer(input_content);
+      
       input_content.clear();
-      // 新消息自动滚动到底部
+      
       MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[MessageKey].size()) - visible_lines);
     }
   };
@@ -54,10 +59,15 @@ void Client::MsgController() {
   // 发送按钮
   send_btn = Button("发送", [&] {
     if (!input_content.empty()) {
+      
+      if(parseCommand(input_content)) {
+        return;
+      }
 
       messageMap[msgClient_.peerEmail()].push_back({"You", input_content, ilib::base::Timestamp::now().microSecondsSinceEpoch()});
 
       msgClient_.sendMsgPeer(input_content);
+      
       input_content.clear();
       // 新消息自动滚动到底部
       MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[MessageKey].size()) - visible_lines);
