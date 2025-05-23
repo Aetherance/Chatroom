@@ -63,6 +63,7 @@ void Client::LoginController() {
       passwd_in.clear();
       fake_passwd.clear();
       if(isSuccess) {
+        userClient_.setHasLogin(true);
         loginScreen_.Exit();
         return;
       }
@@ -86,8 +87,7 @@ void Client::LoginController() {
       text(info)
     }) | (size(WIDTH, EQUAL, 30) | size(HEIGHT, EQUAL, 20)) | center;
   }) | CatchEvent([&](Event event) {
-    if(event == Event::Escape) {
-      loginScreen_.Exit();
+    if(event == Event::CtrlC) {
       return true;
     } else {
       return false;

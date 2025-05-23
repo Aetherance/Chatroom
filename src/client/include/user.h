@@ -31,6 +31,10 @@ public:
   int RequestLogin(const std::string & email,const std::string & passwd);
   
   bool isConnected() { return isConnected_; }
+
+  void setHasLogin(bool has) { hasLogin_ = has; }
+
+  bool hasLogin() const { return hasLogin_; }
 private:
   void Send(std::string msg);
   int Recv();
@@ -50,6 +54,8 @@ private:
   ilib::net::Socket sock_;
 
   std::string email_;
+
+  bool hasLogin_ = false;
 };
 
 #endif

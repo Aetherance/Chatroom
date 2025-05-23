@@ -44,6 +44,13 @@ void Client::Settings() {
       
       filler()
     }) | hcenter | border;
+  }) | CatchEvent([](Event event){
+    if(event == Event::Escape) {
+      setting_screen.Exit();
+      return true;
+    } else {
+      return false;
+    }
   });
 
   setting_screen.Loop(renderer);

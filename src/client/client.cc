@@ -6,7 +6,7 @@
 #include<iomanip>
 #include<fstream>
 
-#define HISTORY_MESSAGE_FILE "data"
+#define HISTORY_MESSAGE_FILE ".data"
 
 using namespace ftxui;
 
@@ -28,8 +28,11 @@ void Client::run() {
   /* 身份验证 */
   Verify();
 
+  if(isExit) {
+    return;
+  }
+
   /* 聊天室聊天功能 */
-  
   readMessage();
 
   Msg();
@@ -39,12 +42,13 @@ void Client::run() {
 
 void Client::Verify() {
   userClient_.Connect();
+  
   /* 登录回调 */
   Component login_button = Button("登录",[&]{ LoginController(); mainScreen_.Exit(); });
   /* 注册回调 */
   Component register_button = Button("注册",[&]{ RegisterController(); });
   /* 退出 */
-  Component exit_button = Button("退出",[&]{ mainScreen_.Exit(); });
+  Component exit_button = Button("退出",[&]{ mainScreen_.Exit(); isExit = true;});
 
   Component container;
 
@@ -72,7 +76,9 @@ void Client::Verify() {
     }
   });
 
-  mainScreen_.Loop(renderer);
+  while(!userClient_.hasLogin() && !isExit) {
+    mainScreen_.Loop(renderer);
+  }
 }
 
 bool isValidEmail(const std::string& email) {
@@ -188,6 +194,9 @@ void Client::readMessage() {
     } else {
       msgClient_.parseMsg(buff);
     }
+  }
+  for(auto & entry : messageMap) {
+    entry.second.push_back({"系统","以上为历史消息",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
   }
 }
 
