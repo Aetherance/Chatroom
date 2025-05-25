@@ -131,7 +131,7 @@ void MsgClient::doService(Message msgProto) {
     doAddFriendBack(msgProto);    
   } else if(msgProto.text() == ADD_FRIEND) {
     doAddFriend(msgProto);
-  } else if(msgProto.from() == PULL_FRIEND_LIST) {
+  } else if(msgProto.text() == PULL_FRIEND_LIST) {
     pullFriendList(true,msgProto);
   } else if(msgProto.text() == VERI_FRIEND_BACK) {
     pullFriendList();
@@ -143,7 +143,7 @@ void MsgClient::doService(Message msgProto) {
     doDeleteFriend(msgProto);
   } else if(msgProto.text() == CREATE_GROUP) {
     doCreateGroup(msgProto);
-  } else if(msgProto.from() == PULL_GROUP_LIST) {
+  } else if(msgProto.text() == PULL_GROUP_LIST) {
     pullGroupList(true,msgProto);
   } else if(msgProto.from() == ADDGROUP_BACK) {
     doAddGroupBack(msgProto);
@@ -155,6 +155,8 @@ void MsgClient::doService(Message msgProto) {
     doGroupMemberQuit(msgProto);
   } else if(msgProto.text() == QUIT_GROUP_BACK) {
     doQuitGroup(msgProto);
+  } else if(msgProto.text() == PULL_GROUP_MEMBERS) {
+    pullGroupMembers(true,{},msgProto);
   }
 }
 

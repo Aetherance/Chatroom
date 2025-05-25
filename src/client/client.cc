@@ -12,6 +12,8 @@ using namespace ftxui;
 
 extern std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
 
+extern std::vector<Group> groups;
+
 extern ScreenInteractive MsgScreen;
 
 /* 构造函数 : 初始化UI界面 */
@@ -26,7 +28,7 @@ Client::~Client()
 /* 运行客户端程序 */
 void Client::run() {
   /* 身份验证 */
-  Verify();
+  // Verify();
 
   if(isExit) {
     return;
@@ -91,13 +93,16 @@ bool isValidEmail(const std::string& email) {
 void Client::Msg() { 
   std::thread recvThread([this]{ msgClient_.recvMsgLoop(); });
   
-  // std::string email;
-  // std::cin>>email;
-
+  std::cin>>localUser_;
+  
   msgClient_.setEmail(localUser_);
 
   msgClient_.connect();
   
+  msgClient_.pullFriendList();
+
+  msgClient_.pullGroupList();
+
   FriendList();
 
   msgClient_.ExitLoop();
@@ -129,7 +134,6 @@ std::vector<std::string> split(const std::string s,char ch)
   return result;
 }
 
-
 bool Client::parseCommand(std::string & input) {
   if(input[0] != '/') {
     return false;
@@ -149,8 +153,13 @@ bool Client::parseCommand(std::string & input) {
     MsgScreen.Exit();
     msgClient_.pullGroupList();
     return true;
+  } else if(cmds[0] == "/op" && msgClient_.isPeerGroup() && cmds.size() > 1) {
+    msgClient_.setOP(cmds[1],msgClient_.peerEmail());
+    pullGroupMembers();
+  } else if(cmds[0] == "/deop" && msgClient_.isPeerGroup() && cmds.size() > 1) {
+    msgClient_.deOP(cmds[1],msgClient_.peerEmail());
+    pullGroupMembers();
   }
-  
   
   return true;
 }
@@ -218,5 +227,11 @@ void Client::storageMessage() {
         file.write(perMessage.data(),perMessage.size());
       }
     }
+  }
+}
+
+void Client::pullGroupMembers() {
+  for(auto & entry : groups) {
+    msgClient_.pullGroupMembers(false,entry.groupname);
   }
 }

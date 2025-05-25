@@ -3,6 +3,9 @@
 #include"responsecode.h"
 #include"msg.pb.h"
 #include"logger.h"
+#include<algorithm>
+#include<jsoncpp/json/json.h>
+#include<sstream>
 
 using namespace net;
 
@@ -23,6 +26,9 @@ ServiceHandler::ServiceHandler(ChatServer * server) : chatServer_(server) {
   server->serviceCallBacks_[PULL_GROUP_LIST] = std::bind(&ServiceHandler::onPullGroupList,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[VERI_GROUP] = std::bind(&ServiceHandler::onVerifyGroup,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[CANCEL] = std::bind(&ServiceHandler::onCancel,this,std::placeholders::_1,std::placeholders::_2);
+  server->serviceCallBacks_[PULL_GROUP_MEMBERS] = std::bind(&ServiceHandler::onPullGroupMembers,this,std::placeholders::_1,std::placeholders::_2);
+  server->serviceCallBacks_[SET_OP] = std::bind(&ServiceHandler::onSetOP,this,std::placeholders::_1,std::placeholders::_2);
+  server->serviceCallBacks_[DE_OP] = std::bind(&ServiceHandler::onDeOP,this,std::placeholders::_1,std::placeholders::_2);
 }
 
 void ServiceHandler::onAddFriend(const net::TcpConnectionPtr & conn,Message msgProto) {
@@ -243,7 +249,7 @@ void ServiceHandler::onPullFriendList(const net::TcpConnectionPtr & conn,Message
   }
 
   msgProto.set_to(msgProto.from());
-  msgProto.set_from(PULL_FRIEND_LIST);
+  msgProto.set_text(PULL_FRIEND_LIST);
   msgProto.set_isservice(true);
   std::string resp = msgProto.SerializeAsString();
 
@@ -298,7 +304,7 @@ void ServiceHandler::onPullGroupList(const net::TcpConnectionPtr & conn,Message 
   }
 
   msgProto.set_to(msgProto.from());
-  msgProto.set_from(PULL_GROUP_LIST);
+  msgProto.set_text(PULL_GROUP_LIST);
   msgProto.set_isservice(true);
   std::string resp = msgProto.SerializeAsString();
 
@@ -352,4 +358,114 @@ void ServiceHandler::onCancel(const net::TcpConnectionPtr & conn,Message msgProt
   chatServer_->redis_.hdel("email_userinfos",{user});
   chatServer_->redis_.srem("emailHashUserName",{user});
   chatServer_->redis_.sync_commit();
+}
+
+void ServiceHandler::onPullGroupMembers(const net::TcpConnectionPtr & conn,Message msgProto) {
+  std::string request_user = conn->user_email();
+  std::string request_group = msgProto.from();
+  auto future = chatServer_->redis_.smembers(chatServer_->groupMembers + request_group);
+  chatServer_->redis_.sync_commit();
+  auto reply = future.get();
+  Message responseMessage;
+  responseMessage.set_isservice(true);
+  responseMessage.set_text(PULL_GROUP_MEMBERS);
+  responseMessage.set_to(request_group);
+
+  std::vector<std::string> userinfos; 
+  for(auto & useremail : reply.as_array()) {
+    auto future = chatServer_->redis_.hget("emailHashUserName",useremail.as_string());
+    chatServer_->redis_.sync_commit();
+    auto username = future.get().as_string();
+    std::string memberLevel;
+    if(isUserGroupOwner(useremail.as_string(),request_group)) {
+      memberLevel = GROUP_OWNER;
+    } else if(isUserGroupOP(useremail.as_string(),request_group)) {
+      memberLevel = GROUP_OP;
+    } else {
+      memberLevel = GROUP_MEMBER;
+    }
+    const std::string userinfo = username + " [" + useremail.as_string() + "]" + memberLevel;
+    userinfos.push_back(userinfo);
+  }
+
+  std::sort(userinfos.begin(),userinfos.end(),[](std::string first,std::string second){ 
+    char first_level = first[first.size()-1],second_level = second[second.size()-1];
+    return first_level < second_level ? true : false;
+  });
+
+  for(auto & userinfo : userinfos) {
+    responseMessage.add_args(userinfo);
+  }
+
+  chatServer_->sendOrSave(request_user,responseMessage.SerializeAsString());
+  LOG_INFO("User " + request_user + " pull group " + request_group + " 's member list.");
+}
+
+bool ServiceHandler::isUserGroupOwner(const std::string useremail,const std::string & group) {
+  return useremail == getGroupOwner(group);
+}
+
+bool ServiceHandler::isUserGroupOP(const std::string & useremail,const std::string & group) {
+  auto future = chatServer_->redis_.smembers(groupOpSet + group);
+  chatServer_->redis_.sync_commit();
+  auto reply = future.get();
+  for(auto & entry : reply.as_array()) {
+    if(useremail == entry.as_string()) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void ServiceHandler::onSetOP(const net::TcpConnectionPtr & conn,Message msgProto) {
+  std::string info = msgProto.to();
+  Json::CharReaderBuilder reader;
+  Json::Value root;
+  std::stringstream stm(info);
+  Json::parseFromStream(reader,stm,&root,nullptr);
+  std::string user = root["useremail"].asString();
+  std::string group = root["group"].asString();
+
+  if( !isUserGroupMember(user,group)) {
+    LOG_WARN("user is not a member of the group !");
+    return;
+  }
+
+  chatServer_->redis_.sadd(groupOpSet + group,{user});
+
+  LOG_INFO(user + " become an op of " + group);
+}
+
+bool ServiceHandler::isUserGroupMember(const std::string & user,const std::string & group) {
+  auto future = chatServer_->redis_.smembers(chatServer_->groupMembers + group);
+  chatServer_->redis_.sync_commit();
+  auto reply = future.get();
+
+  for(auto & entry : reply.as_array()) {
+    if(entry.as_string() == user) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void ServiceHandler::onDeOP(const net::TcpConnectionPtr & conn,Message msgProto) {
+  std::string info = msgProto.to();
+  Json::CharReaderBuilder reader;
+  Json::Value root;
+  std::stringstream stm(info);
+  Json::parseFromStream(reader,stm,&root,nullptr);
+
+  std::string user = root["useremail"].asString();
+  std::string group = root["group"].asString();
+
+  if( !isUserGroupMember(user,group)) {
+    LOG_WARN("user is not a member of the group !");
+    return;
+  }
+
+  chatServer_->redis_.srem(groupOpSet + group,{user});
+
+  LOG_INFO(user + " become an op of " + group);
 }

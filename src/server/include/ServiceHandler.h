@@ -40,17 +40,32 @@ public:
 
   void onPullGroupList(const net::TcpConnectionPtr & conn,Message msgProto);
 
-  std::string getGroupOwner(const std::string & group) const; 
+  std::string getGroupOwner(const std::string & group) const;
 
   void onCancel(const net::TcpConnectionPtr & conn,Message msgProto);
+
+  void onPullGroupMembers(const net::TcpConnectionPtr & conn,Message msgProto);
+
+  bool isUserGroupOwner(const std::string useremail,const std::string & group);
+
+  bool isUserGroupOP(const std::string & useremail,const std::string & group);
+
+  void onSetOP(const net::TcpConnectionPtr & conn,Message msgProto);
+
+  void onDeOP(const net::TcpConnectionPtr & conn,Message msgProto);
+
+  bool isUserGroupMember(const std::string & user,const std::string & group);
 private:
   /* redis 好友与群聊存储 */
-  /* 好友列表前缀 */
+  /* 用户的 好友列表前缀 */
   std::string friendSet = "friendSet:";
-  /* 群聊列表前缀 */
+  /* 用户的 群聊列表前缀 */
   std::string groupSet = "groupSet:";
-  /* 屏蔽好友列表前缀 */
+  /* 用户的 屏蔽好友列表前缀 */
   std::string blockedFriendSet = "blockedSet:";
+
+  /* 群 的管理员列表 */
+  std::string groupOpSet = "groupOpSet:";
 
   ChatServer * chatServer_;
 };

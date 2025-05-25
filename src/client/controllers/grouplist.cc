@@ -13,7 +13,7 @@ extern std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
 ScreenInteractive GroupListScreen = ScreenInteractive::Fullscreen();
 
 void Client::GroupList() {
-  msgClient_.pullGroupList();
+  pullGroupMembers();
 
   bool in_chat = false;  
 

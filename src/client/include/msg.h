@@ -120,6 +120,14 @@ public:
   void ExitLoop() { loop_->quit(); }
 
   void enMapYouMessage(Message msgProto);
+
+  void pullGroupMembers(bool isRecv = false,std::string = {},Message msg = {});
+
+  void setOP(const std::string & user,const std::string & group);
+
+  void deOP(const std::string & user,const std::string & group);
+
+  std::vector<std::string>& getGroupMembers(std::string group) { return groupMembers[group]; }
 private:
   void sendMsgTo(const std::string & who,const std::string & msg);
 
@@ -140,6 +148,8 @@ private:
   bool isPeerGroup_;
 
   ilib::net::EventLoop * loop_;
+
+  std::unordered_map<std::string,std::vector<std::string>> groupMembers;
 };
 
 #endif

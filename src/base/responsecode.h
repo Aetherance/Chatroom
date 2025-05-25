@@ -63,3 +63,12 @@ inline void SendResponseCode(int code,int fd) {
 #define QUIT_GROUP_SUCCESS          "QUIT_GROUP_SUCCESS"
 #define QUIT_GROUP_FAILED           "QUIT_GROUP_FAILED"
 #define GROUP_BROKEN                "GROUP_BROKEN"  
+#define PULL_GROUP_MEMBERS          "PULL_GROUP_MEMBERS"
+#define SET_OP                      "SET_OP"
+#define DE_OP                       "DE_OP"
+
+/* 群成员标识 */
+
+#define GROUP_OWNER    "A"
+#define GROUP_OP       "B"
+#define GROUP_MEMBER   "C"

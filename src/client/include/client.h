@@ -59,6 +59,8 @@ private:
 
   void readMessage();
 
+  void pullGroupMembers();
+
   /* 登录注册客户端 */
   UserClient userClient_;
 
@@ -73,6 +75,4 @@ private:
   bool isExit = false;
 
   std::string localUser_;
-
-  std::vector<std::string> peerGroupMembers;
 };

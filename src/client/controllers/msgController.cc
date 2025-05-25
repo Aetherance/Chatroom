@@ -81,17 +81,32 @@ void Client::MsgController() {
 
 
 Element Client::makeSidebar() {
+  Elements sidebarText;
+  auto members = msgClient_.getGroupMembers(msgClient_.peerEmail());
+
   if(msgClient_.isPeerGroup()) {
+    for(auto & entry : members) {
+      Element text_show;
+      auto memberLevel = entry[entry.size()-1];
+      entry.resize(entry.size() - 1);
+      if(memberLevel == GROUP_OWNER[0]) {
+        text_show = text(entry + " (群主)") | bold | color(Color::DarkGoldenrod);
+      } else if(memberLevel == GROUP_OP[0]) {
+        text_show = text(entry + " 🛡️") | color(Color::CyanLight);
+      } else {
+        text_show = text(entry);
+      }
+      sidebarText.push_back(text_show);
+    }
     return vbox({
-      text("") | bold | center,
+      text("群成员") | bold | center,
       separator(),
-      vbox({text("群成员") | center}) 
+      vbox({vbox(sidebarText) | flex | center})
         | vscroll_indicator 
         | frame 
         | flex
     }) 
-    | border 
-    | size(WIDTH, EQUAL, 16);  
+    | border;
   } else {
     return vbox({
       text("") | bold | center,
