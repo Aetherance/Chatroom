@@ -10,6 +10,8 @@ std::string show_info2;
 
 extern std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
 
+extern std::unordered_map<std::string,bool> NewMessageMap;
+
 ScreenInteractive FriendListScreen = ScreenInteractive::Fullscreen();
 
 void Client::FriendList() {
@@ -77,7 +79,7 @@ void Client::FriendList() {
     // 好友列表界面
     friends_container->DetachAllChildren();
     for (const auto& name : friends) {
-      auto btn = Button((name.isOnline ? " ● " : " ○ ") + name.username, [&, name] { 
+      auto btn = Button((name.isOnline ? " ● " : " ○ ") + name.username + (NewMessageMap[name.email] ? " 💬" : ""), [&, name] { 
         msgClient_.updatePeer(name.email,name.username);
         in_chat = true;
       });

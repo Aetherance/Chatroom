@@ -8,6 +8,8 @@ using namespace ftxui;
 
 extern std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
 
+extern std::unordered_map<std::string,bool> NewMessageMap;
+
 std::string MessageKey;
 std::string PeerUserName;
 std::string PeerEmail;
@@ -28,6 +30,8 @@ void Client::MsgController() {
   MessageKey = msgClient_.peerEmail();
   PeerUserName = msgClient_.peerUsername();
   PeerEmail = msgClient_.peerEmail();
+
+  NewMessageMap[msgClient_.peerEmail()] = false;
 
   auto input_option = InputOption();
   input_option.on_enter = [&] {

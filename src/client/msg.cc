@@ -24,6 +24,8 @@ extern std::vector<Group> groups;
 
 extern std::vector<GroupApplication> applications;
 
+std::unordered_map<std::string,bool> NewMessageMap = {};
+
 std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
 
 extern ftxui::ScreenInteractive MsgScreen;
@@ -116,9 +118,11 @@ void MsgClient::parseMsg(std::string msg) {
     doService(msgProto);
   } else {
     if(msgProto.isgroupmessage()) {
+      NewMessageMap[msgProto.to()] = true;
       messageMap[msgProto.to()].push_back({msgProto.from(),msgProto.text(),msgProto.timestamp()});
       MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[msgProto.to()].size()) - visible_lines);
     } else {
+      NewMessageMap[msgProto.from()] = true;
       messageMap[msgProto.from()].push_back({msgProto.from(),msgProto.text(),msgProto.timestamp()});
       MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[msgProto.from()].size()) - visible_lines);
     }
