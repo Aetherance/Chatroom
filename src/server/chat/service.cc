@@ -29,6 +29,7 @@ ServiceHandler::ServiceHandler(ChatServer * server) : chatServer_(server) {
   server->serviceCallBacks_[PULL_GROUP_MEMBERS] = std::bind(&ServiceHandler::onPullGroupMembers,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[SET_OP] = std::bind(&ServiceHandler::onSetOP,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[DE_OP] = std::bind(&ServiceHandler::onDeOP,this,std::placeholders::_1,std::placeholders::_2);
+  server->serviceCallBacks_[RM_GROUP_MEM] = std::bind(&ServiceHandler::onRmGroupMember,this,std::placeholders::_1,std::placeholders::_2);
 }
 
 void ServiceHandler::onAddFriend(const net::TcpConnectionPtr & conn,Message msgProto) {
@@ -134,9 +135,14 @@ void ServiceHandler::onAddGroup(const net::TcpConnectionPtr & conn,Message msgPr
   returnMsg.set_isservice(true);
 
   if(chatServer_->isGroupMessage(msgProto.to())) {
-    auto owner = getGroupOwner(msgProto.to());
-  
-    chatServer_->sendOrSave(owner,msgProto.SerializeAsString());
+    auto future = chatServer_->redis_.smembers(groupOpSet + msgProto.to());
+    chatServer_->redis_.sync_commit();
+    auto reply = future.get();
+    
+    for(auto &entry : reply.as_array()) {
+      chatServer_->sendOrSave(entry.as_string(),msgProto.SerializeAsString());
+    }
+    
     returnMsg.set_text(ADD_GROUP_SEND_SUCCESS);
   } else {
     returnMsg.set_text(ADD_GROUP_SEND_FAILED);
@@ -223,10 +229,6 @@ void ServiceHandler::onBreakGroup(const net::TcpConnectionPtr & conn,Message msg
     chatServer_->redis_.sync_commit();
     LOG_INFO("Group " + group + " was broken!");
   }
-}
-
-void ServiceHandler::onRmGroupMember(const net::TcpConnectionPtr & conn,Message msgProto) {
-  
 }
 
 void ServiceHandler::onPullFriendList(const net::TcpConnectionPtr & conn,Message msgProto) {
@@ -427,12 +429,18 @@ void ServiceHandler::onSetOP(const net::TcpConnectionPtr & conn,Message msgProto
   std::string user = root["useremail"].asString();
   std::string group = root["group"].asString();
 
+  if( !isUserGroupOP(msgProto.from(),group) && !isUserGroupOwner(msgProto.from(),group)) {
+    LOG_WARN("Group " + group + " 's normal user " + msgProto.from() + " is try to use operator command");
+    return ;
+  }
+
   if( !isUserGroupMember(user,group)) {
     LOG_WARN("user is not a member of the group !");
     return;
   }
 
   chatServer_->redis_.sadd(groupOpSet + group,{user});
+  chatServer_->redis_.sync_commit();
 
   LOG_INFO(user + " become an op of " + group);
 }
@@ -460,12 +468,58 @@ void ServiceHandler::onDeOP(const net::TcpConnectionPtr & conn,Message msgProto)
   std::string user = root["useremail"].asString();
   std::string group = root["group"].asString();
 
+  if( !isUserGroupOP(msgProto.from(),group) && !isUserGroupOwner(msgProto.from(),group)) {
+    LOG_WARN("Group " + group + " 's normal user " + msgProto.from() + " is try to use operator command");
+    return ;
+  }
+
   if( !isUserGroupMember(user,group)) {
     LOG_WARN("user is not a member of the group !");
     return;
   }
 
   chatServer_->redis_.srem(groupOpSet + group,{user});
+  chatServer_->redis_.sync_commit();
 
   LOG_INFO(user + " become an op of " + group);
+}
+
+void ServiceHandler::onRmGroupMember(const net::TcpConnectionPtr & conn,Message msgProto) {
+  std::string info = msgProto.to();
+  Json::CharReaderBuilder reader;
+  Json::Value root;
+  std::stringstream stm(info);
+  Json::parseFromStream(reader,stm,&root,nullptr);
+
+  std::string user = root["useremail"].asString();
+  std::string group = root["group"].asString();
+
+  if( !isUserGroupOP(msgProto.from(),group) && !isUserGroupOwner(msgProto.from(),group)) {
+    LOG_WARN("Group " + group + " 's normal user " + msgProto.from() + " is try to use operator command");
+    return ;
+  }
+
+  if( !isUserGroupMember(user,group)) {
+    LOG_WARN("user is not a member of the group !");
+    return;
+  }
+
+  if(isUserGroupOwner(user,group)) {
+    return ;
+  }
+
+  if(isUserGroupOP(user,group) && isUserGroupOwner(msgProto.from(),group)) {
+    chatServer_->redis_.srem(groupOpSet + group,{user});
+    chatServer_->redis_.sync_commit();
+  }
+  
+  Message ServiceMsg;
+  ServiceMsg.set_text(QUIT_GROUP);
+  ServiceMsg.set_from(user);
+  ServiceMsg.set_to(group);
+  ServiceMsg.set_isservice(true);
+
+  onQuitGroup(conn,ServiceMsg);
+
+  LOG_INFO("User " + user + " was remove from " + group);
 }

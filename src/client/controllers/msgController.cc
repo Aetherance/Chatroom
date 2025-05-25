@@ -79,7 +79,6 @@ void Client::MsgController() {
   MsgScreen.Loop(renderer);
 }
 
-
 Element Client::makeSidebar() {
   Elements sidebarText;
   auto members = msgClient_.getGroupMembers(msgClient_.peerEmail());

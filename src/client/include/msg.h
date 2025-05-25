@@ -81,7 +81,7 @@ public:
 
   void verifyGroup(const std::string & who, const std::string & group);
 
-  void rmGroupMember() {}
+  void rmGroupMember(const std::string & who,const std::string & group);
 
   void breakGroup(const std::string & requestor,const std::string & obj);
 

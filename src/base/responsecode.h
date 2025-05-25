@@ -65,7 +65,7 @@ inline void SendResponseCode(int code,int fd) {
 #define GROUP_BROKEN                "GROUP_BROKEN"  
 #define PULL_GROUP_MEMBERS          "PULL_GROUP_MEMBERS"
 #define SET_OP                      "SET_OP"
-#define DE_OP                       "DE_OP"
+#define DE_OP                       "DE_OP"   
 
 /* 群成员标识 */
 

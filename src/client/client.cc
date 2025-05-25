@@ -159,6 +159,8 @@ bool Client::parseCommand(std::string & input) {
   } else if(cmds[0] == "/deop" && msgClient_.isPeerGroup() && cmds.size() > 1) {
     msgClient_.deOP(cmds[1],msgClient_.peerEmail());
     pullGroupMembers();
+  } else if(cmds[0] == "/rm" && msgClient_.isPeerGroup() && cmds.size() > 1) {
+    msgClient_.rmGroupMember(cmds[1],msgClient_.peerEmail());
   }
   
   return true;

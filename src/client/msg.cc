@@ -237,7 +237,6 @@ void MsgClient::doQuitGroup(const Message & msg) {
   } else if(msg.to() == QUIT_GROUP_FAILED) {
     show_info4 = "退出失败! 您不能退出自己的群聊。 尝试解散群聊!";
   }
-  show_info4 = "!!!!!!!!!!!!!!!!";
   std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
   pullGroupList();
 }

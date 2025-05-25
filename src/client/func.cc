@@ -60,7 +60,6 @@ void MsgClient::breakGroup(const std::string & requestor,const std::string & obj
   SerializeSend(BREAK_GROUP,requestor,obj);
 }
 
-
 void MsgClient::pullFriendList(bool isRecv,Message msg) {
   if(!isRecv) {
     SerializeSend(PULL_FRIEND_LIST,LocalEmail(),PULL_FRIEND_LIST);
@@ -163,4 +162,24 @@ void MsgClient::deOP(const std::string & user,const std::string & group) {
   std::string message = setOp.SerializeAsString();
 
   safeSend(message);
+}
+
+void MsgClient::rmGroupMember(const std::string & who,const std::string & group) {
+  Json::Value root;
+  root["useremail"] = who;
+  root["group"] = group;
+  Json::StreamWriterBuilder writer;
+  std::string info = Json::writeString(writer,root);
+
+  Message setOp;
+  setOp.set_from(LocalEmail_);
+  setOp.set_text(RM_GROUP_MEM);
+  setOp.set_to(info);
+  setOp.set_isservice(true);
+
+  std::string message = setOp.SerializeAsString();
+
+  safeSend(message);
+
+  pullGroupMembers();
 }
