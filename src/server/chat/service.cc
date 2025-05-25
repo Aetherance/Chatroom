@@ -15,7 +15,6 @@ ServiceHandler::ServiceHandler(ChatServer * server) : chatServer_(server) {
   server->serviceCallBacks_[ADD_FRIEND] = std::bind(&ServiceHandler::onAddFriend,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[DEL_FRIEND] = std::bind(&ServiceHandler::onDeleteFriend,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[VER_FRIEND] = std::bind(&ServiceHandler::onVerifyFriend,this,std::placeholders::_1,std::placeholders::_2);
-  server->serviceCallBacks_[BLACK_OUT] = std::bind(&ServiceHandler::onBlackoutFriend,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[BLOCK] = std::bind(&ServiceHandler::onBlockFriend,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[CREATE_GROUP] = std::bind(&ServiceHandler::onCreateGroup,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[ADD_GROUP] = std::bind(&ServiceHandler::onAddGroup,this,std::placeholders::_1,std::placeholders::_2);
@@ -87,12 +86,10 @@ void ServiceHandler::onDeleteFriend(const net::TcpConnectionPtr & conn,Message m
   chatServer_->sendOrSave(msgProto.to(),msg.SerializeAsString());
 }
 
-void ServiceHandler::onBlackoutFriend(const net::TcpConnectionPtr & conn,Message msgProto) {
-  
-}
-
 void ServiceHandler::onBlockFriend(const net::TcpConnectionPtr & conn,Message msgProto) {
-
+  chatServer_->redis_.sadd(blockedFriendSet + msgProto.from(),{msgProto.to()});
+  chatServer_->redis_.sync_commit();
+  LOG_INFO("User " + msgProto.to() + " is blocked by " + msgProto.from());
 }
 
 void ServiceHandler::onCreateGroup(const net::TcpConnectionPtr & conn,Message msgProto) {
@@ -522,4 +519,17 @@ void ServiceHandler::onRmGroupMember(const net::TcpConnectionPtr & conn,Message 
   onQuitGroup(conn,ServiceMsg);
 
   LOG_INFO("User " + user + " was remove from " + group);
+}
+
+bool ServiceHandler::isUserBlocked(const std::string & user,const std::string & one) {
+  auto future = chatServer_->redis_.sismember(blockedFriendSet + one,user);
+  chatServer_->redis_.sync_commit();
+  auto reply = future.get();
+  return reply.as_integer();
+}
+
+void ServiceHandler::onUnBlock(const net::TcpConnectionPtr & conn,Message msgProto) {
+  chatServer_->redis_.srem(blockedFriendSet + msgProto.from(),{msgProto.to()});
+  chatServer_->redis_.sync_commit();
+  LOG_INFO("User " + msgProto.from() + " unblocked " + msgProto.to());
 }

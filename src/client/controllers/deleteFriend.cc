@@ -7,9 +7,6 @@ extern std::vector<Friend> friends;
 void Client::DeleteFriend() {
   auto screen = ScreenInteractive::Fullscreen();
 
-  // 使用多个并行数组管理状态
-  std::vector<bool> blocked(friends.size(), false);
-
   // 创建垂直容器
   auto container = Container::Vertical({});
 
@@ -22,20 +19,12 @@ void Client::DeleteFriend() {
       screen.PostEvent(Event::Custom);
     });
 
-    // 拉黑按钮回调
-    auto block_btn = Button("拉黑", [&, i] {
-      blocked[i] = !blocked[i]; // 切换拉黑状态
-      screen.PostEvent(Event::Custom);
-    });
-
     // 创建带边框的好友条目
     auto entry = Container::Horizontal({
         Renderer([&, i] {
-          return text(" " + friends[i].username + 
-                     (blocked[i] ? " (已拉黑)" : "")) | flex;
+          return text(" " + friends[i].username) | flex;
         }),
-        delete_btn,
-        block_btn
+        delete_btn
     }) | border;
 
     container->Add(entry);
@@ -51,9 +40,6 @@ void Client::DeleteFriend() {
     // 渲染可见条目
     for (size_t i = 0; i < friends.size(); ++i) {
       auto element = container->ChildAt(i)->Render();
-      if (blocked[i]) {
-        element |= color(Color::RedLight);
-      }
       entries.push_back(element);
       entries.push_back(separator());
     }

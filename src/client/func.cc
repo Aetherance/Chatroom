@@ -40,10 +40,6 @@ void MsgClient::verifyFriend(const std::string & requestor,const std::string & o
   SerializeSend(VER_FRIEND,requestor,obj);
 }
 
-void MsgClient::blackoutFriend(const std::string & requestor,const std::string & obj) {
-  SerializeSend(BLACK_OUT,requestor,obj);
-}
-
 void MsgClient::blockFriend(const std::string & requestor,const std::string & obj) {
   SerializeSend(BLOCK,requestor,obj);
 }
@@ -58,6 +54,10 @@ void MsgClient::quitGroup(const std::string & requestor,const std::string & obj)
 
 void MsgClient::breakGroup(const std::string & requestor,const std::string & obj) {
   SerializeSend(BREAK_GROUP,requestor,obj);
+}
+
+void MsgClient::unBlock(const std::string & requestor,const std::string & obj) {
+  SerializeSend(UNBLOCK,requestor,obj);
 }
 
 void MsgClient::pullFriendList(bool isRecv,Message msg) {

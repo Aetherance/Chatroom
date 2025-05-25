@@ -3,6 +3,7 @@
 #include<assert.h>
 #include"logger.h"
 #include"msg.pb.h"
+#include"responsecode.h"
 
 extern std::unordered_map<std::string,net::TcpConnectionPtr> userHashConn;
 
@@ -40,6 +41,11 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
     } else if( !msg.isservice() && isExists && msg.from() != msg.to()) {
       LOG_INFO(COLOR_YELLOW + msg.from() + COLOR_RESET + " says" + " to " + COLOR_YELLOW + msg.to() + COLOR_RESET + " : " + msg.text());
 
+      if(serviceHandler_.isUserBlocked(msg.from(),msg.to())) {
+        tellBlocked(msg.from(),msg.to());
+        return;
+      }
+      
       if(isUserOnline(msg.to())) {
         assert(userHashConn[msg.to()]);
         /* to字段存储接收端信息 */
@@ -140,4 +146,13 @@ bool ChatServer::isGroupMessage(const std::string & who) {
   } else {
     return false;
   }
+}
+
+void ChatServer::tellBlocked(const std::string & who,const std::string & by) {
+  Message message;
+  message.set_text(BLOCKED);
+  message.set_from(by);
+  message.set_isservice(true);
+
+  sendOrSave(who,message.SerializeAsString());
 }

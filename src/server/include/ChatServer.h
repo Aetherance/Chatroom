@@ -49,6 +49,8 @@ private:
 
   void sendOrSave(const std::string & to,const std::string & msg);
 
+  void tellBlocked(const std::string & who,const std::string & by);
+
   using serviceCallback = std::function<void(const net::TcpConnectionPtr & conn,Message msgProto)>;
   
   std::unordered_map<std::string,serviceCallback>serviceCallBacks_;

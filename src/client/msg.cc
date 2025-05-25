@@ -125,7 +125,7 @@ void MsgClient::parseMsg(std::string msg) {
       NewMessageMap[msgProto.from()] = true;
       messageMap[msgProto.from()].push_back({msgProto.from(),msgProto.text(),msgProto.timestamp()});
       MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[msgProto.from()].size()) - visible_lines);
-    }
+    } 
     MsgScreen.PostEvent(ftxui::Event::Custom);
   }
 }
@@ -161,6 +161,8 @@ void MsgClient::doService(Message msgProto) {
     doQuitGroup(msgProto);
   } else if(msgProto.text() == PULL_GROUP_MEMBERS) {
     pullGroupMembers(true,{},msgProto);
+  } else if(msgProto.text() == BLOCKED) {
+    doBlockedMessage(msgProto);
   }
 }
 
@@ -261,5 +263,10 @@ void MsgClient::enMapYouMessage(Message msgProto) {
     messageMap[msgProto.from()].push_back({"You",msgProto.text(),msgProto.timestamp()});
     MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[msgProto.from()].size()) - visible_lines);
   }
+  MsgScreen.PostEvent(ftxui::Event::Custom);
+}
+
+void MsgClient::doBlockedMessage(Message message) {
+  messageMap[message.from()].push_back({"系统","消息已发出，但被对方拒收了"});
   MsgScreen.PostEvent(ftxui::Event::Custom);
 }

@@ -16,8 +16,6 @@ public:
   
   void onVerifyFriend(const net::TcpConnectionPtr & conn,Message msgProto);
  
-  void onBlackoutFriend(const net::TcpConnectionPtr & conn,Message msgProto);
- 
   void onBlockFriend(const net::TcpConnectionPtr & conn,Message msgProto);
  
   void onCreateGroup(const net::TcpConnectionPtr & conn,Message msgProto);
@@ -31,6 +29,8 @@ public:
   void onBreakGroup(const net::TcpConnectionPtr & conn,Message msgProto);
 
   void onRmGroupMember(const net::TcpConnectionPtr & conn,Message msgProto);
+
+  void onUnBlock(const net::TcpConnectionPtr & conn,Message msgProto);
 
   void onPullFriendList(const net::TcpConnectionPtr & conn,Message msgProto);
 
@@ -55,6 +55,8 @@ public:
   void onDeOP(const net::TcpConnectionPtr & conn,Message msgProto);
 
   bool isUserGroupMember(const std::string & user,const std::string & group);
+
+  bool isUserBlocked(const std::string & user1,const std::string & user2);
 private:
   /* redis 好友与群聊存储 */
   /* 用户的 好友列表前缀 */

@@ -161,6 +161,10 @@ bool Client::parseCommand(std::string & input) {
     pullGroupMembers();
   } else if(cmds[0] == "/rm" && msgClient_.isPeerGroup() && cmds.size() > 1) {
     msgClient_.rmGroupMember(cmds[1],msgClient_.peerEmail());
+  } else if(cmds[0] == "/block") {
+    msgClient_.blockFriend(msgClient_.LocalEmail(),msgClient_.peerEmail());
+    messageMap[msgClient_.peerEmail()].push_back({"系统","来自 " + msgClient_.peerUsername() + " 的消息已屏蔽!",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
+    MsgScreen.PostEvent(Event::Custom);
   }
   
   return true;

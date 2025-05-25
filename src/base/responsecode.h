@@ -33,6 +33,7 @@ inline void SendResponseCode(int code,int fd) {
 #define VER_FRIEND   "verifyFriend"
 #define BLACK_OUT    "blackoutFriend"
 #define BLOCK        "blockFriend"
+#define UNBLOCK      "unblockFriend"
 #define ADD_GROUP    "addGroup"
 #define VERI_GROUP   "verifyGroup"
 #define QUIT_GROUP   "quitGroup"
@@ -66,6 +67,7 @@ inline void SendResponseCode(int code,int fd) {
 #define PULL_GROUP_MEMBERS          "PULL_GROUP_MEMBERS"
 #define SET_OP                      "SET_OP"
 #define DE_OP                       "DE_OP"   
+#define BLOCKED                     "BLOCKED"
 
 /* 群成员标识 */
 

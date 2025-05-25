@@ -69,8 +69,6 @@ public:
 
   void verifyFriend(const std::string & requestor,const std::string & obj);
 
-  void blackoutFriend(const std::string & requestor,const std::string & obj);
-
   void blockFriend(const std::string & requestor,const std::string & obj);
 
   void addGroup(const std::string & requestor,const std::string & obj);
@@ -84,6 +82,8 @@ public:
   void rmGroupMember(const std::string & who,const std::string & group);
 
   void breakGroup(const std::string & requestor,const std::string & obj);
+
+  void unBlock(const std::string & requestor,const std::string & obj);
 
   void pullFriendList(bool isRecv = false,Message msg = {});
   
@@ -126,6 +126,8 @@ public:
   void setOP(const std::string & user,const std::string & group);
 
   void deOP(const std::string & user,const std::string & group);
+
+  void doBlockedMessage(Message);
 
   std::vector<std::string>& getGroupMembers(std::string group) { return groupMembers[group]; }
 private:
