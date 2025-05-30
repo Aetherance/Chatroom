@@ -4,9 +4,10 @@
 #include<ftxui/dom/elements.hpp>
 #include<ftxui/screen/screen.hpp>
 #include <ftxui/component/screen_interactive.hpp>
-#include"user.h"
 #include"responsecode.h"
+#include"user.h"
 #include"msg.h"
+#include"ftp.h"
 
 class Client
 {
@@ -61,11 +62,18 @@ private:
 
   void pullGroupMembers();
 
+  void sendFileTo(const std::string & who,const std::string fileName,const std::string & filePath);
+
+  void downloadFile(const std::string & filename,const std::string & localDir);
+
   /* 登录注册客户端 */
   UserClient userClient_;
 
   /* 聊天客户端 */
   MsgClient msgClient_;
+
+  /* 文件传输客户端 */
+  FtpClient ftpClient_;
 
   /* UI界面 */
   ftxui::ScreenInteractive mainScreen_;

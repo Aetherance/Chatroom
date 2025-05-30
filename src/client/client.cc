@@ -165,6 +165,16 @@ bool Client::parseCommand(std::string & input) {
     msgClient_.blockFriend(msgClient_.LocalEmail(),msgClient_.peerEmail());
     messageMap[msgClient_.peerEmail()].push_back({"系统","来自 " + msgClient_.peerUsername() + " 的消息已屏蔽!",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
     MsgScreen.PostEvent(Event::Custom);
+  } else if(cmds[0] == "/unblock") {
+    msgClient_.unBlock(msgClient_.LocalEmail(),msgClient_.peerEmail());
+    messageMap[msgClient_.peerEmail()].push_back({"系统","来自 " + msgClient_.peerUsername() + " 的消息已取消屏蔽!",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
+    MsgScreen.PostEvent(Event::Custom);
+  } else if(cmds[0] == "/upload" && cmds.size() > 2) {
+    sendFileTo(msgClient_.peerEmail(), cmds[2], cmds[1]);
+    messageMap[msgClient_.peerEmail()].push_back({"系统","文件已上传",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
+    MsgScreen.PostEvent(Event::Custom);
+  } else if(cmds[0] == "/download" && cmds.size() > 2) {
+    downloadFile(cmds[1],cmds[2]);
   }
   
   return true;
@@ -240,4 +250,30 @@ void Client::pullGroupMembers() {
   for(auto & entry : groups) {
     msgClient_.pullGroupMembers(false,entry.groupname);
   }
+}
+
+void Client::sendFileTo(const std::string & who, const std::string fileName, const std::string & filePath) {
+  if(!std::filesystem::exists(filePath)) {
+    return;
+  }
+  
+  ftpClient_.connect();
+  ftpClient_.uploadFile(filePath,who,fileName);
+
+  Message msg;
+  msg.set_text(UPLOAD_FILE);
+  msg.set_isservice(true);
+  msg.set_from(msgClient_.LocalEmail());
+  msg.set_to(fileName);
+  msg.set_timestamp(ilib::base::Timestamp::now().microSecondsSinceEpoch());
+  msg.add_args(who);
+
+  msgClient_.safeSend(msg.SerializeAsString());
+}
+
+void Client::downloadFile(const std::string & filename,const std::string & localDir) {
+  ftpClient_.connect();
+  ftpClient_.downloadFile(localDir, msgClient_.LocalEmail(), filename);
+
+  messageMap[msgClient_.peerEmail()].push_back({"系统","已将文件下载至" + localDir + "/" + filename,ilib::Timestamp::now().microSecondsSinceEpoch()});
 }

@@ -111,16 +111,7 @@ Element Client::makeSidebar() {
     }) 
     | border;
   } else {
-    return vbox({
-      text("") | bold | center,
-      separator(),
-      vbox({text("文件") | center}) 
-        | vscroll_indicator 
-        | frame 
-        | flex
-    }) 
-    | border 
-    | size(WIDTH, EQUAL, 16);
+    return vbox();
   }
 }
 

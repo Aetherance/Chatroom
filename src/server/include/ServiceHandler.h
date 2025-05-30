@@ -3,6 +3,7 @@
 
 using namespace ilib;
 
+class FtpServer;
 class ChatServer;
 class ServiceHandler
 {
@@ -57,6 +58,8 @@ public:
   bool isUserGroupMember(const std::string & user,const std::string & group);
 
   bool isUserBlocked(const std::string & user1,const std::string & user2);
+
+  void onUploadFile(const net::TcpConnectionPtr & conn,Message msgProto);
 private:
   /* redis 好友与群聊存储 */
   /* 用户的 好友列表前缀 */
@@ -70,6 +73,8 @@ private:
   std::string groupOpSet = "groupOpSet:";
 
   ChatServer * chatServer_;
+
+  FtpServer * ftpServer_;
 };
 
 #endif

@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+message fileInfo {
+  string action = 1;
+  string user_dir = 2;
+  string file_name = 3;
+  int32 port = 4;
+}

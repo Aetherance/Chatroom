@@ -74,3 +74,7 @@ inline void SendResponseCode(int code,int fd) {
 #define GROUP_OWNER    "A"
 #define GROUP_OP       "B"
 #define GROUP_MEMBER   "C"
+
+#define UPLOAD_FILE    "UPLOAD_FILE"
+#define DOWNLOAD_FILE  "DOWNLOAD_FILE"
+#define FILE_NOT_FOUND "FILE_NOT_FOUND"

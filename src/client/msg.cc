@@ -163,6 +163,8 @@ void MsgClient::doService(Message msgProto) {
     pullGroupMembers(true,{},msgProto);
   } else if(msgProto.text() == BLOCKED) {
     doBlockedMessage(msgProto);
+  } else if(msgProto.text() == UPLOAD_FILE) {
+    doRecvFile(msgProto);
   }
 }
 
@@ -268,5 +270,12 @@ void MsgClient::enMapYouMessage(Message msgProto) {
 
 void MsgClient::doBlockedMessage(Message message) {
   messageMap[message.from()].push_back({"系统","消息已发出，但被对方拒收了"});
+  MsgScreen.PostEvent(ftxui::Event::Custom);
+}
+
+void MsgClient::doRecvFile(Message msgProto) {
+  std::string fileName = msgProto.to();
+  messageMap[msgProto.from()].push_back({"系统","收到来自" + msgProto.from() + "的文件。 使用 \"download <文件名> <保存路径>\" 来下载",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
+  messageMap[msgProto.from()].push_back({"系统","文件名: " + fileName,ilib::base::Timestamp::now().microSecondsSinceEpoch()});
   MsgScreen.PostEvent(ftxui::Event::Custom);
 }

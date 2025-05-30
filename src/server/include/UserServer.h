@@ -51,6 +51,6 @@ private:
   inline static const std::string RedisUserInfosHashEmail_ = "email_userinfos";
 
   /* redis userset 哈希表的名称 */
-  inline static const std::string allUserset = "allUserset";
+  inline static const std::string allUserset = "allUserSet";
   inline static const std::string onlineUserSet = "onlineUserSet";
 };

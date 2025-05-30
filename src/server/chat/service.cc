@@ -29,6 +29,8 @@ ServiceHandler::ServiceHandler(ChatServer * server) : chatServer_(server) {
   server->serviceCallBacks_[SET_OP] = std::bind(&ServiceHandler::onSetOP,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[DE_OP] = std::bind(&ServiceHandler::onDeOP,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[RM_GROUP_MEM] = std::bind(&ServiceHandler::onRmGroupMember,this,std::placeholders::_1,std::placeholders::_2);
+  server->serviceCallBacks_[UNBLOCK] = std::bind(&ServiceHandler::onUnBlock,this,std::placeholders::_1,std::placeholders::_2);
+  server->serviceCallBacks_[UPLOAD_FILE] = std::bind(&ServiceHandler::onUploadFile,this,std::placeholders::_1,std::placeholders::_2);
 }
 
 void ServiceHandler::onAddFriend(const net::TcpConnectionPtr & conn,Message msgProto) {
@@ -532,4 +534,10 @@ void ServiceHandler::onUnBlock(const net::TcpConnectionPtr & conn,Message msgPro
   chatServer_->redis_.srem(blockedFriendSet + msgProto.from(),{msgProto.to()});
   chatServer_->redis_.sync_commit();
   LOG_INFO("User " + msgProto.from() + " unblocked " + msgProto.to());
+}
+
+void ServiceHandler::onUploadFile(const net::TcpConnectionPtr & conn,Message msgProto) {
+  const std::string to_user = msgProto.args(0);
+  chatServer_->sendOrSave(to_user,msgProto.SerializeAsString());
+  LOG_INFO("User " + msgProto.from() + " upload file to " + to_user);
 }

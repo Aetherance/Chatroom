@@ -66,7 +66,7 @@ void Client::RegisterController() {
       return true;
     } else if(code_in.size() > 6) {
       info = "验证码长度过长!";
-      return true;
+      return false;
     }
       return false;
     });

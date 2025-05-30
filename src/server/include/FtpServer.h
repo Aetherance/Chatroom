@@ -1,26 +1,41 @@
-#include<TcpServer.h>
+#include"TcpServer.h"
 #include"logger.h"
 #include<filesystem>
 
 using namespace ilib;
+using namespace ilib::net;
+using namespace ilib::base;
 
 class FtpServer
-{  
+{
+friend class ServiceHandler;
 public:
   FtpServer();
-  ~FtpServer();
+
   void run();
 
+  ~FtpServer();
+
 private:
-  net::EventLoop loop_;
-  net::InetAddress addr_;
-  net::TcpServer server_;
-
-  std::filesystem::path rootPath_;
-
-  void onConnection(const net::TcpConnectionPtr &);
+  void onConnection(const TcpConnectionPtr & conn);
   
-  void onMessage(const net::TcpConnectionPtr &,net::Buffer * buff,base::Timestamp timestamp);
+  void onMessage(const TcpConnectionPtr & conn, Buffer * buf, Timestamp time);
+  
+  void parseMessage(const std::string & msg, const TcpConnectionPtr & conn);
 
-  bool isUserDirExist(const std::string & user) const;
+  void handleUpload(const std::string & fileName, const std::string & userDir, const TcpConnectionPtr & conn);
+
+  void handleDownload(const std::string & fileName, const std::string & userDir, const TcpConnectionPtr & conn);
+
+  void sendResponse(const std::string & Msg,const net::TcpConnectionPtr & conn);
+
+  void onReceive(const std::string & dir , const std::string & fileName, const TcpConnectionPtr & conn,const int sockfd);
+
+  void onSend(const std::string & dir , const std::string & fileName, const TcpConnectionPtr & conn,const int sockfd);
+
+  InetAddress address_;
+  TcpServer server_;
+  EventLoop loop_;
+
+  std::filesystem::path root_;
 };

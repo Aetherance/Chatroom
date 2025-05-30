@@ -11,6 +11,7 @@ add_executable(server
     user/verifiCode.cc
     ftp/ftpServer.cc
     ${CMAKE_SOURCE_DIR}/src/protobuf/msg.pb.cc
+    ${CMAKE_SOURCE_DIR}/src/protobuf/fileInfo.pb.cc
 )
 
 # 链接netlib库
