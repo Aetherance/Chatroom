@@ -3,8 +3,6 @@
 #include<iostream>
 
 int main() {
-  SignalBlocker on;
-
   Client client;
   client.run();
 

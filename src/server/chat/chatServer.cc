@@ -1,6 +1,7 @@
 #include"ChatServer.h"
 #include"msg.pb.h"
 #include"logger.h"
+#include"responsecode.h"
 
 using namespace net;
 
@@ -62,6 +63,7 @@ void ChatServer::onMessage(const net::TcpConnectionPtr & conn,net::Buffer* buff,
 void ChatServer::onConnection(const net::TcpConnectionPtr & conn) {
   if( conn->connected()) {
     assert(conn);
+    heartbeat(conn);
   } else if( !conn->connected()) {
     redis_.srem(onlineUserSet,{conn->user_email()});
     redis_.sync_commit();
@@ -76,4 +78,18 @@ void ChatServer::sendOrSave(const std::string & to,const std::string & msg) {
   } else {
     onOfflineMsg(to,msg);
   }
+}
+
+void ChatServer::heartbeat(const net::TcpConnectionPtr & conn) {
+  loop_.runEvery(3.0,([this,conn]() {
+    if(conn->connected()) {
+    Message heartbeatMsg;
+    heartbeatMsg.set_text(HEARTBEAT_MSG);
+    sendMsgToUser(heartbeatMsg.SerializeAsString(),conn);
+    LOG_INFO("PENG! @" + conn->user_email());
+    } else {
+      LOG_ERROR("Heartbeat failed, connection is not established.");
+    }
+  }));
+  LOG_INFO("Heartbeat set");
 }

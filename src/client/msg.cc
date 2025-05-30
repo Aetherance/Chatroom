@@ -165,6 +165,8 @@ void MsgClient::doService(Message msgProto) {
     doBlockedMessage(msgProto);
   } else if(msgProto.text() == UPLOAD_FILE) {
     doRecvFile(msgProto);
+  } else if(msgProto.text() == HEARTBEAT_MSG) {
+    doHeartBeat(msgProto);
   }
 }
 
@@ -278,4 +280,11 @@ void MsgClient::doRecvFile(Message msgProto) {
   messageMap[msgProto.from()].push_back({"系统","收到来自" + msgProto.from() + "的文件。 使用 \"download <文件名> <保存路径>\" 来下载",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
   messageMap[msgProto.from()].push_back({"系统","文件名: " + fileName,ilib::base::Timestamp::now().microSecondsSinceEpoch()});
   MsgScreen.PostEvent(ftxui::Event::Custom);
+}
+
+void MsgClient::doHeartBeat(Message message) {
+  // 心跳包处理逻辑
+  // 可以在这里添加心跳包的处理逻辑，例如更新连接状态等
+  // 目前只是简单地打印心跳信息
+  std::cout << "Received heartbeat from: " << message.from() << std::endl;
 }

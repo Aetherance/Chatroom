@@ -78,3 +78,11 @@ inline void SendResponseCode(int code,int fd) {
 #define UPLOAD_FILE    "UPLOAD_FILE"
 #define DOWNLOAD_FILE  "DOWNLOAD_FILE"
 #define FILE_NOT_FOUND "FILE_NOT_FOUND"
+
+/* TCP心跳检测 */
+#define HEARTBEAT_INTERVAL 30 // 心跳间隔时间，单位为秒
+#define HEARTBEAT_TIMEOUT  60 // 心跳超时时间，单位为秒
+#define HEARTBEAT_MSG "HEARTBEAT"
+#define HEARTBEAT_MSG_LEN 9 // 心跳消息长度
+#define HEARTBEAT_BACK_MSG "ACK_HEARTBEAT" // 心跳回复消息
+#define HEARTBEAT_BACK_MSG_LEN 13 // 心跳回复消息长度
