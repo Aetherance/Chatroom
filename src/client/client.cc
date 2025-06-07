@@ -28,7 +28,7 @@ Client::~Client()
 /* 运行客户端程序 */
 void Client::run() {
   /* 身份验证 */
-  // Verify();
+  Verify();
 
   if(isExit) {
     return;
@@ -93,7 +93,7 @@ bool isValidEmail(const std::string& email) {
 void Client::Msg() { 
   std::thread recvThread([this]{ msgClient_.recvMsgLoop(); });
   
-  std::cin>>localUser_;
+  // std::cin>>localUser_;
   
   msgClient_.setEmail(localUser_);
 

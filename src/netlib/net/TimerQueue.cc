@@ -114,7 +114,11 @@ TimerQueue::TimerQueue(EventLoop * loop)
         : loop_(loop), 
           timerfd_(createTimerfd()),
           timerfdChannel_(loop,timerfd_),
-          timers_() {}
+          timers_() 
+{
+    timerfdChannel_.setReadCallback(std::bind(&TimerQueue::handleRead,this));
+    timerfdChannel_.enableReading();
+}
 
 int TimerQueue::createTimerfd() {
     return timerfd_create(CLOCK_MONOTONIC,TFD_NONBLOCK | TFD_CLOEXEC);
