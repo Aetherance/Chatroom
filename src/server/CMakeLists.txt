@@ -6,12 +6,14 @@ add_executable(server
     main.cc
     chat/chatServer.cc
     chat/msgHandler.cc
-    chat/service.cc
     user/userServer.cc
     user/verifiCode.cc
     ftp/ftpServer.cc
     ${CMAKE_SOURCE_DIR}/src/protobuf/msg.pb.cc
     ${CMAKE_SOURCE_DIR}/src/protobuf/fileInfo.pb.cc
+    service/service.cc
+    service/friends.cc
+    service/groups.cc
 )
 
 # 链接netlib库

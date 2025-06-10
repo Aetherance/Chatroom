@@ -167,6 +167,8 @@ void MsgClient::doService(Message msgProto) {
     doRecvFile(msgProto);
   } else if(msgProto.text() == HEARTBEAT_MSG) {
     doHeartBeat(msgProto);
+  } else if(msgProto.text() == GROUP_EXIST) {
+    doGroupExist(msgProto);
   }
 }
 
@@ -282,9 +284,10 @@ void MsgClient::doRecvFile(Message msgProto) {
   MsgScreen.PostEvent(ftxui::Event::Custom);
 }
 
+void MsgClient::doGroupExist(Message message) {
+  show_info4 = "创建失败! 已经存在一个同名的群聊了!";
+  std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
+}
+
 void MsgClient::doHeartBeat(Message message) {
-  // 心跳包处理逻辑
-  // 可以在这里添加心跳包的处理逻辑，例如更新连接状态等
-  // 目前只是简单地打印心跳信息
-  std::cout << "Received heartbeat from: " << message.from() << std::endl;
 }

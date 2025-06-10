@@ -133,6 +133,8 @@ public:
 
   void doHeartBeat(Message message);
 
+  void doGroupExist(Message message);
+
   std::vector<std::string>& getGroupMembers(std::string group) { return groupMembers[group]; }
 private:
   void sendMsgTo(const std::string & who,const std::string & msg);

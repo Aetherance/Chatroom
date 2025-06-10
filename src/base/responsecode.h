@@ -68,6 +68,7 @@ inline void SendResponseCode(int code,int fd) {
 #define SET_OP                      "SET_OP"
 #define DE_OP                       "DE_OP"   
 #define BLOCKED                     "BLOCKED"
+#define GROUP_EXIST                 "GROUP_EXIST" 
 
 /* 群成员标识 */
 

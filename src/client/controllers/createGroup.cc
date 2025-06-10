@@ -36,6 +36,9 @@ void Client::CreateGroup() {
 
   auto btn_confirm = Button("✓ 确认创建", [&,this]{
     std::vector<std::string>groupMembers;
+    if(group_name.empty()) {
+      return ;
+    }
     for(auto & member : members) {
       if(member.selected) {
         groupMembers.emplace_back(member.email);

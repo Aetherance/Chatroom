@@ -60,6 +60,8 @@ public:
   bool isUserBlocked(const std::string & user1,const std::string & user2);
 
   void onUploadFile(const net::TcpConnectionPtr & conn,Message msgProto);
+
+  bool isGroupExist(const std::string & group);
 private:
   /* redis 好友与群聊存储 */
   /* 用户的 好友列表前缀 */

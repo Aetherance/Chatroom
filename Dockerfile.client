@@ -9,7 +9,6 @@ RUN apt-get update && \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# 设置工作目录
 WORKDIR /Chatroom
 
 COPY ./build/client .
@@ -20,4 +19,4 @@ RUN apt install libjsoncpp-dev -y
 
 RUN apt install libprotobuf-dev -y
 
-CMD ["./client"]
+# CMD ["./client"]
