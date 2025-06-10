@@ -1,0 +1,23 @@
+FROM ubuntu:25.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y \
+    build-essential \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# 设置工作目录
+WORKDIR /Chatroom
+
+COPY ./build/client .
+
+RUN apt update
+
+RUN apt install libjsoncpp-dev -y
+
+RUN apt install libprotobuf-dev -y
+
+CMD ["./client"]

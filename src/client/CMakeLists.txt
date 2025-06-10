@@ -19,11 +19,13 @@ add_executable(client
     controllers/deleteGroup.cc
     controllers/groupVerify.cc
     controllers/settings.cc
-    ${CMAKE_SOURCE_DIR}/src/protobuf/msg.pb.cc
-    ${CMAKE_SOURCE_DIR}/src/protobuf/fileInfo.pb.cc
+    ../../src/protobuf/msg.pb.cc
+    ../../src/protobuf/fileInfo.pb.cc
 )
 
 find_package(ftxui REQUIRED COMPONENTS component dom)
+
+find_package(jsoncpp REQUIRED)
 
 target_link_libraries(client
     netlib
@@ -38,4 +40,8 @@ target_include_directories(client PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/src/base
     ${CMAKE_SOURCE_DIR}/src/protobuf
+    ../../src/netlib/net
+    ../../src/netlib/base
+    ../../src/protobuf
+    ../../src/base
 )

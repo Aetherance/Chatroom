@@ -34,7 +34,7 @@ extern int visible_lines;
 
 MsgClient::MsgClient() : 
           chatServerfd_(socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)),
-          chatServerAddr_("localhost",7070)   
+          chatServerAddr_("10.30.0.131",7070)   
 {
 
 }
