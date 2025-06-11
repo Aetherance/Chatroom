@@ -139,6 +139,8 @@ public:
 private:
   void sendMsgTo(const std::string & who,const std::string & msg);
 
+  void initServiceCallbackMap();
+
   /* 用户信息 */
   std::string LocalUsername_;
   std::string LocalEmail_;
@@ -158,6 +160,10 @@ private:
   ilib::net::EventLoop * loop_;
 
   std::unordered_map<std::string,std::vector<std::string>> groupMembers;
+
+  using serviceCallback = std::function<void(Message)>;
+
+  std::unordered_map<std::string,serviceCallback> serviceCallbackMap;
 };
 
 #endif

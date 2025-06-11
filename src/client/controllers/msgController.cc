@@ -24,6 +24,7 @@ std::string input_content;
 
 Component input;
 Component send_btn;
+Component file_btn;
 
 void Client::MsgController() {
   // 输入组件及配置
@@ -75,6 +76,10 @@ void Client::MsgController() {
     }
   });
 
+  file_btn = Button("文件...", [&] {
+    fileService();
+  });
+
   // 初始位置在底部
   MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[MessageKey].size()) - visible_lines);
 
@@ -116,7 +121,7 @@ Element Client::makeSidebar() {
 }
 
 Component Client::makeRenderer() {
-  auto layout = Container::Horizontal({input, send_btn});
+  auto layout = Container::Horizontal({input, send_btn , file_btn});
   
   return 
   Renderer(layout, [&] {
@@ -147,7 +152,8 @@ Component Client::makeRenderer() {
         separator(),
         hbox({
           input->Render() | flex,
-          send_btn->Render()
+          send_btn->Render(),
+          file_btn->Render()
         }) | border
       }) | flex,
       

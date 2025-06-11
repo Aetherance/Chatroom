@@ -36,7 +36,7 @@ MsgClient::MsgClient() :
           chatServerfd_(socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)),
           chatServerAddr_("10.30.0.131",7070)   
 {
-
+  initServiceCallbackMap();
 }
 
 MsgClient::~MsgClient() {
@@ -132,9 +132,7 @@ void MsgClient::parseMsg(std::string msg) {
 
 void MsgClient::doService(Message msgProto) {
   if(msgProto.from() == ADDFRIEND_BACK) {
-    doAddFriendBack(msgProto);    
-  } else if(msgProto.text() == ADD_FRIEND) {
-    doAddFriend(msgProto);
+    doAddFriendBack(msgProto);
   } else if(msgProto.text() == PULL_FRIEND_LIST) {
     pullFriendList(true,msgProto);
   } else if(msgProto.text() == VERI_FRIEND_BACK) {
@@ -143,33 +141,31 @@ void MsgClient::doService(Message msgProto) {
     doUpdateFriendState(msgProto,true);
   } else if(msgProto.text() == FRIEND_BE_OFFLINE) {
     doUpdateFriendState(msgProto,false);
-  } else if(msgProto.text() == DEL_FRIEND_SUCCESS) {
-    doDeleteFriend(msgProto);
-  } else if(msgProto.text() == CREATE_GROUP) {
-    doCreateGroup(msgProto);
   } else if(msgProto.text() == PULL_GROUP_LIST) {
     pullGroupList(true,msgProto);
   } else if(msgProto.from() == ADDGROUP_BACK) {
     doAddGroupBack(msgProto);
-  } else if(msgProto.text() == ADD_GROUP) {
-    doAddGroup(msgProto);
-  } else if(msgProto.text() == VERI_GROUP_SUCCESS) {
-    doVeriGroup(msgProto);
-  } else if(msgProto.text() == MEMBER_QUIT_GROUP) {
-    doGroupMemberQuit(msgProto);
-  } else if(msgProto.text() == QUIT_GROUP_BACK) {
-    doQuitGroup(msgProto);
   } else if(msgProto.text() == PULL_GROUP_MEMBERS) {
     pullGroupMembers(true,{},msgProto);
-  } else if(msgProto.text() == BLOCKED) {
-    doBlockedMessage(msgProto);
-  } else if(msgProto.text() == UPLOAD_FILE) {
-    doRecvFile(msgProto);
-  } else if(msgProto.text() == HEARTBEAT_MSG) {
-    doHeartBeat(msgProto);
   } else if(msgProto.text() == GROUP_EXIST) {
     doGroupExist(msgProto);
+  } else {
+    if(serviceCallbackMap.find(msgProto.text()) != serviceCallbackMap.end())
+    serviceCallbackMap[msgProto.text()](msgProto);
   }
+}
+
+void MsgClient::initServiceCallbackMap() {
+  serviceCallbackMap[ADD_FRIEND] = std::bind(&MsgClient::doAddFriend,this,std::placeholders::_1);
+  serviceCallbackMap[DEL_FRIEND_SUCCESS] = std::bind(&MsgClient::doDeleteFriend,this,std::placeholders::_1);
+  serviceCallbackMap[CREATE_GROUP] = std::bind(&MsgClient::doCreateGroup,this,std::placeholders::_1);
+  serviceCallbackMap[ADD_GROUP] = std::bind(&MsgClient::doAddGroup,this,std::placeholders::_1);
+  serviceCallbackMap[VERI_GROUP_SUCCESS] = std::bind(&MsgClient::doVeriGroup,this,std::placeholders::_1);
+  serviceCallbackMap[MEMBER_QUIT_GROUP] = std::bind(&MsgClient::doGroupMemberQuit,this,std::placeholders::_1);
+  serviceCallbackMap[QUIT_GROUP_BACK] = std::bind(&MsgClient::doQuitGroup,this,std::placeholders::_1);
+  serviceCallbackMap[BLOCKED] = std::bind(&MsgClient::doBlockedMessage,this,std::placeholders::_1);
+  serviceCallbackMap[UPLOAD_FILE] = std::bind(&MsgClient::doRecvFile,this,std::placeholders::_1);
+  serviceCallbackMap[GROUP_EXIST] = std::bind(&MsgClient::doGroupExist,this,std::placeholders::_1);
 }
 
 void MsgClient::doAddFriendBack(const Message & msgProto) {

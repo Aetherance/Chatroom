@@ -15,8 +15,13 @@ COPY ./build/client .
 
 RUN apt update
 
-RUN apt install libjsoncpp-dev -y
+# RUN apt install libjsoncpp-dev -y
 
-RUN apt install libprotobuf-dev -y
+# RUN apt install libprotobuf-dev -y
+
+# ENV TZ=Asia/Shanghai
+# RUN apt-get update && apt-get install -y tzdata && \
+#     ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
+#     echo $TZ > /etc/timezone
 
 # CMD ["./client"]

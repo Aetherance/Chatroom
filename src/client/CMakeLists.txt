@@ -19,6 +19,7 @@ add_executable(client
     controllers/deleteGroup.cc
     controllers/groupVerify.cc
     controllers/settings.cc
+    controllers/fileService.cc
     ../../src/protobuf/msg.pb.cc
     ../../src/protobuf/fileInfo.pb.cc
 )

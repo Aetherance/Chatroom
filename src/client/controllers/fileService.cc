@@ -1,0 +1,85 @@
+#include "client.h"
+
+using namespace ftxui;
+
+auto screen = ScreenInteractive::Fullscreen();
+
+void Client::fileService() {
+  // 状态变量
+  std::string upload_path;
+  std::vector<std::string> downloadable_files = {
+    "report.pdf", "image.png", "data.csv", "archive.zip",
+    "document.docx", "presentation.pptx", "backup.tar.gz",
+    "config.ini", "log.txt", "screenshot.jpg"
+  };
+
+  // 上传组件
+  auto input_upload = Input(&upload_path, "输入文件路径");
+  auto upload_button = Button(" 上传文件 ", []{});
+  
+  auto upload_section = Container::Horizontal({
+    input_upload,
+    upload_button
+  });
+
+  // 下载按钮组件
+  std::vector<Component> download_buttons;
+  for (size_t i = 0; i < downloadable_files.size(); ++i) {
+    download_buttons.push_back(
+      Button(downloadable_files[i], [i, &downloadable_files] {})
+    );
+  }
+  auto download_section = Container::Vertical(download_buttons);
+
+  // 传输列表按钮
+  auto transfer_list_button = Button(" 传输列表 ", []{});
+
+  // 组合所有组件
+  auto main_container = Container::Vertical({
+    upload_section,
+    download_section,
+    transfer_list_button
+  });
+
+  // 渲染界面 - 占满全屏
+  auto renderer = Renderer(main_container, [&] {
+    return vbox({
+      // 标题区域 (高度固定)
+      hbox({
+        filler(),
+        text("文件传输系统") | bold | center,
+        filler()
+      }) | size(HEIGHT, EQUAL, 3),
+      
+      separator(),
+      
+      // 上传区域 (高度固定)
+      vbox({
+        text("上传文件:") | bold,
+        hbox({
+          input_upload->Render() | flex | border,
+          upload_button->Render()
+        })
+      }) | border | size(HEIGHT, EQUAL, 6) | bold,
+      
+      separator(),
+      
+      // 下载区域 (占据剩余空间)
+      vbox({
+        text("可下载文件:") | bold,
+        download_section->Render() | flex | frame
+      }) | border | flex,
+      
+      separator(),
+      
+      // 底部区域 (高度固定)
+      hbox({
+        filler(),
+        transfer_list_button->Render(),
+        filler()
+      }) | size(HEIGHT, EQUAL, 3)
+    }) | flex | border | bold;
+  });
+
+  screen.Loop(renderer);
+}

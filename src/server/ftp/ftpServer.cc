@@ -1,5 +1,6 @@
 #include"FtpServer.h"
 #include"fileInfo.pb.h"
+#include"fcntl.h"
 
 #define TCP_HEAD_LEN sizeof(uint32_t)
 
@@ -148,11 +149,23 @@ void FtpServer::sendResponse(const std::string & Msg,const net::TcpConnectionPtr
   conn->send(buffmsg);
 }
 
+int setBlocking(int sockfd) {
+    int flags = fcntl(sockfd, F_GETFL, 0);
+    if (flags == -1) return -1; // 错误处理
+
+    flags &= ~O_NONBLOCK;
+
+    return fcntl(sockfd, F_SETFL, flags);
+}
+
 void FtpServer::onReceive(const std::string & dir , const std::string & fileName, const TcpConnectionPtr & conn,const int dataListenSockfd) {
   InetAddress peerAddr;
   Socket dataListenSocket(dataListenSockfd);
   dataListenSocket.listen();
   int dataSocket = dataListenSocket.accept(&peerAddr);
+
+  setBlocking(dataSocket);
+
   if(dataSocket != -1) {
     LOG_INFO_SUCCESS("The Client has connected to the data transport port\ntransport begin!");
   }
@@ -183,6 +196,9 @@ void FtpServer::onSend(const std::string & dir , const std::string & fileName, c
   Socket dataListenSocket(dataListenSockfd);
   dataListenSocket.listen();
   int dataSocket = dataListenSocket.accept(&peerAddr);
+
+  setBlocking(dataSocket);
+
   if(dataSocket != -1) {
     LOG_INFO_SUCCESS("The Client has connected to the data transport port\ntransport begin!");
   }

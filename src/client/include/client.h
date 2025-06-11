@@ -66,6 +66,8 @@ private:
 
   void downloadFile(const std::string & filename,const std::string & localDir);
 
+  void fileService();
+
   /* 登录注册客户端 */
   UserClient userClient_;
 
