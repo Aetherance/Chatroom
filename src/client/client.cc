@@ -93,10 +93,8 @@ bool isValidEmail(const std::string& email) {
 void Client::Msg() { 
   std::thread recvThread([this]{ msgClient_.recvMsgLoop(); });
   
-  // std::cin>>localUser_;
+  msgClient_.setEmail(localUserEmail_);
   
-  msgClient_.setEmail(localUser_);
-
   msgClient_.connect();
   
   msgClient_.pullFriendList();
@@ -201,7 +199,7 @@ std::string buf;
 }
 
 void Client::readMessage() {
-  std::ifstream file(localUser_ + HISTORY_MESSAGE_FILE,std::ios::binary);
+  std::ifstream file(localUserEmail_ + HISTORY_MESSAGE_FILE,std::ios::binary);
   int message_len;
   while(file.peek() != EOF) {
     std::string buff;
@@ -226,7 +224,7 @@ void Client::readMessage() {
 }
 
 void Client::storageMessage() {
-  std::ofstream file(localUser_ + HISTORY_MESSAGE_FILE,std::ios::binary);
+  std::ofstream file(localUserEmail_ + HISTORY_MESSAGE_FILE,std::ios::binary);
   Message histroy_message;
   if (file.is_open()) {
     for(auto & pair : messageMap) {

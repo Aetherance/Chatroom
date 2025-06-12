@@ -1,11 +1,14 @@
 #include"Socket.h"
 #include<filesystem>
+#include<unordered_map>
+#include<unordered_set>
 
 using namespace ilib;
 using namespace ilib::net;
 
 class FtpClient
 {
+friend class Client;
 public:
   FtpClient();
 
@@ -17,6 +20,8 @@ public:
 
   void safeSend(const std::string & message);
 
+  void updateProgress(std::string filename,int TotalBytes,int TransedBytes);
+
   std::string safeRecv();
 
   ~FtpClient();
@@ -24,4 +29,8 @@ public:
 private:
   Socket controlSocket_;
   InetAddress serverAddr_;
+
+  std::unordered_set<std::string> transList;
+
+  std::unordered_map<std::string,float> transProgressMap;
 };

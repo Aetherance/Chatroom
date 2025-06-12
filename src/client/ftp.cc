@@ -4,11 +4,17 @@
 #include"Buffer.h"
 #include"fcntl.h"
 #include<filesystem>
+#include<ftxui/component/component.hpp>
+#include<ftxui/dom/elements.hpp>
+#include<ftxui/screen/screen.hpp>
+#include <ftxui/component/screen_interactive.hpp>
+
+extern ftxui::ScreenInteractive fileTranScreen;
 
 FtpClient::FtpClient() : controlSocket_(::socket(AF_INET,SOCK_STREAM,0)),
                          serverAddr_(InetAddress("10.30.0.131", 6060))
 {
-
+  connect();
 }
 
 FtpClient::~FtpClient() {
@@ -42,6 +48,9 @@ void FtpClient::uploadFile(const std::string &filePath, const std::string &remot
  
   int fd = ::open(filePath.data(),O_RDONLY);
   
+  int TransedBytes = 0;
+  int TotalBytes = std::filesystem::file_size(filePath);
+
   while (true) {
     std::vector<char> buff;
     buff.resize(1024);
@@ -53,7 +62,14 @@ void FtpClient::uploadFile(const std::string &filePath, const std::string &remot
     }
 
     ::send(dataSocket.fd(),buff.data(),n,0);
+
+    TransedBytes += n;
+
+    updateProgress(filename,TotalBytes,TransedBytes);
   }
+
+  transList.erase(filename);
+  fileTranScreen.PostEvent(ftxui::Event::Custom);
 }
 
 void FtpClient::safeSend(const std::string & message) {
@@ -111,4 +127,10 @@ void FtpClient::downloadFile(const std::filesystem::path fileDir, const std::str
 
     ::write(fd,buff.data(),n);
   }
+}
+
+void FtpClient::updateProgress(std::string filename,int TotalBytes,int TransedBytes) {
+  float progress = (TransedBytes * 1.0) / (TotalBytes * 1.0);
+  transProgressMap[filename] = progress;
+  fileTranScreen.PostEvent(ftxui::Event::Custom);
 }

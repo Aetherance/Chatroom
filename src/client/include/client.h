@@ -68,6 +68,8 @@ private:
 
   void fileService();
 
+  void fileTrans();
+
   /* 登录注册客户端 */
   UserClient userClient_;
 
@@ -84,5 +86,6 @@ private:
 
   bool isExit = false;
 
-  std::string localUser_;
+  std::string localUserEmail_;
+  // std::string localUsername_;
 };

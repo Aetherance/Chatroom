@@ -20,6 +20,7 @@ add_executable(client
     controllers/groupVerify.cc
     controllers/settings.cc
     controllers/fileService.cc
+    controllers/fileTrans.cc
     ../../src/protobuf/msg.pb.cc
     ../../src/protobuf/fileInfo.pb.cc
 )

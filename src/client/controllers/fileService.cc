@@ -7,15 +7,29 @@ auto screen = ScreenInteractive::Fullscreen();
 void Client::fileService() {
   // 状态变量
   std::string upload_path;
-  std::vector<std::string> downloadable_files = {
-    "report.pdf", "image.png", "data.csv", "archive.zip",
-    "document.docx", "presentation.pptx", "backup.tar.gz",
-    "config.ini", "log.txt", "screenshot.jpg"
-  };
+  std::vector<std::string> downloadable_files = {};
 
   // 上传组件
   auto input_upload = Input(&upload_path, "输入文件路径");
-  auto upload_button = Button(" 上传文件 ", []{});
+  auto upload_button = Button(" 上传文件 ", [&]{
+    if(upload_path.empty()) {
+      return ;
+    }
+
+    std::string filename = std::filesystem::path(upload_path).filename();
+
+    std::thread([&,upload_path,filename]{ 
+      ftpClient_.transList.insert(filename);
+
+      ftpClient_.transProgressMap[filename] = 0.0f;
+
+      ftpClient_.uploadFile(upload_path,msgClient_.peerEmail(),filename);
+    }).detach();
+    
+    upload_path.clear();
+    
+    fileTrans();
+  });
   
   auto upload_section = Container::Horizontal({
     input_upload,
@@ -32,7 +46,7 @@ void Client::fileService() {
   auto download_section = Container::Vertical(download_buttons);
 
   // 传输列表按钮
-  auto transfer_list_button = Button(" 传输列表 ", []{});
+  auto transfer_list_button = Button(" 传输列表 ", [&]{ fileTrans(); });
 
   // 组合所有组件
   auto main_container = Container::Vertical({
@@ -79,7 +93,7 @@ void Client::fileService() {
         filler()
       }) | size(HEIGHT, EQUAL, 3)
     }) | flex | border | bold;
-  });
+  }) | color(Color::White) | bgcolor(Color::RGB(22, 22, 30));
 
   screen.Loop(renderer);
 }

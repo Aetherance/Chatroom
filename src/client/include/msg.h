@@ -53,6 +53,8 @@ public:
 
   void setEmail(const std::string & email) { LocalEmail_ = email; }
 
+  void setUsername(const std::string & username) { LocalUsername_ = username; }
+
   std::string peerUsername() { return msgPeerUsername_; }
   
   std::string peerEmail() { return msgPeerEmail_; }
