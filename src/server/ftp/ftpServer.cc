@@ -170,6 +170,10 @@ void FtpServer::onReceive(const std::string & dir , const std::string & fileName
     LOG_INFO_SUCCESS("The Client has connected to the data transport port\ntransport begin!");
   }
 
+  std::string storDir = std::filesystem::path(dir).parent_path();
+
+  std::filesystem::create_directory(root_/storDir);
+
   std::filesystem::create_directory(root_/dir);
 
   std::ofstream file(root_/dir/fileName,std::ios::binary);

@@ -20,7 +20,7 @@ public:
 
   void safeSend(const std::string & message);
 
-  void updateProgress(std::string filename,int TotalBytes,int TransedBytes);
+  void updateProgress(std::string filename,uintmax_t ToltalBytes,uintmax_t TransedBytes);
 
   std::string safeRecv();
 

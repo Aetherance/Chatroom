@@ -48,8 +48,8 @@ void FtpClient::uploadFile(const std::string &filePath, const std::string &remot
  
   int fd = ::open(filePath.data(),O_RDONLY);
   
-  int TransedBytes = 0;
-  int TotalBytes = std::filesystem::file_size(filePath);
+  uintmax_t TransedBytes = 0;
+  uintmax_t TotalBytes = std::filesystem::file_size(filePath);
 
   while (true) {
     std::vector<char> buff;
@@ -129,7 +129,7 @@ void FtpClient::downloadFile(const std::filesystem::path fileDir, const std::str
   }
 }
 
-void FtpClient::updateProgress(std::string filename,int TotalBytes,int TransedBytes) {
+void FtpClient::updateProgress(std::string filename,uintmax_t TotalBytes,uintmax_t TransedBytes) {
   float progress = (TransedBytes * 1.0) / (TotalBytes * 1.0);
   transProgressMap[filename] = progress;
   fileTranScreen.PostEvent(ftxui::Event::Custom);

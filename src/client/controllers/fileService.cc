@@ -4,6 +4,8 @@ using namespace ftxui;
 
 auto screen = ScreenInteractive::Fullscreen();
 
+std::string status = {};
+
 void Client::fileService() {
   // 状态变量
   std::string upload_path;
@@ -16,6 +18,11 @@ void Client::fileService() {
       return ;
     }
 
+    if(!std::filesystem::exists(upload_path)) {
+      status = "文件不存在!";
+      return ;
+    }
+
     std::string filename = std::filesystem::path(upload_path).filename();
 
     std::thread([&,upload_path,filename]{ 
@@ -23,7 +30,7 @@ void Client::fileService() {
 
       ftpClient_.transProgressMap[filename] = 0.0f;
 
-      ftpClient_.uploadFile(upload_path,msgClient_.peerEmail(),filename);
+      ftpClient_.uploadFile(upload_path,msgClient_.peerEmail() + "/" + msgClient_.LocalEmail(),filename);
     }).detach();
     
     upload_path.clear();
@@ -62,10 +69,12 @@ void Client::fileService() {
       hbox({
         filler(),
         text("文件传输系统") | bold | center,
-        filler()
+        filler(),
       }) | size(HEIGHT, EQUAL, 3),
       
       separator(),
+
+      text(" " + status) | size(HEIGHT,EQUAL, status.empty() ? 0 : 1) | ( status.empty() ?  bold : border),
       
       // 上传区域 (高度固定)
       vbox({

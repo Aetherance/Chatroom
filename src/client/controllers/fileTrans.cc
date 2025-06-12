@@ -13,7 +13,7 @@ void Client::fileTrans() {
       file_entries.push_back(
         hbox({
           text(file) | flex | size(WIDTH, EQUAL, 16),
-          gauge(ftpClient_.transProgressMap[file]) | flex | color(Color::White)
+          gauge(ftpClient_.transProgressMap[file]) | flex | color(Color::White) | bold
         }) | border
       );
     }
