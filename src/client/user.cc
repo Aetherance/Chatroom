@@ -40,7 +40,6 @@ int UserClient::RequestLogin(const std::string& email,const std::string & passwd
   SendLogin(email,passwd);
   int recv = -1;
   recv = Recv();
-  std::cout<<recv<<"\n";
   return recv;
 }
 

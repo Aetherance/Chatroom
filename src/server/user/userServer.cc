@@ -99,6 +99,15 @@ std::string fromJsonObjToStr(Json::Value & root) {
 
 /* 登录 */
 void UserServer::onLogin(const std::string& email,const std::string& passwd,const TcpConnectionPtr & conn) {
+  auto future_isUserOnline = redis_.sismember(onlineUserSet,email);
+  redis_.sync_commit();
+  auto reply_isUserOnline = future_isUserOnline.get();
+
+  if(reply_isUserOnline.as_integer()) {
+    SendResponseCode(USER_HAVE_LOGIN_ED,conn->fd());
+    return;
+  }
+  
   auto future_userinfo = redis_.hget(RedisUserInfosHashEmail_,email);
   redis_.sync_commit();
   std::string reply_userinfo_str = future_userinfo.get().as_string();

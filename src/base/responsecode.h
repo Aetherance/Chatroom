@@ -15,6 +15,7 @@
 /* 登录 */
 #define USER_NOT_FOUND                4011 // 用户不存在
 #define PASSWORD_INCORRECT            4012 // 密码错误
+#define USER_HAVE_LOGIN_ED            4013 // 用户已登陆
 
 /* 客户端请求 action 字段定义 */
 #define REGISTER1    "REGISTER1"

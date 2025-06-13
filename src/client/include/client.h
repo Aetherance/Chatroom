@@ -21,7 +21,7 @@ private:
   /* 登录控制器 */
   void LoginController();
   /* 提交登录信息 */
-  bool LoginSubmit(const std::string & email,const std::string & passwd,const std::string & info);
+  bool LoginSubmit(const std::string & email,const std::string & passwd,std::string & info);
   /* 注册控制器 */
   void RegisterController();
 

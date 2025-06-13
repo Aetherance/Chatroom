@@ -67,7 +67,6 @@ void Client::LoginController() {
         loginScreen_.Exit();
         return;
       }
-      info = "帐号或密码错误!";
     }
   });
   
@@ -98,14 +97,19 @@ void Client::LoginController() {
   loginScreen_.Loop(renderer);
 }
 
-bool Client::LoginSubmit(const std::string & email,const std::string & passwd,const std::string & info) {
-  int recv = -1;
-  if(userClient_.RequestLogin(email,passwd) == USER_OK) {
+bool Client::LoginSubmit(const std::string & email,const std::string & passwd,std::string & info) {
+  int recv = userClient_.RequestLogin(email,passwd);
+  if(recv == USER_OK) {
     localUserEmail_ = email;
     loginScreen_.Exit();
     mainScreen_.Exit();
     return true;
-  } else {
+  } else if(recv == USER_HAVE_LOGIN_ED) {
+    info = "用户已登陆!";
     return false;
+  }
+  else {
+    return false;
+    info = "帐号或密码错误!";
   }
 }
