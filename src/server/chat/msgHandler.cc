@@ -41,7 +41,7 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
     } else if( !msg.isservice() && isExists && msg.from() != msg.to()) {
       LOG_INFO(COLOR_YELLOW + msg.from() + COLOR_RESET + " says" + " to " + COLOR_YELLOW + msg.to() + COLOR_RESET + " : " + msg.text());
 
-      if(serviceHandler_.isUserBlocked(msg.from(),msg.to())) {
+      if(serviceHandler_.isUserBlocked(msg.from(),msg.to()) || ! isFriendsOf(msg.to(),msg.from())) {
         tellBlocked(msg.from(),msg.to());
         return;
       }
@@ -155,4 +155,11 @@ void ChatServer::tellBlocked(const std::string & who,const std::string & by) {
   message.set_isservice(true);
 
   sendOrSave(who,message.SerializeAsString());
+}
+
+bool ChatServer::isFriendsOf(const std::string & ofwho,const std::string & user) {
+  auto future = redis_.sismember(serviceHandler_.friendSet + ofwho,{ user });
+  redis_.sync_commit();
+  auto reply = future.get();
+  return reply.as_integer();
 }

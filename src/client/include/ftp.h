@@ -2,6 +2,7 @@
 #include<filesystem>
 #include<unordered_map>
 #include<unordered_set>
+#include<vector>
 
 using namespace ilib;
 using namespace ilib::net;
@@ -23,6 +24,8 @@ public:
   void updateProgress(std::string filename,uintmax_t ToltalBytes,uintmax_t TransedBytes);
 
   std::string safeRecv();
+
+  std::vector<std::string> getDownloadList(const std::string & localEmail,const std::string & peerEmail);
 
   ~FtpClient();
 

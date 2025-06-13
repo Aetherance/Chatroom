@@ -134,3 +134,19 @@ void FtpClient::updateProgress(std::string filename,uintmax_t TotalBytes,uintmax
   transProgressMap[filename] = progress;
   fileTranScreen.PostEvent(ftxui::Event::Custom);
 }
+
+std::vector<std::string> split(const std::string s,char ch);
+
+std::vector<std::string> FtpClient::getDownloadList(const std::string & localEmail,const std::string & peerEmail) {
+  fileInfo request;
+  request.set_action("GET_DOWNLOAD");
+  request.set_user_dir(localEmail + "/" + peerEmail);
+  
+  safeSend(request.SerializeAsString());
+  
+  std::string list = safeRecv();
+  
+  std::vector<std::string> ret_list = split(list,' ');
+  
+  return ret_list;
+}

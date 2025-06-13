@@ -33,6 +33,8 @@ private:
 
   void onSend(const std::string & dir , const std::string & fileName, const TcpConnectionPtr & conn,const int sockfd);
 
+  void onGetDownload(const std::string & dir,const TcpConnectionPtr & conn);
+
   InetAddress address_;
   TcpServer server_;
   EventLoop loop_;

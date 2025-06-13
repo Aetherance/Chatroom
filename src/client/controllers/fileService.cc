@@ -6,10 +6,11 @@ auto screen = ScreenInteractive::Fullscreen();
 
 std::string status = {};
 
+std::vector<std::string> downloadable_files = {};
+
 void Client::fileService() {
   // 状态变量
   std::string upload_path;
-  std::vector<std::string> downloadable_files = {};
 
   // 上传组件
   auto input_upload = Input(&upload_path, "输入文件路径");
@@ -47,7 +48,7 @@ void Client::fileService() {
   std::vector<Component> download_buttons;
   for (size_t i = 0; i < downloadable_files.size(); ++i) {
     download_buttons.push_back(
-      Button(downloadable_files[i], [i, &downloadable_files] {})
+      Button(downloadable_files[i], [i] {})
     );
   }
   auto download_section = Container::Vertical(download_buttons);

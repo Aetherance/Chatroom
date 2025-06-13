@@ -7,6 +7,7 @@ class FtpServer;
 class ChatServer;
 class ServiceHandler
 {
+friend class ChatServer;
 public:
   ServiceHandler(ChatServer * server);
   ~ServiceHandler() {}

@@ -72,6 +72,8 @@ void FtpServer::parseMessage(const std::string & msg, const TcpConnectionPtr & c
     handleUpload(info.file_name(), info.user_dir(), conn);
   } else if (info.action() == "DOWNLOAD") {
     handleDownload(info.file_name(), info.user_dir(), conn);
+  } else if(info.action() == "GET_DOWNLOAD") {
+    onGetDownload(info.user_dir(),conn);
   } else {
     LOG_ERROR("Unknown action: " + info.action());
     sendResponse("ERROR: Unknown action", conn);
@@ -235,4 +237,20 @@ void FtpServer::onSend(const std::string & dir , const std::string & fileName, c
 
   file.close();
   ::close(dataSocket);
+}
+
+void FtpServer::onGetDownload(const std::string & dir , const TcpConnectionPtr & conn) {
+  std::string list = "";
+  
+  std::filesystem::path targetPath = root_/dir;
+
+  for(const auto & entry : std::filesystem::directory_iterator(targetPath)) {
+    if(entry.is_regular_file()) {
+      list += entry.path().filename().string() + " ";
+    }
+  }
+
+  list.pop_back();
+
+  sendResponse(list,conn);
 }

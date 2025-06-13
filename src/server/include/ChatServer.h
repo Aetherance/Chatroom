@@ -51,6 +51,8 @@ private:
 
   void tellBlocked(const std::string & who,const std::string & by);
 
+  bool isFriendsOf(const std::string & of,const std::string & who);
+
   using serviceCallback = std::function<void(const net::TcpConnectionPtr & conn,Message msgProto)>;
   
   std::unordered_map<std::string,serviceCallback>serviceCallBacks_;
