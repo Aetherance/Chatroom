@@ -99,6 +99,7 @@ void Client::RegisterController() {
       info = "验证中";
       int recv = userClient_.SendRegister2(email_save,username_save,passwd_save,code_in);
       if(recv == USER_OK) {
+        userClient_.setHasLogin(true);
         registerScreen_.Exit();
       }
       info = "验证码错误!";

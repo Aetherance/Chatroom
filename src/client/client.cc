@@ -15,6 +15,8 @@ extern std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
 extern std::vector<Group> groups;
 
 extern ScreenInteractive MsgScreen;
+ 
+extern std::unordered_map<std::string,bool> NewMessageMap;
 
 /* 构造函数 : 初始化UI界面 */
 Client::Client() : loginScreen_(ScreenInteractive::Fullscreen()),
@@ -48,7 +50,7 @@ void Client::Verify() {
   /* 登录回调 */
   Component login_button = Button("登录",[&]{ LoginController(); mainScreen_.Exit(); });
   /* 注册回调 */
-  Component register_button = Button("注册",[&]{ RegisterController(); });
+  Component register_button = Button("注册",[&]{ RegisterController(); mainScreen_.Exit(); });
   /* 退出 */
   Component exit_button = Button("退出",[&]{ mainScreen_.Exit(); isExit = true;});
 
@@ -220,6 +222,7 @@ void Client::readMessage() {
   }
   for(auto & entry : messageMap) {
     entry.second.push_back({"系统","以上为历史消息",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
+    NewMessageMap[entry.first] = false;
   }
 }
 

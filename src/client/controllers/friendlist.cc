@@ -24,7 +24,13 @@ void Client::FriendList() {
 
   // 输入组件
   std::string input_show = "输入邮箱以添加新好友...";
-  Component input = Input(&new_friend, input_show);
+  Component input = Input(&new_friend, input_show)  | CatchEvent([&](Event event){
+    if(event == Event::Return) {
+      return true;
+    } else {
+      return false;
+    }
+  });
   
   // 添加好友按钮
   Component add_button = Button("添加", [&] {
