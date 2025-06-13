@@ -10,6 +10,8 @@ std::string show_info4;
 
 extern std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
 
+extern std::unordered_map<std::string,bool> NewMessageMap;
+
 ScreenInteractive GroupListScreen = ScreenInteractive::Fullscreen();
 
 void Client::GroupList() {
@@ -21,7 +23,13 @@ void Client::GroupList() {
 
   // 输入组件
   std::string input_show = "输入群号添加新群聊...";
-  Component input = Input(&new_group, input_show);
+  Component input = Input(&new_group, input_show) | CatchEvent([&](Event event) {
+    if(event == Event::Return) {
+      return true;
+    } else {
+      return false;
+    }
+  });
   
   // 添加好友按钮
   Component add_button = Button("添加", [&] {
@@ -71,7 +79,7 @@ void Client::GroupList() {
     // 好友列表界面
     friends_container->DetachAllChildren();
     for (const auto& name : groups) {
-      auto btn = Button(name.groupname, [&, name] { 
+      auto btn = Button(name.groupname + + (NewMessageMap[name.groupname] ? " 💬" : ""), [&, name] { 
         msgClient_.updatePeer(name.groupname,name.groupname);
         in_chat = true;
       });
