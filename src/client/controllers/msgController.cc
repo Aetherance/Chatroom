@@ -18,7 +18,8 @@ std::string getTime(int64_t rawtime);
 
 ScreenInteractive MsgScreen = ScreenInteractive::Fullscreen();
   // 状态变量
-int MsgScreenScrollOffset = 0;  // 当前滚动位置
+std::unordered_map<std::string,int> MsgScreenScrollOffset;
+
 int visible_lines = Terminal::Size().dimy - 13;
 std::string input_content;
 
@@ -35,7 +36,7 @@ void Client::MsgController() {
   NewMessageMap[msgClient_.peerEmail()] = false;
 
   auto input_option = InputOption();
-  input_option.on_enter = [&] {
+  input_option.on_enter = [&,this] {
     if (!input_content.empty()) {   
       if(parseCommand(input_content)) {
         return;
@@ -52,7 +53,7 @@ void Client::MsgController() {
       
       input_content.clear();
       
-      MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[MessageKey].size()) - visible_lines);
+      MsgScreenScrollOffset[msgClient_.peerEmail()] = std::max(0, static_cast<int>(messageMap[MessageKey].size()) - visible_lines);
     }
   };
 
@@ -72,7 +73,7 @@ void Client::MsgController() {
       
       input_content.clear();
       // 新消息自动滚动到底部
-      MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[MessageKey].size()) - visible_lines);
+      MsgScreenScrollOffset[msgClient_.peerEmail()] = std::max(0, static_cast<int>(messageMap[MessageKey].size()) - visible_lines);
     }
   });
 
@@ -81,7 +82,7 @@ void Client::MsgController() {
   });
 
   // 初始位置在底部
-  MsgScreenScrollOffset = std::max(0, static_cast<int>(messageMap[MessageKey].size()) - visible_lines);
+  MsgScreenScrollOffset[msgClient_.peerEmail()] = std::max(0, static_cast<int>(messageMap[MessageKey].size()) - visible_lines);
 
   auto renderer = makeRenderer();
   // 运行界面
@@ -126,7 +127,7 @@ Component Client::makeRenderer() {
   return 
   Renderer(layout, [&] {
     // 计算可见的消息范围
-    int start = std::max(0, MsgScreenScrollOffset);
+    int start = std::max(0, MsgScreenScrollOffset[msgClient_.peerEmail()]);
     int end = std::min(static_cast<int>(messageMap[MessageKey].size()), start + visible_lines);
 
     Elements visible_elements;
@@ -168,19 +169,19 @@ Component Client::makeRenderer() {
     
     // 键盘滚动控制
     if (event == Event::ArrowUp) {
-      MsgScreenScrollOffset = std::max(0, MsgScreenScrollOffset - 1);
+      MsgScreenScrollOffset[msgClient_.peerEmail()] = std::max(0, MsgScreenScrollOffset[msgClient_.peerEmail()] - 1);
       return true;
     }
     if (event == Event::ArrowDown) {
-      MsgScreenScrollOffset = std::min(static_cast<int>(messageMap[MessageKey].size()) - visible_lines, MsgScreenScrollOffset + 1);
+      MsgScreenScrollOffset[msgClient_.peerEmail()] = std::min(static_cast<int>(messageMap[MessageKey].size()) - visible_lines, MsgScreenScrollOffset[msgClient_.peerEmail()] + 1);
       return true;
     }
     if (event == Event::PageUp) {
-      MsgScreenScrollOffset = std::max(0, MsgScreenScrollOffset - visible_lines);
+      MsgScreenScrollOffset[msgClient_.peerEmail()] = std::max(0, MsgScreenScrollOffset[msgClient_.peerEmail()] - visible_lines);
       return true;
     }
     if (event == Event::PageDown) {
-      MsgScreenScrollOffset = std::min(static_cast<int>(messageMap[MessageKey].size()) - visible_lines, MsgScreenScrollOffset + visible_lines);
+      MsgScreenScrollOffset[msgClient_.peerEmail()] = std::min(static_cast<int>(messageMap[MessageKey].size()) - visible_lines, MsgScreenScrollOffset[msgClient_.peerEmail()] + visible_lines);
       return true;
     }
     
@@ -188,11 +189,11 @@ Component Client::makeRenderer() {
     if (event.is_mouse()) {
       auto& mouse = event.mouse();
       if (mouse.button == Mouse::WheelUp) {
-        MsgScreenScrollOffset = std::max(0, MsgScreenScrollOffset - 2);  // 滚轮加速滚动
+        MsgScreenScrollOffset[msgClient_.peerEmail()] = std::max(0, MsgScreenScrollOffset[msgClient_.peerEmail()] - 2);  // 滚轮加速滚动
         return true;
       }
       if (mouse.button == Mouse::WheelDown) {
-        MsgScreenScrollOffset = std::min(static_cast<int>(messageMap[MessageKey].size()) - visible_lines, MsgScreenScrollOffset + 2);
+        MsgScreenScrollOffset[msgClient_.peerEmail()] = std::min(static_cast<int>(messageMap[MessageKey].size()) - visible_lines, MsgScreenScrollOffset[msgClient_.peerEmail()] + 2);
         return true;
       }
     }
