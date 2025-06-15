@@ -183,3 +183,7 @@ void MsgClient::rmGroupMember(const std::string & who,const std::string & group)
 
   pullGroupMembers();
 }
+
+void MsgClient::pullDownloadList(const std::string & receiver,const std::string sender) {
+  SerializeSend(PULL_DL_LIST,receiver,sender);
+}

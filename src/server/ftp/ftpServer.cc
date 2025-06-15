@@ -13,6 +13,8 @@ FtpServer::FtpServer()
   server_.setMessageCallback([this](const TcpConnectionPtr & conn, Buffer * buf, Timestamp time) { onMessage(conn, buf, time); });
   server_.setThreadNum(4);
   std::filesystem::create_directory(root_);
+
+  redis_.connect("localhost",6379);
 }
 
 FtpServer::~FtpServer() {
@@ -72,8 +74,6 @@ void FtpServer::parseMessage(const std::string & msg, const TcpConnectionPtr & c
     handleUpload(info.file_name(), info.user_dir(), conn);
   } else if (info.action() == "DOWNLOAD") {
     handleDownload(info.file_name(), info.user_dir(), conn);
-  } else if(info.action() == "GET_DOWNLOAD") {
-    onGetDownload(info.user_dir(),conn);
   } else {
     LOG_ERROR("Unknown action: " + info.action());
     sendResponse("ERROR: Unknown action", conn);
@@ -129,9 +129,12 @@ void FtpServer::handleDownload(const std::string & fileName, const std::string &
   std::thread sendThread([=](){ onSend(userDir,fileName,conn,dataSockfd); });
   sendThread.detach();
 
+  uintmax_t fileSize = std::filesystem::file_size(filePath);
+
   fileInfo backInfo;
   backInfo.set_action("OK");
   backInfo.set_port(port);
+  backInfo.set_size(fileSize);
 
   sendResponse(backInfo.SerializeAsString(), conn);
 }
@@ -195,6 +198,11 @@ void FtpServer::onReceive(const std::string & dir , const std::string & fileName
 
   file.close();
   ::close(dataSocket);
+
+  LOG_INFO_SUCCESS("Transport Finish!");
+
+  redis_.sadd(redisFileToFromSet_ + dir,{ fileName });
+  redis_.sync_commit();
 }
 
 void FtpServer::onSend(const std::string & dir , const std::string & fileName, const TcpConnectionPtr & conn,const int dataListenSockfd) {
@@ -235,22 +243,8 @@ void FtpServer::onSend(const std::string & dir , const std::string & fileName, c
     }
   }
 
+  LOG_INFO_SUCCESS("Transport Finish!");
+
   file.close();
   ::close(dataSocket);
-}
-
-void FtpServer::onGetDownload(const std::string & dir , const TcpConnectionPtr & conn) {
-  std::string list = "";
-  
-  std::filesystem::path targetPath = root_/dir;
-
-  for(const auto & entry : std::filesystem::directory_iterator(targetPath)) {
-    if(entry.is_regular_file()) {
-      list += entry.path().filename().string() + " ";
-    }
-  }
-
-  list.pop_back();
-
-  sendResponse(list,conn);
 }

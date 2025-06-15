@@ -63,6 +63,8 @@ public:
   void onUploadFile(const net::TcpConnectionPtr & conn,Message msgProto);
 
   bool isGroupExist(const std::string & group);
+
+  void onPullDownloadList(const net::TcpConnectionPtr & conn,Message msgProto);
 private:
   /* redis 好友与群聊存储 */
   /* 用户的 好友列表前缀 */
@@ -74,6 +76,8 @@ private:
 
   /* 群 的管理员列表 */
   std::string groupOpSet = "groupOpSet:";
+
+  const std::string redisFileToFromSet_ = "redisFileToFromSet_:";
 
   ChatServer * chatServer_;
 

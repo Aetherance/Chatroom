@@ -68,7 +68,8 @@ void FtpClient::uploadFile(const std::string &filePath, const std::string &remot
     updateProgress(filename,TotalBytes,TransedBytes);
   }
 
-  transList.erase(filename);
+  transList[filename] = true;
+
   fileTranScreen.PostEvent(ftxui::Event::Custom);
 }
 
@@ -114,6 +115,8 @@ void FtpClient::downloadFile(const std::filesystem::path fileDir, const std::str
   int fd = ::open(filePath.data(),O_WRONLY | O_CREAT | O_TRUNC,0644);
   
   int n = -1;
+  uintmax_t TransedBytes = 0;
+  uintmax_t TotalBytes = backInfo.size();
 
   while (true) {
     std::vector<char> buff;
@@ -126,27 +129,15 @@ void FtpClient::downloadFile(const std::filesystem::path fileDir, const std::str
     }
 
     ::write(fd,buff.data(),n);
+    TransedBytes += n;
+    updateProgress(filename,TotalBytes,TransedBytes);
   }
+
+  transList[filename] = true;
 }
 
 void FtpClient::updateProgress(std::string filename,uintmax_t TotalBytes,uintmax_t TransedBytes) {
   float progress = (TransedBytes * 1.0) / (TotalBytes * 1.0);
   transProgressMap[filename] = progress;
   fileTranScreen.PostEvent(ftxui::Event::Custom);
-}
-
-std::vector<std::string> split(const std::string s,char ch);
-
-std::vector<std::string> FtpClient::getDownloadList(const std::string & localEmail,const std::string & peerEmail) {
-  fileInfo request;
-  request.set_action("GET_DOWNLOAD");
-  request.set_user_dir(localEmail + "/" + peerEmail);
-  
-  safeSend(request.SerializeAsString());
-  
-  std::string list = safeRecv();
-  
-  std::vector<std::string> ret_list = split(list,' ');
-  
-  return ret_list;
 }

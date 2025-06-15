@@ -21,7 +21,8 @@ extern std::unordered_map<std::string,bool> NewMessageMap;
 /* 构造函数 : 初始化UI界面 */
 Client::Client() : loginScreen_(ScreenInteractive::Fullscreen()),
                    registerScreen_(ScreenInteractive::Fullscreen()),
-                   mainScreen_(ScreenInteractive::Fullscreen())
+                   mainScreen_(ScreenInteractive::Fullscreen()),
+                   msgClient_(ftpClient_)
 {}
 
 Client::~Client() 

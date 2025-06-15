@@ -41,6 +41,7 @@ inline void SendResponseCode(int code,int fd) {
 #define CREATE_GROUP "createGroup"
 #define BREAK_GROUP  "breakGroup"
 #define RM_GROUP_MEM "rmGroupMem"
+#define PULL_DL_LIST "pullDownloadList"
 
 /* Service 返回 */
 

@@ -30,6 +30,7 @@ ServiceHandler::ServiceHandler(ChatServer * server) : chatServer_(server) {
   server->serviceCallBacks_[RM_GROUP_MEM] = std::bind(&ServiceHandler::onRmGroupMember,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[UNBLOCK] = std::bind(&ServiceHandler::onUnBlock,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[UPLOAD_FILE] = std::bind(&ServiceHandler::onUploadFile,this,std::placeholders::_1,std::placeholders::_2);
+  server->serviceCallBacks_[PULL_DL_LIST] = std::bind(&ServiceHandler::onPullDownloadList,this,std::placeholders::_1,std::placeholders::_2);
 }
 
 std::string ServiceHandler::getGroupOwner(const std::string & group) const {
@@ -101,4 +102,20 @@ void ServiceHandler::onUploadFile(const net::TcpConnectionPtr & conn,Message msg
   const std::string to_user = msgProto.args(0);
   chatServer_->sendOrSave(to_user,msgProto.SerializeAsString());
   LOG_INFO("User " + msgProto.from() + " upload file to " + to_user);
+}
+
+void ServiceHandler::onPullDownloadList(const net::TcpConnectionPtr & conn,Message msgProto) {
+  LOG_INFO_SUCCESS("PULL_DOWNLOAD_LIST");
+  auto future = chatServer_->redis_.smembers(redisFileToFromSet_ + msgProto.from() + "/" + msgProto.to());
+  chatServer_->redis_.sync_commit();
+  auto reply = future.get();
+
+  Message back;
+  back.set_text(PULL_DL_LIST);
+  back.set_isservice(true);
+  for(auto & entry : reply.as_array()) {
+    back.add_args(entry.as_string());
+  }
+
+  chatServer_->sendOrSave(conn->user_email(),back.SerializeAsString());
 }

@@ -30,10 +30,11 @@ struct GroupApplication {
   std::string group;
 };
 
+class FtpClient;
 class MsgClient
 {
 public:
-  MsgClient();
+  MsgClient(FtpClient & ftp);
   
   ~MsgClient();
   
@@ -138,6 +139,10 @@ public:
   void doGroupExist(Message message);
 
   std::vector<std::string>& getGroupMembers(std::string group) { return groupMembers[group]; }
+
+  void pullDownloadList(const std::string & receiver,const std::string sender);
+
+  void doPullDlList(Message msgProto);
 private:
   void sendMsgTo(const std::string & who,const std::string & msg);
 
@@ -166,6 +171,8 @@ private:
   using serviceCallback = std::function<void(Message)>;
 
   std::unordered_map<std::string,serviceCallback> serviceCallbackMap;
+
+  FtpClient & ftpClient_;
 };
 
 #endif

@@ -1,6 +1,7 @@
 #include"TcpServer.h"
 #include"logger.h"
 #include<filesystem>
+#include<cpp_redis/cpp_redis>
 
 using namespace ilib;
 using namespace ilib::net;
@@ -40,4 +41,8 @@ private:
   EventLoop loop_;
 
   std::filesystem::path root_;
+
+  cpp_redis::client redis_;
+
+  const std::string redisFileToFromSet_ = "redisFileToFromSet_:";
 };

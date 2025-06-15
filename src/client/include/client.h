@@ -69,16 +69,16 @@ private:
   void fileService();
 
   void fileTrans();
-
+  
   /* 登录注册客户端 */
   UserClient userClient_;
-
+  
   /* 聊天客户端 */
   MsgClient msgClient_;
-
+  
   /* 文件传输客户端 */
   FtpClient ftpClient_;
-
+  
   /* UI界面 */
   ftxui::ScreenInteractive mainScreen_;
   ftxui::ScreenInteractive loginScreen_;

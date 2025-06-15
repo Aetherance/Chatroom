@@ -6,11 +6,13 @@ auto screen = ScreenInteractive::Fullscreen();
 
 std::string status = {};
 
-std::vector<std::string> downloadable_files = {};
+std::vector<std::string> downloadable_files;
 
 void Client::fileService() {
   // 状态变量
   std::string upload_path;
+
+  msgClient_.pullDownloadList(msgClient_.LocalEmail(),msgClient_.peerEmail());
 
   // 上传组件
   auto input_upload = Input(&upload_path, "输入文件路径");
@@ -27,11 +29,11 @@ void Client::fileService() {
     std::string filename = std::filesystem::path(upload_path).filename();
 
     std::thread([&,upload_path,filename]{ 
-      ftpClient_.transList.insert(filename);
+      ftpClient_.transList.insert({filename,false});
 
       ftpClient_.transProgressMap[filename] = 0.0f;
 
-      ftpClient_.uploadFile(upload_path,msgClient_.peerEmail() + "/" + msgClient_.LocalEmail(),filename);
+      sendFileTo(msgClient_.peerEmail(),filename,upload_path);
     }).detach();
     
     upload_path.clear();
@@ -48,7 +50,19 @@ void Client::fileService() {
   std::vector<Component> download_buttons;
   for (size_t i = 0; i < downloadable_files.size(); ++i) {
     download_buttons.push_back(
-      Button(downloadable_files[i], [i] {})
+      Button(downloadable_files[i], [&,i] {
+        std::thread([&]{
+          ftpClient_.transList.insert({downloadable_files[i],false});
+
+          ftpClient_.transProgressMap[downloadable_files[i]] = 0.0f;
+
+          std::filesystem::path savePath = "./download";
+          std::filesystem::create_directory(savePath);
+          ftpClient_.downloadFile(savePath,msgClient_.LocalEmail() + "/" + msgClient_.peerEmail(),downloadable_files[i]);
+        }).detach();
+
+        fileTrans();
+      })
     );
   }
   auto download_section = Container::Vertical(download_buttons);

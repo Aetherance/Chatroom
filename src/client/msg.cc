@@ -3,6 +3,7 @@
 #include"Timestamp.h"
 #include"EventLoop.h"
 #include<ftxui/component/screen_interactive.hpp>
+#include"ftp.h"
 
 using namespace ilib;
 
@@ -29,12 +30,17 @@ std::unordered_map<std::string,bool> NewMessageMap = {};
 std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
 
 extern ftxui::ScreenInteractive MsgScreen;
+
 extern std::unordered_map<std::string,int> MsgScreenScrollOffset;
+
 extern int visible_lines;
 
-MsgClient::MsgClient() : 
-          chatServerfd_(socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)),
-          chatServerAddr_("10.30.0.131",7070)   
+extern std::vector<std::string> downloadable_files;
+
+MsgClient::MsgClient(FtpClient & ftp) : 
+          chatServerfd_(::socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)),
+          chatServerAddr_("10.30.0.131",7070),
+          ftpClient_(ftp) 
 {
   initServiceCallbackMap();
 }
@@ -149,6 +155,8 @@ void MsgClient::doService(Message msgProto) {
     pullGroupMembers(true,{},msgProto);
   } else if(msgProto.text() == GROUP_EXIST) {
     doGroupExist(msgProto);
+  } else if(msgProto.text() == PULL_DL_LIST) {
+    doPullDlList(msgProto);
   } else {
     if(serviceCallbackMap.find(msgProto.text()) != serviceCallbackMap.end())
     serviceCallbackMap[msgProto.text()](msgProto);
@@ -270,13 +278,21 @@ void MsgClient::enMapYouMessage(Message msgProto) {
 
 void MsgClient::doBlockedMessage(Message message) {
   messageMap[message.from()].push_back({"系统","消息已发出，但被对方拒收了"});
+  
   MsgScreen.PostEvent(ftxui::Event::Custom);
 }
 
 void MsgClient::doRecvFile(Message msgProto) {
   std::string fileName = msgProto.to();
-  messageMap[msgProto.from()].push_back({"系统","收到来自" + msgProto.from() + "的文件。 使用 \"download <文件名> <保存路径>\" 来下载",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
+  messageMap[msgProto.from()].push_back({"系统","你收到了来自" + msgProto.from() + "的文件。 请前往文件页面接收。",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
   messageMap[msgProto.from()].push_back({"系统","文件名: " + fileName,ilib::base::Timestamp::now().microSecondsSinceEpoch()});
+  
+  if(msgProto.isgroupmessage()) {
+    MsgScreenScrollOffset[msgProto.to()] = std::max(0, static_cast<int>(messageMap[msgProto.to()].size()) - visible_lines);
+  } else {
+    MsgScreenScrollOffset[msgProto.from()] = std::max(0, static_cast<int>(messageMap[msgProto.from()].size()) - visible_lines);
+  }
+
   MsgScreen.PostEvent(ftxui::Event::Custom);
 }
 
@@ -286,4 +302,13 @@ void MsgClient::doGroupExist(Message message) {
 }
 
 void MsgClient::doHeartBeat(Message message) {
+
+}
+
+void MsgClient::doPullDlList(Message msgProto) {
+  downloadable_files.clear();
+  for(int i = 0;i<msgProto.args_size();i++) {
+    downloadable_files.push_back(msgProto.args(i));
+  }
+  MsgScreen.PostEvent(ftxui::Event::Custom);
 }

@@ -35,6 +35,8 @@ void Client::MsgController() {
 
   NewMessageMap[msgClient_.peerEmail()] = false;
 
+  msgClient_.pullDownloadList(msgClient_.LocalEmail(),msgClient_.peerEmail());
+
   auto input_option = InputOption();
   input_option.on_enter = [&,this] {
     if (!input_content.empty()) {   

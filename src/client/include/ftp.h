@@ -1,3 +1,6 @@
+#ifndef FTP_CLIENT
+#define FTP_CLIENT
+
 #include"Socket.h"
 #include<filesystem>
 #include<unordered_map>
@@ -25,15 +28,15 @@ public:
 
   std::string safeRecv();
 
-  std::vector<std::string> getDownloadList(const std::string & localEmail,const std::string & peerEmail);
-
   ~FtpClient();
 
 private:
   Socket controlSocket_;
   InetAddress serverAddr_;
 
-  std::unordered_set<std::string> transList;
+  std::unordered_map<std::string,bool> transList;
 
   std::unordered_map<std::string,float> transProgressMap;
 };
+
+#endif

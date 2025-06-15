@@ -5,4 +5,5 @@ message fileInfo {
   string user_dir = 2;
   string file_name = 3;
   int32 port = 4;
+  int64 size = 5;
 }
