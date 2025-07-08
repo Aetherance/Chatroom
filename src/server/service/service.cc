@@ -31,6 +31,7 @@ ServiceHandler::ServiceHandler(ChatServer * server) : chatServer_(server) {
   server->serviceCallBacks_[UNBLOCK] = std::bind(&ServiceHandler::onUnBlock,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[UPLOAD_FILE] = std::bind(&ServiceHandler::onUploadFile,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[PULL_DL_LIST] = std::bind(&ServiceHandler::onPullDownloadList,this,std::placeholders::_1,std::placeholders::_2);
+  server->serviceCallBacks_[PULL_ALL_USERS] = std::bind(&ServiceHandler::onPullAllUser,this,std::placeholders::_1,std::placeholders::_2);
 }
 
 std::string ServiceHandler::getGroupOwner(const std::string & group) const {
@@ -118,4 +119,34 @@ void ServiceHandler::onPullDownloadList(const net::TcpConnectionPtr & conn,Messa
   }
 
   chatServer_->sendOrSave(conn->user_email(),back.SerializeAsString());
+}
+
+void ServiceHandler::onPullAllUser(const net::TcpConnectionPtr & conn,Message msgProto) {
+  auto future = chatServer_->redis_.smembers(chatServer_->allUserset);
+  chatServer_->redis_.sync_commit();
+  auto reply = future.get();
+  auto replyArr = reply.as_array();
+  
+  for(auto & entry : replyArr) {
+    std::string friendInfo;
+    auto future = chatServer_->redis_.hget(EMAIL_HASH_USERNAME,entry.as_string());
+    
+    chatServer_->redis_.sync_commit();
+    auto reply = future.get();
+    if(!reply.is_string()) {
+      continue;
+    }
+    friendInfo = entry.as_string() + "\n" + reply.as_string();
+    LOG_INFO(friendInfo);
+    msgProto.add_args(friendInfo);
+  }
+  
+  msgProto.set_to(msgProto.from());
+  msgProto.set_text(PULL_ALL_USERS);
+  msgProto.set_isservice(true);
+  std::string resp = msgProto.SerializeAsString();
+  
+  chatServer_->sendMsgToUser(resp,conn);
+
+  LOG_INFO_SUCCESS(conn->user_email() + ": Pull All User List!");
 }

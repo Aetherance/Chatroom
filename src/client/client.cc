@@ -262,13 +262,15 @@ void Client::sendFileTo(const std::string & who, const std::string fileName, con
   ftpClient_.connect();
   ftpClient_.uploadFile(filePath,who,fileName);
 
+  std::string toUser = std::filesystem::path(who).parent_path();
+
   Message msg;
   msg.set_text(UPLOAD_FILE);
   msg.set_isservice(true);
   msg.set_from(msgClient_.LocalEmail());
   msg.set_to(fileName);
   msg.set_timestamp(ilib::base::Timestamp::now().microSecondsSinceEpoch());
-  msg.add_args(who);
+  msg.add_args(toUser);
 
   msgClient_.safeSend(msg.SerializeAsString());
 }

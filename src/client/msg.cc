@@ -157,6 +157,8 @@ void MsgClient::doService(Message msgProto) {
     doGroupExist(msgProto);
   } else if(msgProto.text() == PULL_DL_LIST) {
     doPullDlList(msgProto);
+  } else if(msgProto.text() == PULL_ALL_USERS) {
+    pullAllUsers(true,msgProto);
   } else {
     if(serviceCallbackMap.find(msgProto.text()) != serviceCallbackMap.end())
     serviceCallbackMap[msgProto.text()](msgProto);
@@ -283,6 +285,8 @@ void MsgClient::doBlockedMessage(Message message) {
 }
 
 void MsgClient::doRecvFile(Message msgProto) {
+  pullDownloadList(msgProto.from(),msgProto.to());
+  
   std::string fileName = msgProto.to();
   messageMap[msgProto.from()].push_back({"系统","你收到了来自" + msgProto.from() + "的文件。 请前往文件页面接收。",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
   messageMap[msgProto.from()].push_back({"系统","文件名: " + fileName,ilib::base::Timestamp::now().microSecondsSinceEpoch()});

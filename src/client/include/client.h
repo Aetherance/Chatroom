@@ -69,6 +69,8 @@ private:
   void fileService();
 
   void fileTrans();
+
+  void FindFriend();
   
   /* 登录注册客户端 */
   UserClient userClient_;

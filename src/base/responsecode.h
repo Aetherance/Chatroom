@@ -71,6 +71,7 @@ inline void SendResponseCode(int code,int fd) {
 #define DE_OP                       "DE_OP"   
 #define BLOCKED                     "BLOCKED"
 #define GROUP_EXIST                 "GROUP_EXIST" 
+#define PULL_ALL_USERS              "PULL_ALL_USERS"
 
 /* 群成员标识 */
 

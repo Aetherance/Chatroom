@@ -21,6 +21,7 @@ add_executable(client
     controllers/settings.cc
     controllers/fileService.cc
     controllers/fileTrans.cc
+    controllers/find.cc
     ../../src/protobuf/msg.pb.cc
     ../../src/protobuf/fileInfo.pb.cc
 )

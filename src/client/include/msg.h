@@ -143,6 +143,8 @@ public:
   void pullDownloadList(const std::string & receiver,const std::string sender);
 
   void doPullDlList(Message msgProto);
+
+  void pullAllUsers(bool isRecv = false,Message msg = {});
 private:
   void sendMsgTo(const std::string & who,const std::string & msg);
 

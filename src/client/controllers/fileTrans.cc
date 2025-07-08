@@ -27,6 +27,13 @@ void Client::fileTrans() {
       separator(),
       text("按 ESC 退出") | center
     }) | border | color(Color::White) | bgcolor(Color::RGB(22, 22, 30));
+  }) | CatchEvent([](Event event) {
+    if(event == Event::Escape) {
+      fileTranScreen.Exit();
+      return true;
+    } else {
+      return false;
+    }
   });
 
   fileTranScreen.Loop(renderer);

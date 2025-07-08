@@ -17,6 +17,8 @@ ScreenInteractive FriendListScreen = ScreenInteractive::Fullscreen();
 void Client::FriendList() {
   msgClient_.pullFriendList();
 
+  msgClient_.pullAllUsers();
+
   /* 第一个是邮箱 第二个是用户名 */
   bool in_chat = false;
   
@@ -52,6 +54,10 @@ void Client::FriendList() {
     GroupList();
   });
 
+  Component find_button = Button("发现",[&] {
+    FindFriend();
+  });
+
   Component cancel_button = Button("设置...", [&] {
     Settings();
     if(isExit) {
@@ -68,7 +74,7 @@ void Client::FriendList() {
 
   // 主界面组件
   auto main_component = Container::Vertical({
-    Container::Horizontal({input, add_button , verify_button , delete_button , group_button , reload}),
+    Container::Horizontal({input, add_button , verify_button , delete_button , group_button , find_button , reload}),
     friends_container,
     cancel_button
   });
@@ -106,6 +112,7 @@ void Client::FriendList() {
         verify_button->Render(),
         delete_button->Render(),
         group_button->Render(),
+        find_button->Render(),
         reload->Render()
       }) | border,
       vbox({

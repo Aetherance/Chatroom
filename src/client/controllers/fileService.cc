@@ -33,7 +33,7 @@ void Client::fileService() {
 
       ftpClient_.transProgressMap[filename] = 0.0f;
 
-      sendFileTo(msgClient_.peerEmail(),filename,upload_path);
+      sendFileTo(msgClient_.peerEmail() + "/" + msgClient_.LocalEmail(),filename,upload_path);
     }).detach();
     
     upload_path.clear();

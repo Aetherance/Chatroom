@@ -80,13 +80,13 @@ void Client::RegisterController() {
     } else if(email_in.size() > 20 || passwd_in.size() > 20) {
       info = "邮箱或密码长度过长!";
     } else {
-      email_save = email_in , passwd_save = passwd_in , username_save = username_in;
-      int recv = userClient_.SendRegister1(email_in);
-      if(recv == USER_OK) {
-        info = "验证码已发送!";
-      } else if(recv == EMAIL_ALREADY_REGISTERED) {
-        info = "邮箱已存在!";
-      };
+        email_save = email_in , passwd_save = passwd_in , username_save = username_in;
+        int recv = userClient_.SendRegister1(email_in);
+        if(recv == USER_OK) {
+          info = "验证码已发送!";
+        } else if(recv == EMAIL_ALREADY_REGISTERED) {
+          info = "邮箱已存在!";
+        }
     }
   });
 

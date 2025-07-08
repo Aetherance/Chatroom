@@ -15,6 +15,10 @@ extern ftxui::ScreenInteractive GroupListScreen;
 
 extern ftxui::ScreenInteractive MsgScreen;
 
+extern ftxui::ScreenInteractive findScreen;
+
+std::vector<Friend> users;
+
 void MsgClient::SerializeSend(const std::string action,const std::string & Requestor,const std::string & obj,const std::vector<std::string>& args) {
   Message ServiceMsg;
   ServiceMsg.set_text(action);
@@ -186,4 +190,28 @@ void MsgClient::rmGroupMember(const std::string & who,const std::string & group)
 
 void MsgClient::pullDownloadList(const std::string & receiver,const std::string sender) {
   SerializeSend(PULL_DL_LIST,receiver,sender);
+}
+
+void MsgClient::pullAllUsers(bool isRecv ,Message msg) {
+  if(!isRecv) {
+    SerializeSend(PULL_ALL_USERS,LocalEmail(),PULL_ALL_USERS);
+    return;
+  } 
+  
+  std::vector<std::string> user_email;
+  std::vector<std::string> user_name;
+  
+  users.clear();
+
+  for(int i = 0;i<msg.args_size();i++) {
+    std::string arg = msg.args(i);
+    user_email.push_back(arg);
+    int pos = user_email[i].find('\n');
+    user_name.emplace_back(user_email[i].begin() + pos + 1,user_email[i].begin() + user_email[i].size());
+    user_email[i].resize(pos);
+
+    users.push_back({user_email[i],user_name[i],0});
+  }
+
+  findScreen.PostEvent(ftxui::Event::Custom);
 }
