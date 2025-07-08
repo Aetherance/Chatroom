@@ -78,7 +78,7 @@ void ServiceHandler::onCancel(const net::TcpConnectionPtr & conn,Message msgProt
   chatServer_->redis_.del({chatServer_->offlineMessages + user});
   chatServer_->redis_.srem(chatServer_->onlineUserSet,{user});
   chatServer_->redis_.hdel("email_userinfos",{user});
-  chatServer_->redis_.srem("emailHashUserName",{user});
+  chatServer_->redis_.hdel("emailHashUserName",{user});
   chatServer_->redis_.sync_commit();
 }
 

@@ -39,7 +39,7 @@ void FtpClient::uploadFile(const std::string &filePath, const std::string &remot
   backInfo.ParseFromString(backMessage);
 
   Socket dataSocket(::socket(AF_INET,SOCK_STREAM,0));
-  InetAddress PeerAddr("localhost",backInfo.port());
+  InetAddress PeerAddr("10.30.0.131",backInfo.port());
   sockaddr_in sin = PeerAddr.getSockAddr();
   int stat = ::connect(dataSocket.fd(),(sockaddr*)&sin,sizeof(sin));
   if(stat < 0) {
@@ -104,7 +104,7 @@ void FtpClient::downloadFile(const std::filesystem::path fileDir, const std::str
   backInfo.ParseFromString(backMessage);
 
   Socket dataSocket(::socket(AF_INET,SOCK_STREAM,0));
-  InetAddress PeerAddr("localhost",backInfo.port());
+  InetAddress PeerAddr("10.30.0.131",backInfo.port());
   sockaddr_in sin = PeerAddr.getSockAddr();
   int stat = ::connect(dataSocket.fd(),(sockaddr*)&sin,sizeof(sin));
   if(stat < 0) {

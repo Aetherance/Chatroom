@@ -110,25 +110,33 @@ void UserServer::onLogin(const std::string& email,const std::string& passwd,cons
   
   auto future_userinfo = redis_.hget(RedisUserInfosHashEmail_,email);
   redis_.sync_commit();
-  std::string reply_userinfo_str = future_userinfo.get().as_string();
   
-  Json::Value userInfoVal;
-  Json::CharReaderBuilder readerBuilder;
-  std::istringstream Stream(reply_userinfo_str);
-  Json::parseFromStream(readerBuilder,Stream,&userInfoVal,nullptr);
+  auto reply = future_userinfo.get();
 
-  std::string reply_passwd = userInfoVal["passwd"].asString();
-  
-  if(passwd == reply_passwd) {
-    SendResponseCode(USER_OK,conn->fd());
-    std::string user_name = userInfoVal["username"].asString();
-    LOG_INFO_SUCCESS(user_name + " log in to the server.");
-    LOG_INFO_SUCCESS(email + " is on " + conn->peerAddress().toIpPort());
-    redis_.sadd(onlineUserSet,{email});
-    redis_.sync_commit();
-  } else {
+  if(reply.is_null()) {
     SendResponseCode(PASSWORD_INCORRECT,conn->fd());
-    LOG_WARN("User " + email + " Login failed: password incorrect!");
+    LOG_WARN("User " + email + " Login failed: account not found!");    
+  } else {
+    std::string reply_userinfo_str = reply.as_string();
+  
+    Json::Value userInfoVal;
+    Json::CharReaderBuilder readerBuilder;
+    std::istringstream Stream(reply_userinfo_str);
+    Json::parseFromStream(readerBuilder,Stream,&userInfoVal,nullptr);
+
+    std::string reply_passwd = userInfoVal["passwd"].asString();
+    
+    if(passwd == reply_passwd) {
+      SendResponseCode(USER_OK,conn->fd());
+      std::string user_name = userInfoVal["username"].asString();
+      LOG_INFO_SUCCESS(user_name + " log in to the server.");
+      LOG_INFO_SUCCESS(email + " is on " + conn->peerAddress().toIpPort());
+      redis_.sadd(onlineUserSet,{email});
+      redis_.sync_commit();
+    } else {
+      SendResponseCode(PASSWORD_INCORRECT,conn->fd());
+      LOG_WARN("User " + email + " Login failed: password incorrect!");
+    }
   }
 }
 
@@ -157,4 +165,5 @@ void UserServer::makeEmailNameHash(const std::string & userInfo,const std::strin
   std::istringstream str(userInfo);
   Json::parseFromStream(reader,str,&val,nullptr);
   redis_.hset(EMAIL_HASH_USERNAME,email,val["username"].asString());
+  redis_.sync_commit();
 }
