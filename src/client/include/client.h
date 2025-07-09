@@ -75,8 +75,7 @@ private:
   void fileTrans();
   
   void FindFriend();
-  
-  
+
   /* 登录注册客户端 */
   UserClient userClient_;
   
@@ -94,5 +93,5 @@ private:
   bool isExit = false;
   
   std::string localUserEmail_;
-  // std::string localUsername_;
+  std::string localUsername_;
 };

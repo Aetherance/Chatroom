@@ -99,7 +99,7 @@ void Client::Msg() {
   msgClient_.setEmail(localUserEmail_);
   
   msgClient_.connect();
-  
+
   msgClient_.pullFriendList();
 
   msgClient_.pullGroupList();

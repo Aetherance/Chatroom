@@ -32,6 +32,7 @@ ServiceHandler::ServiceHandler(ChatServer * server) : chatServer_(server) {
   server->serviceCallBacks_[UPLOAD_FILE] = std::bind(&ServiceHandler::onUploadFile,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[PULL_DL_LIST] = std::bind(&ServiceHandler::onPullDownloadList,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[PULL_ALL_USERS] = std::bind(&ServiceHandler::onPullAllUser,this,std::placeholders::_1,std::placeholders::_2);
+  server->serviceCallBacks_[GET_USER_NAME] = std::bind(&ServiceHandler::onGetUsername,this,std::placeholders::_1,std::placeholders::_2);
 }
 
 std::string ServiceHandler::getGroupOwner(const std::string & group) const {
@@ -149,4 +150,19 @@ void ServiceHandler::onPullAllUser(const net::TcpConnectionPtr & conn,Message ms
   chatServer_->sendMsgToUser(resp,conn);
 
   LOG_INFO_SUCCESS(conn->user_email() + ": Pull All User List!");
+}
+
+void ServiceHandler::onGetUsername(const net::TcpConnectionPtr & conn,Message msgProto) {
+  auto future = chatServer_->redis_.hget("emailHashUserName",msgProto.from());
+  chatServer_->redis_.sync_commit();
+  auto reply = future.get();
+ 
+  std::string username = reply.as_string();
+  Message resp;
+  resp.set_text(GET_USER_NAME);
+  resp.set_from(username);
+  std::string respS = resp.SerializeAsString();
+  chatServer_->sendOrSave(msgProto.from(),respS);
+
+  LOG_WARN("Get Username Failed");
 }

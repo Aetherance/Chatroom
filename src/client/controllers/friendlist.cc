@@ -2,6 +2,8 @@
 
 using namespace ftxui;
 
+bool isFirstLogin = true;
+
 std::vector<Friend> friends = {};
 
 std::string show_info;
@@ -14,10 +16,23 @@ extern std::unordered_map<std::string,bool> NewMessageMap;
 
 ScreenInteractive FriendListScreen = ScreenInteractive::Fullscreen();
 
+std::string getCurrentTimePeriod();
+
 void Client::FriendList() {
   msgClient_.pullFriendList();
 
   msgClient_.pullAllUsers();
+
+  if(friends.empty()) {
+    show_info2 = "前往\"发现\"或搜索邮箱以添加您的第一个好友! ";
+  }
+
+  if(isFirstLogin) {
+    show_info = "👋 " + getCurrentTimePeriod() + "好!";
+    isFirstLogin = false;
+  } else {
+    show_info = "";
+  }
 
   /* 第一个是邮箱 第二个是用户名 */
   bool in_chat = false;
@@ -131,4 +146,19 @@ void Client::FriendList() {
   }) | color(Color::White) | bgcolor(Color::RGB(22, 22, 30));
 
   FriendListScreen.Loop(main_renderer);
+}
+
+std::string getCurrentTimePeriod() {
+    time_t now = time(nullptr);
+    tm *local = localtime(&now);
+    int hour = local->tm_hour;
+    
+    if (hour >= 5 && hour < 12) 
+        return "上午";
+    else if (hour >= 12 && hour < 14)
+        return "中午";
+    else if (hour >= 14 && hour < 19)
+        return "下午";
+    else
+        return "晚上";
 }
