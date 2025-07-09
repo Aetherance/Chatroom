@@ -31,6 +31,7 @@ struct GroupApplication {
 };
 
 class FtpClient;
+class Client;
 class MsgClient
 {
 public:

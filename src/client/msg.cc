@@ -37,10 +37,12 @@ extern int visible_lines;
 
 extern std::vector<std::string> downloadable_files;
 
+extern std::vector<ftxui::Component> download_buttons;
+
 MsgClient::MsgClient(FtpClient & ftp) : 
           chatServerfd_(::socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)),
           chatServerAddr_("10.30.0.131",7070),
-          ftpClient_(ftp) 
+          ftpClient_(ftp)
 {
   initServiceCallbackMap();
 }
@@ -310,6 +312,7 @@ void MsgClient::doHeartBeat(Message message) {
 }
 
 void MsgClient::doPullDlList(Message msgProto) {
+  download_buttons.clear();
   downloadable_files.clear();
   for(int i = 0;i<msgProto.args_size();i++) {
     downloadable_files.push_back(msgProto.args(i));

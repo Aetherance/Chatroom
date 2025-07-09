@@ -2,11 +2,13 @@
 
 using namespace ftxui;
 
-auto screen = ScreenInteractive::Fullscreen();
+ScreenInteractive FileScreen = ScreenInteractive::Fullscreen();
 
 std::string status = {};
 
 std::vector<std::string> downloadable_files;
+
+std::vector<Component> download_buttons;
 
 void Client::fileService() {
   // 状态变量
@@ -40,14 +42,15 @@ void Client::fileService() {
     
     fileTrans();
   });
+
+  auto reload_button = Button("刷新",[&]{ msgClient_.pullDownloadList(msgClient_.LocalEmail(),msgClient_.peerEmail()); });
   
   auto upload_section = Container::Horizontal({
     input_upload,
-    upload_button
+    upload_button,
+    reload_button
   });
 
-  // 下载按钮组件
-  std::vector<Component> download_buttons;
   for (size_t i = 0; i < downloadable_files.size(); ++i) {
     download_buttons.push_back(
       Button(downloadable_files[i], [&,i] {
@@ -96,7 +99,8 @@ void Client::fileService() {
         text("上传文件:") | bold,
         hbox({
           input_upload->Render() | flex | border,
-          upload_button->Render()
+          upload_button->Render(),
+          reload_button->Render()
         })
       }) | border | size(HEIGHT, EQUAL, 6) | bold,
       
@@ -108,8 +112,10 @@ void Client::fileService() {
         download_section->Render() | flex | frame
       }) | border | flex,
       
-      separator(),
+      text("如果不能成功刷新，请返回上一级页面重新进入") | color(Color::GrayDark) | center,
       
+      separator(),
+
       // 底部区域 (高度固定)
       hbox({
         filler(),
@@ -119,5 +125,5 @@ void Client::fileService() {
     }) | flex | border | bold;
   }) | color(Color::White) | bgcolor(Color::RGB(22, 22, 30));
 
-  screen.Loop(renderer);
+  FileScreen.Loop(renderer);
 }

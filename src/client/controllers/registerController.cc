@@ -4,6 +4,10 @@ using namespace ftxui;
  
 bool isValidEmail(const std::string &);
 
+int sendCodeCD = 0;
+
+std::string sendCodeButtonText = "发送验证码" + (sendCodeCD ? " (" + std::to_string(sendCodeCD) + ")" : "");
+
 void Client::RegisterController() {
   std::string username_in;
   std::string email_in;
@@ -62,17 +66,21 @@ void Client::RegisterController() {
 
   code_input = Input(&code_in, "验证码") | CatchEvent([&](Event event) {
     if(event == Event::Return) {
-      container->SetActiveChild(passwd_input);
+      container->SetActiveChild(register_button);
       return true;
     } else if(code_in.size() > 6) {
       info = "验证码长度过长!";
+      code_in.resize(6);
+      registerScreen_.PostEvent(Event::Custom);
       return false;
-    }
-      return false;
+    } return false;
     });
 
   std::string email_save,passwd_save,username_save;
-  send_code_button = Button("发送验证码",[&]{
+  send_code_button = Button(&sendCodeButtonText,[&]{
+    if(sendCodeCD) {
+      return ;
+    }
     if (email_in.empty() || passwd_in.empty() || username_in.empty()) {
       info =  "密码或邮箱不能为空!";
     } else if( ! isValidEmail(email_in)){
@@ -84,6 +92,16 @@ void Client::RegisterController() {
         int recv = userClient_.SendRegister1(email_in);
         if(recv == USER_OK) {
           info = "验证码已发送!";
+          std::thread([&]{ 
+            sendCodeCD = 30;
+            sendCodeButtonText = "发送验证码" + (sendCodeCD ? " (" + std::to_string(sendCodeCD) + ")" : "");
+            while(sendCodeCD > 0) {
+              sleep(1);
+              sendCodeCD --;
+              sendCodeButtonText = "发送验证码" + (sendCodeCD ? " (" + std::to_string(sendCodeCD) + ")" : "");
+              registerScreen_.PostEvent(Event::Custom);
+            }
+          }).detach();
         } else if(recv == EMAIL_ALREADY_REGISTERED) {
           info = "邮箱已存在!";
         }
@@ -99,6 +117,7 @@ void Client::RegisterController() {
       info = "验证中";
       int recv = userClient_.SendRegister2(email_save,username_save,passwd_save,code_in);
       if(recv == USER_OK) {
+        LoginSubmit(email_save,passwd_save,info);
         userClient_.setHasLogin(true);
         registerScreen_.Exit();
       }

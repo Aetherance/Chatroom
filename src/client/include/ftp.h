@@ -13,6 +13,7 @@ using namespace ilib::net;
 class FtpClient
 {
 friend class Client;
+friend class MsgClient;
 public:
   FtpClient();
 
