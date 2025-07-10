@@ -134,6 +134,7 @@ void ChatServer::onGroupMessage(const std::string & group,Message & msgProto) {
       continue;
     }
     sendOrSave(group_member,msg);
+    LOG_INFO("Group Message: In " + group + " to" + group_member);
   }
 }
 

@@ -17,8 +17,6 @@ public:
   ~Client();
   
   void run();
-
-  void fileServiceUsingAddButton(std::vector<std::string> & downloadable_files, std::vector<ftxui::Component> & download_buttons);  
 private:
   /* 登录注册 */
   void Verify();
@@ -75,6 +73,8 @@ private:
   void fileTrans();
   
   void FindFriend();
+
+  void tMode();
 
   /* 登录注册客户端 */
   UserClient userClient_;

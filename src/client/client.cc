@@ -26,7 +26,8 @@ std::unordered_set<std::string> commandSet = {
     "/block" ,
     "/unblock" ,
     "/upload",
-    "/download"
+    "/download",
+    "/t"
   };
 
 /* 构造函数 : 初始化UI界面 */
@@ -147,7 +148,7 @@ std::vector<std::string> split(const std::string s,char ch)
 }
 
 bool Client::parseCommand(std::string & input) {
-  if(input[input.size() - 1] == '/') {
+  if(input[input.size() - 1] == '\n' && input.size() != 1) {
     input.resize(input.size() - 1);
   }
   
@@ -187,6 +188,10 @@ bool Client::parseCommand(std::string & input) {
     MsgScreen.PostEvent(Event::Custom);
   } else if(cmds[0] == "/download" && cmds.size() > 2) {
     downloadFile(cmds[1],cmds[2]);
+  } else if(cmds[0] == "/t") {
+    MsgScreen.Exit();
+    mainScreen_.Exit();
+    tMode();
   }
   
   return true;
@@ -291,4 +296,15 @@ void Client::downloadFile(const std::string & filename,const std::string & local
   ftpClient_.downloadFile(localDir, msgClient_.LocalEmail(), filename);
 
   messageMap[msgClient_.peerEmail()].push_back({"系统","已将文件下载至" + localDir + "/" + filename,ilib::Timestamp::now().microSecondsSinceEpoch()});
+}
+
+void Client::tMode() {
+  std::string inputBuff;
+  while (inputBuff != "q") {
+    printf("输入q退出");
+    printf("%s: ",msgClient_.LocalUsername().data());
+    std::getline(std::cin,inputBuff);
+
+    msgClient_.sendMsgPeer(inputBuff);  
+  }
 }
