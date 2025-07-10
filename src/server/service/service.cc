@@ -101,8 +101,13 @@ bool ServiceHandler::isUserGroupMember(const std::string & user,const std::strin
 
 void ServiceHandler::onUploadFile(const net::TcpConnectionPtr & conn,Message msgProto) {
   const std::string to_user = msgProto.args(0);
-  chatServer_->sendOrSave(to_user,msgProto.SerializeAsString());
-  LOG_INFO("User " + msgProto.from() + " upload file to " + to_user);
+  if(isGroupExist(to_user)) {
+    msgProto.set_to(to_user);
+    chatServer_->onGroupMessage(to_user,msgProto);
+  } else {
+    chatServer_->sendOrSave(to_user,msgProto.SerializeAsString());
+    LOG_INFO("User " + msgProto.from() + " upload file to " + to_user);
+  }
 }
 
 void ServiceHandler::onPullDownloadList(const net::TcpConnectionPtr & conn,Message msgProto) {

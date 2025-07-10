@@ -300,9 +300,15 @@ void MsgClient::doBlockedMessage(Message message) {
 void MsgClient::doRecvFile(Message msgProto) {
   pullDownloadList(msgProto.from(),msgProto.to());
   
-  std::string fileName = msgProto.to();
-  messageMap[msgProto.from()].push_back({"系统","你收到了来自" + msgProto.from() + "的文件。 请前往文件页面接收。",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
-  messageMap[msgProto.from()].push_back({"系统","文件名: " + fileName,ilib::base::Timestamp::now().microSecondsSinceEpoch()});
+  if(msgProto.isgroupmessage()) {
+    std::string fileName = msgProto.to();
+    messageMap[msgProto.to()].push_back({"系统","你收到了来自" + msgProto.from() + "的文件。 请前往文件页面接收。",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
+    messageMap[msgProto.to()].push_back({"系统","文件名: " + fileName,ilib::base::Timestamp::now().microSecondsSinceEpoch()});
+  } else {
+    std::string fileName = msgProto.to();
+    messageMap[msgProto.from()].push_back({"系统","你收到了来自" + msgProto.from() + "的文件。 请前往文件页面接收。",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
+    messageMap[msgProto.from()].push_back({"系统","文件名: " + fileName,ilib::base::Timestamp::now().microSecondsSinceEpoch()});
+  }
   
   if(msgProto.isgroupmessage()) {
     MsgScreenScrollOffset[msgProto.to()] = std::max(0, static_cast<int>(messageMap[msgProto.to()].size()) - visible_lines);

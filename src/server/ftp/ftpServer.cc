@@ -182,6 +182,8 @@ void FtpServer::onReceive(const std::string & dir , const std::string & fileName
     std::filesystem::create_directory(root_/storDir);
 
     std::filesystem::create_directory(root_/dir);    
+  } else {
+    std::filesystem::create_directory(root_/dir);
   }
 
   std::ofstream file(root_/dir/fileName,std::ios::binary);
