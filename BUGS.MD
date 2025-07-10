@@ -38,6 +38,6 @@ fish: Job 1, './server' terminated by signal SIGABRT (Abort)
 
 # 群聊
 
-1. 群聊文件传输错误 (群-A B-群)
+<!-- 1. 群聊文件传输错误 (群-A B-群) -->
 
 <!-- 2. 搜索群加群居然没有实现 -->

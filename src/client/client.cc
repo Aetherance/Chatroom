@@ -147,7 +147,7 @@ std::vector<std::string> split(const std::string s,char ch)
 }
 
 bool Client::parseCommand(std::string & input) {
-  if(input[input.size() - 1] == '\n') {
+  if(input[input.size() - 1] == '/') {
     input.resize(input.size() - 1);
   }
   
@@ -213,7 +213,7 @@ std::string buf;
 }
 
 void Client::readMessage() {
-  std::ifstream file(localUserEmail_ + HISTORY_MESSAGE_FILE,std::ios::binary);
+  std::ifstream file("." + localUserEmail_ + HISTORY_MESSAGE_FILE,std::ios::binary);
   int message_len;
   while(file.peek() != EOF) {
     std::string buff;
@@ -239,7 +239,7 @@ void Client::readMessage() {
 }
 
 void Client::storageMessage() {
-  std::ofstream file(localUserEmail_ + HISTORY_MESSAGE_FILE,std::ios::binary);
+  std::ofstream file("." + localUserEmail_ + HISTORY_MESSAGE_FILE,std::ios::binary);
   Message histroy_message;
   if (file.is_open()) {
     for(auto & pair : messageMap) {

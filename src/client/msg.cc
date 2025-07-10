@@ -39,6 +39,10 @@ extern std::vector<std::string> downloadable_files;
 
 extern std::vector<ftxui::Component> download_buttons;
 
+extern std::unordered_map<std::string,std::string> emailHashUserInfo;
+
+extern ftxui::ScreenInteractive groupVerifyScreen;
+
 MsgClient::MsgClient(FtpClient & ftp) : 
           chatServerfd_(::socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)),
           chatServerAddr_("10.30.0.131",7070),
@@ -127,13 +131,13 @@ void MsgClient::parseMsg(std::string msg) {
   } else {
     if(msgProto.isgroupmessage()) {
       NewMessageMap[msgProto.to()] = true;
-      messageMap[msgProto.to()].push_back({msgProto.from(),msgProto.text(),msgProto.timestamp()});
+      messageMap[msgProto.to()].push_back({emailHashUserInfo[msgProto.from()],msgProto.text(),msgProto.timestamp()});
       MsgScreenScrollOffset[msgProto.to()] = std::max(0, static_cast<int>(messageMap[msgProto.to()].size()) - visible_lines);
     } else {
       NewMessageMap[msgProto.from()] = true;
-      messageMap[msgProto.from()].push_back({msgProto.from(),msgProto.text(),msgProto.timestamp()});
+      messageMap[msgProto.from()].push_back({emailHashUserInfo[msgProto.from()],msgProto.text(),msgProto.timestamp()});
       MsgScreenScrollOffset[msgProto.from()] = std::max(0, static_cast<int>(messageMap[msgProto.from()].size()) - visible_lines);
-    } 
+    }
     MsgScreen.PostEvent(ftxui::Event::Custom);
   }
 }
@@ -189,8 +193,11 @@ void MsgClient::doAddFriendBack(const Message & msgProto) {
   std::thread([&]{ sleep(2); show_info = ""; }).detach();
 }
 
+std::mutex friendRequestsLock;
+
 void MsgClient::doAddFriend(const Message & msgProto) {
   show_info2 = "新的好友申请!";
+  std::lock_guard<std::mutex> lock(friendRequestsLock);
   friendRequests.push_back(msgProto.from());
 }
 
@@ -224,9 +231,13 @@ void MsgClient::doAddGroupBack(const Message & msgProto) {
   std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
 }
 
+std::mutex groupRequestsLock;
+
 void MsgClient::doAddGroup(const Message & msgProto) {
+  std::lock_guard<std::mutex> lock(groupRequestsLock);
   applications.push_back({msgProto.from(),msgProto.to()});
   show_info3 = "有新的加群申请!";
+  groupVerifyScreen.PostEvent(ftxui::Event::Custom);
 }
 
 void MsgClient::verifyGroup(const std::string & who, const std::string & group) {

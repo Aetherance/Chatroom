@@ -6,8 +6,9 @@ std::vector<GroupApplication> applications = {};
 
 extern std::string show_info3;
 
+ScreenInteractive groupVerifyScreen = ScreenInteractive::Fullscreen();
+
 void Client::GroupVerify() {
-  auto screen = ScreenInteractive::Fullscreen();
   
   int selected_application = 0;
   auto application_list = Container::Vertical({});
@@ -15,12 +16,12 @@ void Client::GroupVerify() {
   show_info3.clear();
   
   for (size_t i = 0; i < applications.size(); ++i) {
-    auto approve_btn = Button(" 通过 ", [=, &screen] { 
+    auto approve_btn = Button(" 通过 ", [=] { 
       msgClient_.verifyGroup(applications[i].user,applications[i].group);
       applications.erase(applications.begin() + i);
     });
-    
-    auto reject_btn = Button(" 忽略 ", [=, &screen] {
+  
+    auto reject_btn = Button(" 忽略 ", [=] {
         
       applications.erase(applications.begin() + i);
     });
@@ -45,7 +46,7 @@ void Client::GroupVerify() {
             text("申请加入: ") | bold | color(Color::Yellow),
             text(app.group) | flex,
             separator(),
-            application_list->ChildAt(i)->Render()
+            (application_list->ChildCount() > i ? application_list->ChildAt(i)->Render() : separator())
           }) | borderLight;
           
         if (i == selected_application) 
@@ -72,11 +73,11 @@ void Client::GroupVerify() {
       selected_application++;
       return true;
     } else if(event == Event::Escape) {
-      screen.Exit();
+      groupVerifyScreen.Exit();
     }
 
     return false;
   });
 
-  screen.Loop(component);
+  groupVerifyScreen.Loop(component);
 }

@@ -21,6 +21,8 @@ extern std::string show_info2;
 
 std::vector<Friend> users;
 
+std::unordered_map<std::string,std::string> emailHashUserInfo;
+
 void MsgClient::SerializeSend(const std::string action,const std::string & Requestor,const std::string & obj,const std::vector<std::string>& args) {
   Message ServiceMsg;
   ServiceMsg.set_text(action);
@@ -85,6 +87,7 @@ void MsgClient::pullFriendList(bool isRecv,Message msg) {
     user_name.emplace_back(user_email[i].begin() + pos + 2,user_email[i].begin() + user_email[i].size());
     user_email[i].resize(pos);
     friends.push_back({user_email[i],user_name[i],isOnline});
+    emailHashUserInfo[user_email[i]] = user_name[i];
   }
   
 
@@ -136,6 +139,7 @@ void MsgClient::pullGroupMembers(bool isRecv,std::string request_group,Message m
       groupMembers[group].push_back(msg.args(i));
     }
   }
+
   MsgScreen.PostEvent(ftxui::Event::Custom);
 }
 
@@ -219,6 +223,5 @@ void MsgClient::pullAllUsers(bool isRecv ,Message msg) {
 
     users.push_back({user_email[i],user_name[i],0});
   }
-
   findScreen.PostEvent(ftxui::Event::Custom);
 }

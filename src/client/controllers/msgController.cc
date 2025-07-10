@@ -46,6 +46,7 @@ void Client::MsgController() {
 
       if(input_content == "\n") {
         input_content.clear();
+
         return;
       }
 

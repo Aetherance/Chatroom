@@ -54,9 +54,10 @@ void Client::VerifyFriend() {
     for (size_t i = 0; i < friendRequests.size(); ++i) {
       auto req = friendRequests[i];
       
-      // 获取对应容器的渲染元素
-      auto element = main_container->ChildAt(i)->Render();
-      contents.push_back(element);
+      if(main_container->ChildCount() > i) {
+        auto element = main_container->ChildAt(i)->Render();
+        contents.push_back(element);
+      }
     }
 
     // 处理空列表的情况
