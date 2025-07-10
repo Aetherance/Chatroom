@@ -23,13 +23,10 @@ void Client::FriendList() {
 
   msgClient_.pullAllUsers();
 
-  if(friends.empty()) {
-    show_info2 = "前往\"发现\"或搜索邮箱以添加您的第一个好友! ";
-  }
-
   if(isFirstLogin) {
     show_info = "👋 " + getCurrentTimePeriod() + "好!";
     isFirstLogin = false;
+    std::thread([]{ sleep(3); show_info.clear(); FriendListScreen.PostEvent(Event::Custom); }).detach();
   } else {
     show_info = "";
   }

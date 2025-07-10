@@ -4,22 +4,22 @@
 #include<thread>
 
 int main() {
+  ChatServer chatServer;
+
   std::thread user([&]{
     UserServer userServer;
     userServer.run();
   });
 
-  std::thread chat([&]{
-    ChatServer chatServer;
-    chatServer.run();
+  std::thread ftp([&]{ 
+    FtpServer ftpServer(&chatServer);
+    ftpServer.run();
   });
 
-  FtpServer ftpServer;
-  ftpServer.run();
+  chatServer.run();  
 
   user.join();
-  chat.join();
-  
+  ftp.join();  
 
   return 0;
 }

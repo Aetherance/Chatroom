@@ -4,10 +4,11 @@
 
 #define TCP_HEAD_LEN sizeof(uint32_t)
 
-FtpServer::FtpServer()
+FtpServer::FtpServer(ChatServer * chatServer)
     : address_(InetAddress(6060)),
       server_(&loop_, address_),
-      root_("../root")
+      root_("../root"),
+      chatServer_(chatServer)
 {
   server_.setConnectionCallback([this](const TcpConnectionPtr & conn){ onConnection(conn); });
   server_.setMessageCallback([this](const TcpConnectionPtr & conn, Buffer * buf, Timestamp time) { onMessage(conn, buf, time); });
@@ -175,11 +176,13 @@ void FtpServer::onReceive(const std::string & dir , const std::string & fileName
     LOG_INFO_SUCCESS("The Client has connected to the data transport port\ntransport begin!");
   }
 
-  std::string storDir = std::filesystem::path(dir).parent_path();
+  if(dir.find("/") != dir.npos) { 
+    std::string storDir = std::filesystem::path(dir).parent_path();
 
-  std::filesystem::create_directory(root_/storDir);
+    std::filesystem::create_directory(root_/storDir);
 
-  std::filesystem::create_directory(root_/dir);
+    std::filesystem::create_directory(root_/dir);    
+  }
 
   std::ofstream file(root_/dir/fileName,std::ios::binary);
 

@@ -18,6 +18,17 @@ extern ScreenInteractive MsgScreen;
  
 extern std::unordered_map<std::string,bool> NewMessageMap;
 
+std::unordered_set<std::string> commandSet = { 
+    "/break" ,
+    "/op" ,
+    "/deop" ,
+    "/rm" ,
+    "/block" ,
+    "/unblock" ,
+    "/upload",
+    "/download"
+  };
+
 /* 构造函数 : 初始化UI界面 */
 Client::Client() : loginScreen_(ScreenInteractive::Fullscreen()),
                    registerScreen_(ScreenInteractive::Fullscreen()),
@@ -136,15 +147,15 @@ std::vector<std::string> split(const std::string s,char ch)
 }
 
 bool Client::parseCommand(std::string & input) {
-  if(input[0] != '/') {
-    return false;
-  }
-
   if(input[input.size() - 1] == '\n') {
     input.resize(input.size() - 1);
   }
-
+  
   const std::vector<std::string> cmds = split(input,' ');
+  
+  if(commandSet.find(cmds[0]) == commandSet.end()) {
+    return false;
+  }
 
   input.clear();
   

@@ -35,7 +35,11 @@ void Client::fileService() {
 
       ftpClient_.transProgressMap[filename] = 0.0f;
 
-      sendFileTo(msgClient_.peerEmail() + "/" + msgClient_.LocalEmail(),filename,upload_path);
+      if(msgClient_.isPeerGroup()) {
+        sendFileTo(msgClient_.peerEmail(),filename,upload_path);       
+      } else {
+        sendFileTo(msgClient_.peerEmail() + "/" + msgClient_.LocalEmail(),filename,upload_path);
+      }
     }).detach();
     
     upload_path.clear();
@@ -61,7 +65,11 @@ void Client::fileService() {
 
           std::filesystem::path savePath = "./download";
           std::filesystem::create_directory(savePath);
-          ftpClient_.downloadFile(savePath,msgClient_.LocalEmail() + "/" + msgClient_.peerEmail(),downloadable_files[i]);
+          if(msgClient_.isPeerGroup()) {
+            ftpClient_.downloadFile(savePath,msgClient_.peerEmail(),downloadable_files[i]);            
+          } else {
+            ftpClient_.downloadFile(savePath,msgClient_.LocalEmail() + "/" + msgClient_.peerEmail(),downloadable_files[i]);
+          }
         }).detach();
 
         fileTrans();

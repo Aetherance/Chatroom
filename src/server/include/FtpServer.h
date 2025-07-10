@@ -2,6 +2,7 @@
 #include"logger.h"
 #include<filesystem>
 #include<cpp_redis/cpp_redis>
+#include<ChatServer.h>
 
 using namespace ilib;
 using namespace ilib::net;
@@ -11,7 +12,7 @@ class FtpServer
 {
 friend class ServiceHandler;
 public:
-  FtpServer();
+  FtpServer(ChatServer * chatServer);
 
   void run();
 
@@ -34,8 +35,6 @@ private:
 
   void onSend(const std::string & dir , const std::string & fileName, const TcpConnectionPtr & conn,const int sockfd);
 
-  void onGetDownload(const std::string & dir,const TcpConnectionPtr & conn);
-
   InetAddress address_;
   TcpServer server_;
   EventLoop loop_;
@@ -45,4 +44,6 @@ private:
   cpp_redis::client redis_;
 
   const std::string redisFileToFromSet_ = "redisFileToFromSet_:";
+
+  ChatServer * chatServer_;
 };

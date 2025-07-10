@@ -69,6 +69,16 @@ void ServiceHandler::onAddGroup(const net::TcpConnectionPtr & conn,Message msgPr
     for(auto &entry : reply.as_array()) {
       chatServer_->sendOrSave(entry.as_string(),msgProto.SerializeAsString());
     }
+
+    auto future_get_owner = chatServer_->redis_.hget("groupHashOwner",msgProto.to());
+
+    chatServer_->redis_.sync_commit();
+
+    auto reply_get_owner = future_get_owner.get();
+
+    std::string groupOwner = reply_get_owner.as_string();
+
+    chatServer_->sendOrSave(groupOwner,msgProto.SerializeAsString());
     
     returnMsg.set_text(ADD_GROUP_SEND_SUCCESS);
   } else {

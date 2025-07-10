@@ -22,7 +22,7 @@ void Client::GroupList() {
   std::string new_group;
 
   // 输入组件
-  std::string input_show = "输入群号添加新群聊...";
+  std::string input_show = "输入群名添加新群聊...";
   Component input = Input(&new_group, input_show) | CatchEvent([&](Event event) {
     if(event == Event::Return) {
       return true;
