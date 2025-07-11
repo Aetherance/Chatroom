@@ -15,6 +15,7 @@ FtpClient::FtpClient() : controlSocket_(::socket(AF_INET,SOCK_STREAM,0)),
                          serverAddr_(InetAddress("10.30.0.131", 6060))
 {
   connect();
+  std::filesystem::create_directory("./download");
 }
 
 FtpClient::~FtpClient() {

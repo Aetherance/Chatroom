@@ -26,8 +26,7 @@ std::unordered_set<std::string> commandSet = {
     "/block" ,
     "/unblock" ,
     "/upload",
-    "/download",
-    "/t"
+    "/download"
   };
 
 /* 构造函数 : 初始化UI界面 */

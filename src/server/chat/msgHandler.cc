@@ -44,7 +44,7 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
       //   heart_.beat(conn);
       // }
 
-      if(serviceHandler_.isUserBlocked(msg.from(),msg.to()) || ! isFriendsOf(msg.to(),msg.from())) {
+      if(serviceHandler_.isUserBlocked(msg.from(),msg.to()) || (! isFriendsOf(msg.to(),msg.from()) && ! isGroupMember(msg.to(),msg.from()))) {
         tellBlocked(msg.from(),msg.to());
         return;
       }
@@ -166,4 +166,8 @@ bool ChatServer::isFriendsOf(const std::string & ofwho,const std::string & user)
   redis_.sync_commit();
   auto reply = future.get();
   return reply.as_integer();
+}
+
+bool ChatServer::isGroupMember(const std::string & ofwho,const std::string & user) {
+  return serviceHandler_.isUserGroupMember(user,ofwho);
 }

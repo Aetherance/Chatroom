@@ -46,8 +46,7 @@ extern ftxui::ScreenInteractive groupVerifyScreen;
 MsgClient::MsgClient(FtpClient & ftp) : 
           chatServerfd_(::socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)),
           chatServerAddr_("10.30.0.131",7070),
-          ftpClient_(ftp)//,
-          // heart(this->chatServerfd_)
+          ftpClient_(ftp)
 {
   initServiceCallbackMap();
   // heart.setSendMessageCallback([this]{

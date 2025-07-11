@@ -27,6 +27,34 @@
 sudo ./install_env.sh
 ```
 
+配置客户端动态库
+
+Jsoncpp 1.9.6
+```
+wget https://github.com/open-source-parsers/jsoncpp/archive/refs/tags/1.9.6.tar.gz -O 1.9.6.tar.gz
+tar -xzvf 1.9.6.tar.gz
+
+cd jsoncpp-1.9.6/
+mkdir build
+
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DJSONCPP_WITH_TESTS=OFF -DBUILD_SHARED_LIBS=ON ..
+make -j$(nproc)
+sudo make install
+```
+
+protobuf 3.21.12
+
+```
+https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.21.12.tar.gz
+tar -xzvf v3.21.12.tar.gz
+./autogen.sh
+./configure --prefix=/usr/local
+make -j$(nproc)
+sudo make install
+sudo ldconfig
+```
+
 编译
 ```
 mkdir build && cd build

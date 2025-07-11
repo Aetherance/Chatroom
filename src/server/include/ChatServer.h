@@ -54,6 +54,8 @@ private:
 
   bool isFriendsOf(const std::string & of,const std::string & who);
 
+  bool isGroupMember(const std::string & ofwho,const std::string & user);
+
   using serviceCallback = std::function<void(const net::TcpConnectionPtr & conn,Message msgProto)>;
   
   std::unordered_map<std::string,serviceCallback>serviceCallBacks_;
