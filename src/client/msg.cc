@@ -46,9 +46,13 @@ extern ftxui::ScreenInteractive groupVerifyScreen;
 MsgClient::MsgClient(FtpClient & ftp) : 
           chatServerfd_(::socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)),
           chatServerAddr_("10.30.0.131",7070),
-          ftpClient_(ftp)
+          ftpClient_(ftp)//,
+          // heart(this->chatServerfd_)
 {
   initServiceCallbackMap();
+  // heart.setSendMessageCallback([this]{
+  //   sendMsgPeer(HEARTBEAT_MSG);
+  // });
 }
 
 MsgClient::~MsgClient() {
@@ -322,10 +326,6 @@ void MsgClient::doRecvFile(Message msgProto) {
 void MsgClient::doGroupExist(Message message) {
   show_info4 = "创建失败! 已经存在一个同名的群聊了!";
   std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
-}
-
-void MsgClient::doHeartBeat(Message message) {
-
 }
 
 void MsgClient::doPullDlList(Message msgProto) {

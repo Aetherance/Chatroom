@@ -303,7 +303,7 @@ void Client::tMode() {
   while (inputBuff != "q") {
     printf("输入q退出");
     printf("%s: ",msgClient_.LocalUsername().data());
-    std::getline(std::cin,inputBuff);
+    std::cin>>inputBuff;
 
     msgClient_.sendMsgPeer(inputBuff);  
   }

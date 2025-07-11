@@ -8,6 +8,7 @@
 #include"responsecode.h"
 #include"msg.pb.h"
 #include"EventLoop.h"
+// #include"ClHeartBeat.h"
 
 struct Friend {
   std::string email;
@@ -135,8 +136,6 @@ public:
 
   void doRecvFile(Message message);
 
-  void doHeartBeat(Message message);
-
   void doGroupExist(Message message);
 
   std::vector<std::string>& getGroupMembers(std::string group) { return groupMembers[group]; }
@@ -161,6 +160,7 @@ private:
   std::string msgPeerUsername_;
   
   ilib::net::InetAddress chatServerAddr_;
+
   int chatServerfd_;
 
   ilib::net::Buffer recvBuff_;
@@ -176,6 +176,8 @@ private:
   std::unordered_map<std::string,serviceCallback> serviceCallbackMap;
 
   FtpClient & ftpClient_;
+
+  // ClientHeart heart;
 };
 
 #endif

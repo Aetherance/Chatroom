@@ -9,17 +9,20 @@
 #include"TcpConnection.h"
 #include"EventLoopThreadPool.h"
 
+class ServerHeart;
+
 namespace ilib{
 namespace net{
 
 using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
-class TcpServer : noncopyable
-{
 using ConnectionCallback = std::function<void(const TcpConnectionPtr&)>;
 using ConnectionMap = std::map<std::string,TcpConnectionPtr>;
 using MessageCallback = std::function<void(const TcpConnectionPtr&,Buffer*,Timestamp)>;
 using WriteCompleteCallback = std::function<void(const TcpConnectionPtr&)>;
-    
+
+class TcpServer : noncopyable
+{
+friend class ::ServerHeart;
 public:
     TcpServer(EventLoop * loop,const InetAddress & listenAddr);
     ~TcpServer();

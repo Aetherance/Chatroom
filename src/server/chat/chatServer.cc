@@ -13,12 +13,16 @@ std::unordered_map<std::string,net::TcpConnectionPtr> userHashConn;
 ChatServer::ChatServer() : addr_(7070),
                            server_(&loop_,addr_),
                            serviceHandler_(this)
+                          //  heart_(&server_)
 {
   server_.setThreadNum(CHAT_SERVER_REACTOR_NUM_);
   server_.setConnectionCallback([this](const TcpConnectionPtr & conn){ onConnection(conn); });
   server_.setMessageCallback([this](const TcpConnectionPtr & conn,Buffer* buff,Timestamp time){ onMessage(conn,buff,time); });
   
   redis_.connect("127.0.0.1",6379);
+  // heart_.setSendMessageCallback([this](const TcpConnectionPtr & conn){
+  //   sendMsgToUser(HEARTBEAT_BACK_MSG,conn);
+  // });
 }
 
 void ChatServer::run() {
