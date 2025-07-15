@@ -98,6 +98,9 @@ void Client::FriendList() {
       msgClient_.setIsPeerGroup(false);
       MsgController();
       in_chat = false;
+      if(isTmode_) {
+        FriendListScreen.Exit();
+      }
     }
     
     // 好友列表界面

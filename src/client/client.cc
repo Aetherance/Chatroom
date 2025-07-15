@@ -5,6 +5,7 @@
 #include<chrono>
 #include<iomanip>
 #include<fstream>
+#include<wait.h>
 
 #define HISTORY_MESSAGE_FILE ".data"
 
@@ -18,6 +19,8 @@ extern ScreenInteractive MsgScreen;
  
 extern std::unordered_map<std::string,bool> NewMessageMap;
 
+extern ScreenInteractive FriendListScreen;
+
 std::unordered_set<std::string> commandSet = { 
     "/break" ,
     "/op" ,
@@ -26,7 +29,8 @@ std::unordered_set<std::string> commandSet = {
     "/block" ,
     "/unblock" ,
     "/upload",
-    "/download"
+    "/download",
+    "/t"
   };
 
 /* 构造函数 : 初始化UI界面 */
@@ -187,9 +191,10 @@ bool Client::parseCommand(std::string & input) {
     MsgScreen.PostEvent(Event::Custom);
   } else if(cmds[0] == "/download" && cmds.size() > 2) {
     downloadFile(cmds[1],cmds[2]);
-  } else if(cmds[0] == "/t") {
+  } else if(cmds[0] == "/t" && cmds.size() == 1) {
+    isTmode_ = true;
     MsgScreen.Exit();
-    mainScreen_.Exit();
+    
     tMode();
   }
   
@@ -298,12 +303,9 @@ void Client::downloadFile(const std::string & filename,const std::string & local
 }
 
 void Client::tMode() {
-  std::string inputBuff;
-  while (inputBuff != "q") {
-    printf("输入q退出");
-    printf("%s: ",msgClient_.LocalUsername().data());
-    std::cin>>inputBuff;
-
-    msgClient_.sendMsgPeer(inputBuff);  
+  pid_t pid = ::fork();
+  
+  if(pid == 0) {
+    
   }
 }

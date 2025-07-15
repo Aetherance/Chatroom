@@ -10,6 +10,11 @@ extern std::unordered_map<std::string,net::TcpConnectionPtr> userHashConn;
 using namespace net;
 
 void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnectionPtr & conn) {
+  if(msg_str == HEARTBEAT_MSG) {
+      heart_.beat(conn);
+      return ;
+    }
+
   Message msg;
   if(!msg.ParseFromString(msg_str)) {
     perror("Protobuf: ChatServer");
@@ -40,9 +45,6 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
 
     } else if( !msg.isservice() && isExists && msg.from() != msg.to()) {
       LOG_INFO(COLOR_YELLOW + msg.from() + COLOR_RESET + " says" + " to " + COLOR_YELLOW + msg.to() + COLOR_RESET + " : " + msg.text());
-      // if(msg.text() == HEARTBEAT_MSG) {
-      //   heart_.beat(conn);
-      // }
 
       if(serviceHandler_.isUserBlocked(msg.from(),msg.to()) || (! isFriendsOf(msg.to(),msg.from()) && ! isGroupMember(msg.to(),msg.from()))) {
         tellBlocked(msg.from(),msg.to());

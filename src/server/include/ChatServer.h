@@ -5,7 +5,7 @@
 #include"DBWriterPool.h"
 #include"msg.pb.h"
 #include"ServiceHandler.h"
-// #include"heartBeat.h"
+#include"ServerHeartBeat.h"
 
 using namespace ilib;
 
@@ -64,7 +64,7 @@ private:
 
   ServiceHandler serviceHandler_;
 
-  // ServerHeart heart_;
+  ServerHeart heart_;
 
   /* redis userset 哈希表的名称 */
   inline static const std::string allUserset = "allUserSet";

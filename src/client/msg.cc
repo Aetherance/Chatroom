@@ -46,12 +46,13 @@ extern ftxui::ScreenInteractive groupVerifyScreen;
 MsgClient::MsgClient(FtpClient & ftp) : 
           chatServerfd_(::socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)),
           chatServerAddr_("10.30.0.131",7070),
-          ftpClient_(ftp)
+          ftpClient_(ftp),
+          heart(chatServerfd_)
 {
   initServiceCallbackMap();
-  // heart.setSendMessageCallback([this]{
-  //   sendMsgPeer(HEARTBEAT_MSG);
-  // });
+  heart.setSendMessageCallback([this]{
+    safeSend(HEARTBEAT_MSG);
+  });
 }
 
 MsgClient::~MsgClient() {
@@ -126,6 +127,10 @@ void MsgClient::onMessage() {
 }
 
 void MsgClient::parseMsg(std::string msg) {
+  if(msg == HEARTBEAT_BACK_MSG) {
+    heart.recvAck();
+  }
+  
   Message msgProto;
   msgProto.ParseFromString(msg);
 

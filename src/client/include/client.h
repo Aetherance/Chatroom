@@ -94,4 +94,6 @@ private:
   
   std::string localUserEmail_;
   std::string localUsername_;
+
+  bool isTmode_ = false;
 };

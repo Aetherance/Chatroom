@@ -8,7 +8,7 @@
 #include"responsecode.h"
 #include"msg.pb.h"
 #include"EventLoop.h"
-// #include"ClHeartBeat.h"
+#include"ClientHeartBeat.h"
 
 struct Friend {
   std::string email;
@@ -177,7 +177,7 @@ private:
 
   FtpClient & ftpClient_;
 
-  // ClientHeart heart;
+  ClientHeart heart;
 };
 
 #endif
