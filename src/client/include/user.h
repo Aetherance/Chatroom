@@ -2,7 +2,6 @@
 #define CLIENT_H
 
 // 服务器IP地址和段口号
-#define SERVER_IP "10.30.0.131"
 #define SERVER_PORT 8080
 
 #include"Socket.h"
@@ -20,7 +19,7 @@ extern std::vector<Group> GroupList;
 class UserClient
 {
 public:
-  UserClient();
+  UserClient(const std::string & ip);
   ~UserClient() { }
 
   void Connect();
@@ -56,6 +55,8 @@ private:
   std::string email_;
 
   bool hasLogin_ = false;
+
+  const std::string ip_;
 };
 
 #endif

@@ -36,7 +36,7 @@ class Client;
 class MsgClient
 {
 public:
-  MsgClient(FtpClient & ftp);
+  MsgClient(FtpClient & ftp,const std::string & ip);
   
   ~MsgClient();
   

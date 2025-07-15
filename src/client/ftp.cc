@@ -11,8 +11,9 @@
 
 extern ftxui::ScreenInteractive fileTranScreen;
 
-FtpClient::FtpClient() : controlSocket_(::socket(AF_INET,SOCK_STREAM,0)),
-                         serverAddr_(InetAddress("10.30.0.131", 6060))
+FtpClient::FtpClient(const std::string & ip) : controlSocket_(::socket(AF_INET,SOCK_STREAM,0)),
+                                               serverAddr_(InetAddress(ip, 6060)),
+                                               ip_(ip)
 {
   connect();
   std::filesystem::create_directory("./download");
@@ -40,7 +41,7 @@ void FtpClient::uploadFile(const std::string &filePath, const std::string &remot
   backInfo.ParseFromString(backMessage);
 
   Socket dataSocket(::socket(AF_INET,SOCK_STREAM,0));
-  InetAddress PeerAddr("10.30.0.131",backInfo.port());
+  InetAddress PeerAddr(ip_,backInfo.port());
   sockaddr_in sin = PeerAddr.getSockAddr();
   int stat = ::connect(dataSocket.fd(),(sockaddr*)&sin,sizeof(sin));
   if(stat < 0) {
@@ -105,7 +106,7 @@ void FtpClient::downloadFile(const std::filesystem::path fileDir, const std::str
   backInfo.ParseFromString(backMessage);
 
   Socket dataSocket(::socket(AF_INET,SOCK_STREAM,0));
-  InetAddress PeerAddr("10.30.0.131",backInfo.port());
+  InetAddress PeerAddr(ip_,backInfo.port());
   sockaddr_in sin = PeerAddr.getSockAddr();
   int stat = ::connect(dataSocket.fd(),(sockaddr*)&sin,sizeof(sin));
   if(stat < 0) {

@@ -15,7 +15,7 @@ class FtpClient
 friend class Client;
 friend class MsgClient;
 public:
-  FtpClient();
+  FtpClient(const std::string & ip);
 
   void connect();
 
@@ -38,6 +38,8 @@ private:
   std::unordered_map<std::string,bool> transList;
 
   std::unordered_map<std::string,float> transProgressMap;
+
+  const std::string ip_;
 };
 
 #endif

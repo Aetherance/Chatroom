@@ -34,10 +34,12 @@ std::unordered_set<std::string> commandSet = {
   };
 
 /* 构造函数 : 初始化UI界面 */
-Client::Client() : loginScreen_(ScreenInteractive::Fullscreen()),
+Client::Client(const std::string & ip) : loginScreen_(ScreenInteractive::Fullscreen()),
                    registerScreen_(ScreenInteractive::Fullscreen()),
                    mainScreen_(ScreenInteractive::Fullscreen()),
-                   msgClient_(ftpClient_)
+                   msgClient_(ftpClient_,ip),
+                   ftpClient_(ip),
+                   userClient_(ip)
 {}
 
 Client::~Client() 
@@ -302,10 +304,4 @@ void Client::downloadFile(const std::string & filename,const std::string & local
   messageMap[msgClient_.peerEmail()].push_back({"系统","已将文件下载至" + localDir + "/" + filename,ilib::Timestamp::now().microSecondsSinceEpoch()});
 }
 
-void Client::tMode() {
-  pid_t pid = ::fork();
-  
-  if(pid == 0) {
-    
-  }
-}
+void Client::tMode() {}

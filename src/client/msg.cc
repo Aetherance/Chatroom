@@ -43,9 +43,9 @@ extern std::unordered_map<std::string,std::string> emailHashUserInfo;
 
 extern ftxui::ScreenInteractive groupVerifyScreen;
 
-MsgClient::MsgClient(FtpClient & ftp) : 
+MsgClient::MsgClient(FtpClient & ftp,const std::string & ip) : 
           chatServerfd_(::socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)),
-          chatServerAddr_("10.30.0.131",7070),
+          chatServerAddr_(ip,7070),
           ftpClient_(ftp),
           heart(chatServerfd_)
 {

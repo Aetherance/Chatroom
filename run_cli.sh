@@ -8,4 +8,4 @@ if [ ! -d "/tmp/download" ]; then
   mkdir /tmp/download
 fi
 
-sudo docker run -it --rm -v "/tmp/history:/Chatroom/history" -v "/tmp/download:/Chatroom/download" chatroom-cli:latest ./client $1
+sudo docker run -it --rm -v "/tmp/history:/Chatroom/history" -v "/tmp/download:/Chatroom/download" -v /:/user-home chatroom-cli:latest ./client $1

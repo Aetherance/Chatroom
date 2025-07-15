@@ -5,7 +5,7 @@
 #include"logger.h"
 
 void UserClient::Connect() {
-  sockaddr_in peerAddr = ilib::net::InetAddress(SERVER_IP,SERVER_PORT).getSockAddr();
+  sockaddr_in peerAddr = ilib::net::InetAddress(ip_,SERVER_PORT).getSockAddr();
   
   int stat = connect(sock_.fd(),reinterpret_cast<sockaddr*>(&peerAddr),sizeof(peerAddr));
   if(stat < 0) {
@@ -15,9 +15,10 @@ void UserClient::Connect() {
   }
 }
 
-UserClient::UserClient()
+UserClient::UserClient(const std::string & ip)
   : sock_(::socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)) ,
-    isConnected_(false)
+    isConnected_(false),
+    ip_(ip)
 {}
 
 /* 发送请求 */
