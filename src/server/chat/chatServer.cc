@@ -23,6 +23,9 @@ ChatServer::ChatServer() : addr_(7070),
   heart_.setSendMessageCallback([this](const TcpConnectionPtr & conn){
     sendMsgToUser(HEARTBEAT_BACK_MSG,conn);
   });
+
+  redis_.del({onlineUserSet});
+  redis_.sync_commit();
 }
 
 void ChatServer::run() {

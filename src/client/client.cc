@@ -21,18 +21,6 @@ extern std::unordered_map<std::string,bool> NewMessageMap;
 
 extern ScreenInteractive FriendListScreen;
 
-std::unordered_set<std::string> commandSet = { 
-    "/break" ,
-    "/op" ,
-    "/deop" ,
-    "/rm" ,
-    "/block" ,
-    "/unblock" ,
-    "/upload",
-    "/download",
-    "/t"
-  };
-
 /* 构造函数 : 初始化UI界面 */
 Client::Client(const std::string & ip) : loginScreen_(ScreenInteractive::Fullscreen()),
                    registerScreen_(ScreenInteractive::Fullscreen()),
@@ -40,7 +28,10 @@ Client::Client(const std::string & ip) : loginScreen_(ScreenInteractive::Fullscr
                    msgClient_(ftpClient_,ip),
                    ftpClient_(ip),
                    userClient_(ip)
-{}
+{
+  std::filesystem::create_directory("./upload");
+  std::filesystem::create_directory("./history");
+}
 
 Client::~Client() 
 {}
@@ -64,6 +55,11 @@ void Client::run() {
 
 void Client::Verify() {
   userClient_.Connect();
+
+  if( !userClient_.isConnected()) {
+    perror("::connect()");
+    exit(EXIT_FAILURE);
+  }
   
   /* 登录回调 */
   Component login_button = Button("登录",[&]{ LoginController(); mainScreen_.Exit(); });
@@ -153,54 +149,7 @@ std::vector<std::string> split(const std::string s,char ch)
 }
 
 bool Client::parseCommand(std::string & input) {
-  if(input[input.size() - 1] == '\n' && input.size() != 1) {
-    input.resize(input.size() - 1);
-  }
-  
-  const std::vector<std::string> cmds = split(input,' ');
-  
-  if(commandSet.find(cmds[0]) == commandSet.end()) {
-    return false;
-  }
-
-  input.clear();
-  
-  if(cmds[0] == "/break" && msgClient_.isPeerGroup()) {
-    messageMap[msgClient_.peerEmail()].clear();
-    msgClient_.breakGroup(msgClient_.LocalEmail(),msgClient_.peerEmail());
-    MsgScreen.Exit();
-    msgClient_.pullGroupList();
-    return true;
-  } else if(cmds[0] == "/op" && msgClient_.isPeerGroup() && cmds.size() > 1) {
-    msgClient_.setOP(cmds[1],msgClient_.peerEmail());
-    pullGroupMembers();
-  } else if(cmds[0] == "/deop" && msgClient_.isPeerGroup() && cmds.size() > 1) {
-    msgClient_.deOP(cmds[1],msgClient_.peerEmail());
-    pullGroupMembers();
-  } else if(cmds[0] == "/rm" && msgClient_.isPeerGroup() && cmds.size() > 1) {
-    msgClient_.rmGroupMember(cmds[1],msgClient_.peerEmail());
-  } else if(cmds[0] == "/block") {
-    msgClient_.blockFriend(msgClient_.LocalEmail(),msgClient_.peerEmail());
-    messageMap[msgClient_.peerEmail()].push_back({"系统","来自 " + msgClient_.peerUsername() + " 的消息已屏蔽!",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
-    MsgScreen.PostEvent(Event::Custom);
-  } else if(cmds[0] == "/unblock") {
-    msgClient_.unBlock(msgClient_.LocalEmail(),msgClient_.peerEmail());
-    messageMap[msgClient_.peerEmail()].push_back({"系统","来自 " + msgClient_.peerUsername() + " 的消息已取消屏蔽!",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
-    MsgScreen.PostEvent(Event::Custom);
-  } else if(cmds[0] == "/upload" && cmds.size() > 2) {
-    sendFileTo(msgClient_.peerEmail(), cmds[2], cmds[1]);
-    messageMap[msgClient_.peerEmail()].push_back({"系统","文件已上传",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
-    MsgScreen.PostEvent(Event::Custom);
-  } else if(cmds[0] == "/download" && cmds.size() > 2) {
-    downloadFile(cmds[1],cmds[2]);
-  } else if(cmds[0] == "/t" && cmds.size() == 1) {
-    isTmode_ = true;
-    MsgScreen.Exit();
-    
-    tMode();
-  }
-  
-  return true;
+  return false;
 }
 
 void Client::flush_terminal_input() {
@@ -224,7 +173,7 @@ std::string buf;
 }
 
 void Client::readMessage() {
-  std::ifstream file("." + localUserEmail_ + HISTORY_MESSAGE_FILE,std::ios::binary);
+  std::ifstream file("./history/" + localUserEmail_ + HISTORY_MESSAGE_FILE,std::ios::binary);
   int message_len;
   while(file.peek() != EOF) {
     std::string buff;
@@ -250,7 +199,7 @@ void Client::readMessage() {
 }
 
 void Client::storageMessage() {
-  std::ofstream file("." + localUserEmail_ + HISTORY_MESSAGE_FILE,std::ios::binary);
+  std::ofstream file("./history/" + localUserEmail_ + HISTORY_MESSAGE_FILE,std::ios::binary);
   Message histroy_message;
   if (file.is_open()) {
     for(auto & pair : messageMap) {

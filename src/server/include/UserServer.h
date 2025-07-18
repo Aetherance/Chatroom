@@ -11,6 +11,7 @@ class UserServer
 {
 public:
   UserServer();
+  ~UserServer();
   void run();
 private:
   /* 网络组件 */

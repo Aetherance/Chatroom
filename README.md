@@ -72,6 +72,25 @@ make
 ./client
 ```
 
+代码量约6000行
+
+```
+cloc ../src/server/ ../src/netlib/ ../src/client/
+      83 text files.
+      83 unique files.                              
+       0 files ignored.
+
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+C++                             45           1015            139           4293
+C/C++ Header                    35            577             68           1620
+CMake                            3             11              6             99
+-------------------------------------------------------------------------------
+SUM:                            83           1603            213           6012
+-------------------------------------------------------------------------------
+```
+
 目录结构
 ```
 ../src/
@@ -84,18 +103,28 @@ make
 │   │   ├── createGroup.cc
 │   │   ├── deleteFriend.cc
 │   │   ├── deleteGroup.cc
+│   │   ├── fileService.cc
+│   │   ├── fileTrans.cc
+│   │   ├── find.cc
 │   │   ├── friendlist.cc
 │   │   ├── friendVerify.cc
 │   │   ├── grouplist.cc
+│   │   ├── groupSetting.cc
 │   │   ├── groupVerify.cc
+│   │   ├── kickMember.cc
 │   │   ├── loginController.cc
 │   │   ├── msgController.cc
 │   │   ├── registerController.cc
-│   │   └── settings.cc
+│   │   ├── setOp.cc
+│   │   ├── settings.cc
+│   │   └── userSetting.cc
+│   ├── download
 │   ├── ftp.cc
 │   ├── func.cc
 │   ├── include
+│   │   ├── ClHeartBeat.h
 │   │   ├── client.h
+│   │   ├── ClientHeartBeat.h
 │   │   ├── ftp.h
 │   │   ├── msg.h
 │   │   ├── sig.h
@@ -147,12 +176,10 @@ make
 │   ├── msg.pb.cc
 │   ├── msg.pb.h
 │   └── msg.proto
-├── root
 └── server
     ├── chat
     │   ├── chatServer.cc
-    │   ├── msgHandler.cc
-    │   └── service.cc
+    │   └── msgHandler.cc
     ├── CMakeLists.txt
     ├── ftp
     │   └── ftpServer.cc
@@ -160,12 +187,18 @@ make
     │   ├── ChatServer.h
     │   ├── DBWriterPool.h
     │   ├── FtpServer.h
+    │   ├── heartBeat.h
+    │   ├── ServerHeartBeat.h
     │   ├── ServiceHandler.h
     │   └── UserServer.h
     ├── main.cc
+    ├── service
+    │   ├── friends.cc
+    │   ├── groups.cc
+    │   └── service.cc
     └── user
         ├── userServer.cc
         └── verifiCode.cc
 
-15 directories, 77 files
+16 directories, 90 files
 ```

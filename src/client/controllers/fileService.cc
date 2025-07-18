@@ -12,16 +12,18 @@ std::vector<Component> download_buttons;
 
 void Client::fileService() {
   // 状态变量
-  std::string upload_path;
+  std::string upload_name;
 
   msgClient_.pullDownloadList(msgClient_.LocalEmail(),msgClient_.peerEmail());
 
   // 上传组件
-  auto input_upload = Input(&upload_path, "输入文件路径");
+  auto input_upload = Input(&upload_name, "输入upload中的文件");
   auto upload_button = Button(" 上传文件 ", [&]{
-    if(upload_path.empty()) {
+    if(upload_name.empty()) {
       return ;
     }
+
+    std::string upload_path = "./upload/" + upload_name;
 
     if(!std::filesystem::exists(upload_path)) {
       status = "文件不存在!";

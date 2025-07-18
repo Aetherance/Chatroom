@@ -34,12 +34,12 @@ inline ClientHeart::ClientHeart(int ConnFd) {
       std::vector<::epoll_event> revents(16);
       int n = ::epoll_wait(epfd_,revents.data(),16,/* 30*1000 */15*1000);
       if(sendMessageCallback_) {
-        LOG_INFO("beat");
         sendMessageCallback_();
         recvdAck_ = false;
         ::sleep(5);
         if( !recvdAck_) {
           ::close(fd_);
+          break;
         }
       }
     }

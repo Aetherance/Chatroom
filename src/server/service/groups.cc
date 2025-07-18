@@ -289,7 +289,7 @@ void ServiceHandler::onDeOP(const net::TcpConnectionPtr & conn,Message msgProto)
   chatServer_->redis_.srem(groupOpSet + group,{user});
   chatServer_->redis_.sync_commit();
 
-  LOG_INFO(user + " become an op of " + group);
+  LOG_INFO(user + " is not an op of " + group + " yet!");
 }
 
 void ServiceHandler::onRmGroupMember(const net::TcpConnectionPtr & conn,Message msgProto) {

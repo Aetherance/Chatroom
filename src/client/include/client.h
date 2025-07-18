@@ -76,6 +76,14 @@ private:
 
   void tMode();
 
+  void UserSettings();
+
+  void GroupSettings();
+
+  void kickMember();
+
+  void setOp();
+
   /* 登录注册客户端 */
   UserClient userClient_;
   

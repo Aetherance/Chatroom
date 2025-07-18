@@ -23,9 +23,12 @@ UserServer::UserServer()
   redis_.connect("127.0.0.1",6379);
 }
 
-void UserServer::onConnection(const net::TcpConnectionPtr & conn) {
-
+UserServer::~UserServer() {
+  redis_.del({onlineUserSet});
+  redis_.sync_commit();
 }
+
+void UserServer::onConnection(const net::TcpConnectionPtr & conn) {}
 
 void UserServer::onMessage(const net::TcpConnectionPtr & conn,net::Buffer* buff,Timestamp time) {
   std::string logInfo = "receive a message from " + conn->peerAddress().toIpPort();
@@ -64,16 +67,16 @@ void UserServer::onRegister1(const std::string & email,const TcpConnectionPtr & 
 
   std::string VerifiCode = GenerateVerifiCode();
   
-  redis_.hset(RedisEmailCodeHash_,email,VerifiCode);
+  redis_.set("code:" + email,VerifiCode);
+  redis_.expire("code:" + email, 60 * 5);
   redis_.sync_commit();
   SendCodeToEmall(VerifiCode,email);
-  loop_.runAfter(5 * 60,[this,&email]{ redis_.hdel(RedisEmailCodeHash_,{email}),redis_.sync_commit(); });
   SendResponseCode(USER_OK,conn->fd());
 }
 
 /* 注册: 第二步 */ 
 void UserServer::onRegister2(const std::string & userInfo,const std::string & email,const std::string & code,const TcpConnectionPtr & conn) {
-  auto future_code = redis_.hget(RedisEmailCodeHash_,email);
+  auto future_code = redis_.get("code:" + email);
   redis_.sync_commit();
   auto reply = future_code.get();
   if(reply.as_string() != code) {

@@ -10,6 +10,8 @@ extern std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
 
 extern std::unordered_map<std::string,bool> NewMessageMap;
 
+extern bool isGroupBreak;
+
 std::string MessageKey;
 std::string PeerUserName;
 std::string PeerEmail;
@@ -26,6 +28,7 @@ std::string input_content;
 Component input;
 Component send_btn;
 Component file_btn;
+Component setting_btn;
 
 void Client::MsgController() {
   // 输入组件及配置
@@ -84,6 +87,17 @@ void Client::MsgController() {
     fileService();
   });
 
+  setting_btn = Button("设置...",[&] {
+    if(msgClient_.isPeerGroup()) {
+      GroupSettings();
+      if(isGroupBreak) {
+        MsgScreen.Exit();
+      }
+    } else {
+      UserSettings();
+    }
+  });
+
   // 初始位置在底部
   MsgScreenScrollOffset[msgClient_.peerEmail()] = std::max(0, static_cast<int>(messageMap[MessageKey].size()) - visible_lines);
 
@@ -125,7 +139,7 @@ Element Client::makeSidebar() {
 }
 
 Component Client::makeRenderer() {
-  auto layout = Container::Horizontal({input, send_btn , file_btn});
+  auto layout = Container::Horizontal({input, send_btn , file_btn,setting_btn});
   
   return 
   Renderer(layout, [&] {
@@ -157,7 +171,8 @@ Component Client::makeRenderer() {
         hbox({
           input->Render() | flex,
           send_btn->Render(),
-          file_btn->Render()
+          file_btn->Render(),
+          setting_btn->Render()
         }) | border
       }) | flex,
       

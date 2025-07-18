@@ -50,6 +50,9 @@ void ServiceHandler::onDeleteFriend(const net::TcpConnectionPtr & conn,Message m
   LOG_INFO(msgProto.from() + " deleted " + msgProto.to());
   chatServer_->redis_.srem(friendSet + msgProto.to(),{msgProto.from()});
   chatServer_->redis_.srem(friendSet + msgProto.from(),{msgProto.to()});
+  chatServer_->redis_.srem(blockedFriendSet + msgProto.to(),{msgProto.from()});
+  chatServer_->redis_.srem(blockedFriendSet + msgProto.from(),{msgProto.to()});
+
   chatServer_->redis_.sync_commit();
 
   Message msg;

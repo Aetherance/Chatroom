@@ -22,6 +22,10 @@ add_executable(client
     controllers/fileService.cc
     controllers/fileTrans.cc
     controllers/find.cc
+    controllers/userSetting.cc
+    controllers/groupSetting.cc
+    controllers/setOp.cc
+    controllers/kickMember.cc
     ../../src/protobuf/msg.pb.cc
     ../../src/protobuf/fileInfo.pb.cc
 )
