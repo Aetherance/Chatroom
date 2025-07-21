@@ -35,7 +35,7 @@ private:
   Socket controlSocket_;
   InetAddress serverAddr_;
 
-  std::unordered_map<std::string,bool> transList;
+  std::unordered_map<std::string,std::string> transList;
 
   std::unordered_map<std::string,float> transProgressMap;
 

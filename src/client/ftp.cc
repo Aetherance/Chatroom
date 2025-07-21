@@ -70,7 +70,11 @@ void FtpClient::uploadFile(const std::string &filePath, const std::string &remot
     updateProgress(filename,TotalBytes,TransedBytes);
   }
 
-  transList[filename] = true;
+  if(TotalBytes == TransedBytes) {
+    transList[filename] = "传输完成";
+  } else {
+    transList[filename] = "传输失败";
+  }
 
   fileTranScreen.PostEvent(ftxui::Event::Custom);
 }
@@ -135,7 +139,11 @@ void FtpClient::downloadFile(const std::filesystem::path fileDir, const std::str
     updateProgress(filename,TotalBytes,TransedBytes);
   }
 
-  transList[filename] = true;
+  if(TotalBytes == TransedBytes) {
+    transList[filename] = "传输完成";
+  } else {
+    transList[filename] = "传输失败";
+  }
 }
 
 void FtpClient::updateProgress(std::string filename,uintmax_t TotalBytes,uintmax_t TransedBytes) {

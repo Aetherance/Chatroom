@@ -14,7 +14,7 @@ void Client::fileTrans() {
         hbox({
           text(file.first) | flex | size(WIDTH, EQUAL, 16),
           gauge(ftpClient_.transProgressMap[file.first]) | flex | color(Color::White) | bold,
-          text(file.second ? " 传输完成" : " 正在传输")
+          text(file.second)
         }) | border
       );
     }

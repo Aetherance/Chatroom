@@ -9,6 +9,7 @@
 #include"msg.pb.h"
 #include"EventLoop.h"
 #include"ClientHeartBeat.h"
+#include"threadpool.h"
 
 struct Friend {
   std::string email;
@@ -44,7 +45,7 @@ public:
   
   void safeSend(const std::string & msg);
 
-  inline void sendMsgPeer(const std::string & msg) { sendMsgTo(msgPeerEmail_,msg); }
+  inline void sendMsgPeer(const std::string & msg) { pool_.enqueue([=]{ sendMsgTo(msgPeerEmail_,msg); }); }
   
   void updatePeer(const std::string &newPeerEmail,const std::string & newPeerUsername);
   
@@ -178,6 +179,9 @@ private:
   FtpClient & ftpClient_;
 
   ClientHeart heart;
+
+  /* 线程池 用于发送消息 */
+  threadpool pool_;
 };
 
 #endif

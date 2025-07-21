@@ -8,6 +8,7 @@ add_executable(client
     msg.cc
     func.cc
     ftp.cc
+    threadpool.cc
     controllers/loginController.cc
     controllers/registerController.cc
     controllers/friendlist.cc

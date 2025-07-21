@@ -52,5 +52,4 @@ inline void ClientHeart::recvAck() {
 
 inline ClientHeart::~ClientHeart() {
   ::close(epfd_);
-  ::close(fd_);
 }

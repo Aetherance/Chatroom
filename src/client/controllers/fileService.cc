@@ -33,7 +33,7 @@ void Client::fileService() {
     std::string filename = std::filesystem::path(upload_path).filename();
 
     std::thread([&,upload_path,filename]{ 
-      ftpClient_.transList.insert({filename,false});
+      ftpClient_.transList.insert({filename,"正在传输"});
 
       ftpClient_.transProgressMap[filename] = 0.0f;
 
@@ -61,7 +61,7 @@ void Client::fileService() {
     download_buttons.push_back(
       Button(downloadable_files[i], [&,i] {
         std::thread([&]{
-          ftpClient_.transList.insert({downloadable_files[i],false});
+          ftpClient_.transList.insert({downloadable_files[i],"正在传输"});
 
           ftpClient_.transProgressMap[downloadable_files[i]] = 0.0f;
 
