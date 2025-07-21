@@ -69,6 +69,8 @@ public:
   void onPullAllUser(const net::TcpConnectionPtr & conn,Message msgProto);
 
   void onGetUsername(const net::TcpConnectionPtr & conn,Message msgProto);
+
+  void onPullGroupOwner(const net::TcpConnectionPtr & conn,Message msgProto);
 private:
   /* redis 好友与群聊存储 */
   /* 用户的 好友列表前缀 */

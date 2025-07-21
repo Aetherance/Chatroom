@@ -233,3 +233,11 @@ void MsgClient::pullAllUsers(bool isRecv ,Message msg) {
   }
   findScreen.PostEvent(ftxui::Event::Custom);
 }
+
+void MsgClient::pullGroupOwner(bool isRecv , std::string request_group ,Message msg) {
+  if(!isRecv) {
+    SerializeSend(PULL_GROUP_OWNER,request_group,PULL_GROUP_OWNER);
+  } else {
+    groupHashOwner[msg.from()] = msg.to();
+  }
+}

@@ -146,6 +146,12 @@ public:
   void doPullDlList(Message msgProto);
 
   void pullAllUsers(bool isRecv = false,Message msg = {});
+
+  void pullGroupOwner(bool isRecv = false,std::string = {},Message msg = {});
+
+  std::unordered_map<std::string,std::string> groupHashOwner;
+
+  bool isGroupOwner(std::string user, std::string group);
 private:
   void sendMsgTo(const std::string & who,const std::string & msg);
 

@@ -331,3 +331,17 @@ void ServiceHandler::onRmGroupMember(const net::TcpConnectionPtr & conn,Message 
 
   LOG_INFO("User " + user + " was remove from " + group);
 }
+
+void ServiceHandler::onPullGroupOwner(const net::TcpConnectionPtr & conn,Message msgProto) {
+  std::string owner = getGroupOwner(msgProto.from());
+  
+  Message ServiceMsg;
+  ServiceMsg.set_text(PULL_GROUP_OWNER);
+  ServiceMsg.set_from(msgProto.from());
+  ServiceMsg.set_to(owner);
+  ServiceMsg.set_isservice(true);
+
+  chatServer_->sendOrSave(conn->user_email(),ServiceMsg.SerializeAsString());
+
+  LOG_INFO(owner + " is the owner of " + msgProto.from());
+}

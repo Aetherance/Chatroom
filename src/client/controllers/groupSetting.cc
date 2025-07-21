@@ -13,7 +13,10 @@ auto group_setting_screen = ScreenInteractive::Fullscreen();
 bool isGroupBreak = false;
 
 void Client::GroupSettings() {
-  
+  msgClient_.pullGroupOwner(false,msgClient_.peerEmail());
+
+  bool isLocalGroup = msgClient_.isGroupOwner(msgClient_.LocalEmail(),msgClient_.peerEmail());
+
   auto button1 = Button("设置管理员", [=]{ 
     setOp();
   });
@@ -48,9 +51,9 @@ void Client::GroupSettings() {
       
       vbox({
         button4->Render() | size(WIDTH, EQUAL, 20),
-        button1->Render() | size(WIDTH, EQUAL, 20),
-        button2->Render() | size(WIDTH, EQUAL, 20),
-        button3->Render() | size(WIDTH, EQUAL, 20)
+        button1->Render() | (isLocalGroup ? size(WIDTH, EQUAL, 20) : size(HEIGHT, EQUAL, 0) ),
+        button2->Render() | (isLocalGroup ? size(WIDTH, EQUAL, 20) : size(HEIGHT, EQUAL, 0) ),
+        button3->Render() | (isLocalGroup ? size(WIDTH, EQUAL, 20) : size(HEIGHT, EQUAL, 0) )
       }) | border | center,
       
       filler()

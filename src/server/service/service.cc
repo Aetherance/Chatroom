@@ -32,6 +32,7 @@ ServiceHandler::ServiceHandler(ChatServer * server) : chatServer_(server) {
   server->serviceCallBacks_[UPLOAD_FILE] = std::bind(&ServiceHandler::onUploadFile,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[PULL_DL_LIST] = std::bind(&ServiceHandler::onPullDownloadList,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[PULL_ALL_USERS] = std::bind(&ServiceHandler::onPullAllUser,this,std::placeholders::_1,std::placeholders::_2);
+  server->serviceCallBacks_[PULL_GROUP_OWNER] = std::bind(&ServiceHandler::onPullGroupOwner,this,std::placeholders::_1,std::placeholders::_2);
 }
 
 std::string ServiceHandler::getGroupOwner(const std::string & group) const {

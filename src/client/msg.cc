@@ -174,6 +174,8 @@ void MsgClient::doService(Message msgProto) {
     doPullDlList(msgProto);
   } else if(msgProto.text() == PULL_ALL_USERS) {
     pullAllUsers(true,msgProto);
+  } else if(msgProto.text() == PULL_GROUP_OWNER) {
+    pullGroupOwner(true,{},msgProto);
   } else {
     if(serviceCallbackMap.find(msgProto.text()) != serviceCallbackMap.end())
     serviceCallbackMap[msgProto.text()](msgProto);
@@ -302,8 +304,10 @@ void MsgClient::enMapYouMessage(Message msgProto) {
 }
 
 void MsgClient::doBlockedMessage(Message message) {
-  messageMap[message.from()].push_back({"系统","消息已发出，但被对方拒收了"});
+  messageMap[message.from()].push_back({"系统","消息已发出，但被对方拒收了",Timestamp::now().microSecondsSinceEpoch()});
   
+  MsgScreenScrollOffset[message.from()] = std::max(0, static_cast<int>(messageMap[message.from()].size()) - visible_lines);
+
   MsgScreen.PostEvent(ftxui::Event::Custom);
 }
 
@@ -341,4 +345,12 @@ void MsgClient::doPullDlList(Message msgProto) {
     downloadable_files.push_back(msgProto.args(i));
   }
   MsgScreen.PostEvent(ftxui::Event::Custom);
+}
+
+bool MsgClient::isGroupOwner(std::string user,std::string group) {
+  if(groupHashOwner[group] == user) {
+    return true;
+  } else {
+    return false;
+  }
 }
