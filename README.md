@@ -1,3 +1,5 @@
+# 介绍
+
 一个基于C++主从reactor模式的多线程TCP多人聊天室。
 
 服务端
@@ -22,7 +24,10 @@
 
 客户端没有使用网络库.
 
-环境配置: (ubuntu)
+# 环境配置:
+
+ubuntu:
+
 ```
 sudo ./install_env.sh
 ```
@@ -55,7 +60,10 @@ sudo make install
 sudo ldconfig
 ```
 
+# 编译 及 运行
+
 编译
+
 ```
 mkdir build && cd build
 cmake ..
@@ -71,6 +79,32 @@ make
 ```
 ./client
 ```
+
+# 使用客户端
+
+使用客户端 (需要提前安装docker): 
+
+获取客户端镜像
+
+```
+./install_cli.sh
+```
+
+运行客户端镜像
+
+```
+./run_cli.sh [服务器 ip]
+```
+
+可以使用 Ctrl + C 返回上一级
+
+关于传输文件
+
+下载的文件会被保存至 /tmp/download
+
+如果使用docker镜像 需要将要传输的文件放在 /tmp/upload 然后以文件名方式上传
+
+# 补充
 
 代码量约6000行
 
