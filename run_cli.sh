@@ -12,4 +12,6 @@ if [ ! -d "/tmp/upload" ]; then
   mkdir /tmp/upload
 fi
 
+clear
+
 docker run -it --rm -v "/tmp/history:/Chatroom/history" -v "/tmp/download:/Chatroom/download" -v "/tmp/upload:/Chatroom/upload" chatroom-cli:latest ./client $1
