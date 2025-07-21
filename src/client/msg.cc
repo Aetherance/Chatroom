@@ -176,6 +176,8 @@ void MsgClient::doService(Message msgProto) {
     pullAllUsers(true,msgProto);
   } else if(msgProto.text() == PULL_GROUP_OWNER) {
     pullGroupOwner(true,{},msgProto);
+  } else if(msgProto.text() == PULL_GROUP_OPS) {
+    pullGroupOPs(true,{},msgProto);
   } else {
     if(serviceCallbackMap.find(msgProto.text()) != serviceCallbackMap.end())
     serviceCallbackMap[msgProto.text()](msgProto);
@@ -353,4 +355,14 @@ bool MsgClient::isGroupOwner(std::string user,std::string group) {
   } else {
     return false;
   }
+}
+
+bool MsgClient::isGroupOp(std::string user,std::string group) {
+  for(auto e : groupOPs[group]) {
+    if(user == e) {
+      return true;
+    }
+  }
+
+  return false;
 }

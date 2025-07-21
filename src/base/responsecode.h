@@ -73,6 +73,7 @@ inline void SendResponseCode(int code,int fd) {
 #define GROUP_EXIST                 "GROUP_EXIST" 
 #define PULL_ALL_USERS              "PULL_ALL_USERS"
 #define PULL_GROUP_OWNER            "PULL_GROUP_OWNER"
+#define PULL_GROUP_OPS              "PULL_GROUP_OPS"
 
 /* 群成员标识 */
 

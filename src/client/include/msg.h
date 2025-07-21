@@ -149,9 +149,11 @@ public:
 
   void pullGroupOwner(bool isRecv = false,std::string = {},Message msg = {});
 
-  std::unordered_map<std::string,std::string> groupHashOwner;
-
   bool isGroupOwner(std::string user, std::string group);
+
+  void pullGroupOPs(bool isRecv = false,std::string = {},Message msg = {});
+
+  bool isGroupOp(std::string user, std::string group);
 private:
   void sendMsgTo(const std::string & who,const std::string & msg);
 
@@ -181,6 +183,10 @@ private:
   using serviceCallback = std::function<void(Message)>;
 
   std::unordered_map<std::string,serviceCallback> serviceCallbackMap;
+
+  std::unordered_map<std::string,std::string> groupHashOwner;
+
+  std::unordered_map<std::string,std::vector<std::string>> groupOPs;
 
   FtpClient & ftpClient_;
 

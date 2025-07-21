@@ -345,3 +345,27 @@ void ServiceHandler::onPullGroupOwner(const net::TcpConnectionPtr & conn,Message
 
   LOG_INFO(owner + " is the owner of " + msgProto.from());
 }
+
+void ServiceHandler::onPullGroupOPs(const net::TcpConnectionPtr & conn,Message msgProto) {
+  auto future = chatServer_->redis_.smembers(groupOpSet + msgProto.from());
+
+  chatServer_->redis_.sync_commit();
+
+  auto reply = future.get();
+
+  Message ServiceMsg;
+  ServiceMsg.set_text(PULL_GROUP_OPS);
+  ServiceMsg.set_from(msgProto.from());
+  ServiceMsg.set_isservice(true);
+
+  std::string LogInfo;
+
+  for(auto e : reply.as_array()) {
+    ServiceMsg.add_args(e.as_string());
+    LogInfo += e.as_string() + " ";
+  }
+
+  chatServer_->sendOrSave(conn->user_email(),ServiceMsg.SerializeAsString());
+  
+  LOG_INFO(LogInfo + " is the owner of " + msgProto.from());
+}

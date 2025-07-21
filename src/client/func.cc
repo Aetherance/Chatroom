@@ -241,3 +241,13 @@ void MsgClient::pullGroupOwner(bool isRecv , std::string request_group ,Message 
     groupHashOwner[msg.from()] = msg.to();
   }
 }
+
+void MsgClient::pullGroupOPs(bool isRecv , std::string request_group ,Message msg) {
+  if(!isRecv) {
+    SerializeSend(PULL_GROUP_OPS,request_group,PULL_GROUP_OPS);
+  } else {
+    for(int i = 0;i<msg.args_size();i++) {
+      groupOPs[msg.from()].push_back(msg.args(i));
+    }
+  }
+}

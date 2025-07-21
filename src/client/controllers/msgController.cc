@@ -43,6 +43,7 @@ void Client::MsgController() {
   if(msgClient_.isPeerGroup()) {
     pullGroupMembers();
     msgClient_.pullGroupOwner(false,msgClient_.peerEmail());
+    msgClient_.pullGroupOPs(false,msgClient_.peerEmail());
   }
 
   auto input_option = InputOption();
