@@ -9,6 +9,8 @@ void Client::setOp() {
   bool last_action_was_set = true; // 记录最后一次操作类型
 
   auto screen = ScreenInteractive::TerminalOutput();
+  
+  auto & members = msgClient_.getGroupMembers(msgClient_.peerEmail());
 
   // 邮箱输入框组件
   Component email_input = Input(&email, "输入成员邮箱");
@@ -21,6 +23,20 @@ void Client::setOp() {
       operation_success = false;
       return;
     }
+
+    bool isExist = false;
+
+    for(auto m : members) {
+      if(m.find(email) && email.find('@') && email.find('.')) {
+        isExist = true;
+      }
+    }
+
+    if( !isExist) {
+      status_message = "错误： 成员不存在";
+      operation_success = false;
+      return;
+    } 
     
     msgClient_.setOP(email,msgClient_.peerEmail());
     
@@ -35,6 +51,20 @@ void Client::setOp() {
       operation_success = false;
       return;
     }
+
+    bool isExist = false;
+
+    for(auto m : members) {
+      if(m.find(email) && email.find('@') && email.find('.')) {
+        isExist = true;
+      }
+    }
+
+    if( !isExist) {
+      status_message = "错误： 成员不存在";
+      operation_success = false;
+      return;
+    }  
     
     msgClient_.deOP(email,msgClient_.peerEmail());
 

@@ -159,6 +159,10 @@ void MsgClient::setOP(const std::string & user,const std::string & group) {
   std::string message = setOp.SerializeAsString();
 
   safeSend(message);
+
+  pullGroupMembers();
+
+  MsgScreen.PostEvent(ftxui::Event::Custom);
 }
 
 void MsgClient::deOP(const std::string & user,const std::string & group) {
@@ -177,6 +181,10 @@ void MsgClient::deOP(const std::string & user,const std::string & group) {
   std::string message = setOp.SerializeAsString();
 
   safeSend(message);
+
+  pullGroupMembers();
+
+  MsgScreen.PostEvent(ftxui::Event::Custom);
 }
 
 void MsgClient::rmGroupMember(const std::string & who,const std::string & group) {
@@ -186,13 +194,13 @@ void MsgClient::rmGroupMember(const std::string & who,const std::string & group)
   Json::StreamWriterBuilder writer;
   std::string info = Json::writeString(writer,root);
 
-  Message setOp;
-  setOp.set_from(LocalEmail_);
-  setOp.set_text(RM_GROUP_MEM);
-  setOp.set_to(info);
-  setOp.set_isservice(true);
+  Message pullGM;
+  pullGM.set_from(LocalEmail_);
+  pullGM.set_text(RM_GROUP_MEM);
+  pullGM.set_to(info);
+  pullGM.set_isservice(true);
 
-  std::string message = setOp.SerializeAsString();
+  std::string message = pullGM.SerializeAsString();
 
   safeSend(message);
 

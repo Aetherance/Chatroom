@@ -57,7 +57,6 @@ void Client::LoginController() {
     } else if( ! userClient_.isConnected()) {
       info = "登录服务器未连接!";
     } else {
-      info = "验证中";
       bool isSuccess = LoginSubmit(email_in,passwd_in,info);
       email_in.clear();
       passwd_in.clear();
@@ -67,6 +66,7 @@ void Client::LoginController() {
         loginScreen_.Exit();
         return;
       }
+      info = "账号或密码错误!";
     }
   });
   

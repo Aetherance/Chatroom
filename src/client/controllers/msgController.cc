@@ -40,6 +40,10 @@ void Client::MsgController() {
 
   msgClient_.pullDownloadList(msgClient_.LocalEmail(),msgClient_.peerEmail());
 
+  if(msgClient_.isPeerGroup()) {
+    pullGroupMembers();
+  }
+
   auto input_option = InputOption();
   input_option.on_enter = [&,this] {
     if (!input_content.empty()) {   
@@ -107,34 +111,44 @@ void Client::MsgController() {
 }
 
 Element Client::makeSidebar() {
-  Elements sidebarText;
-  auto members = msgClient_.getGroupMembers(msgClient_.peerEmail());
+  // 使用局部变量确保不修改原始数据
+  const auto members = msgClient_.getGroupMembers(msgClient_.peerEmail());
+  static auto lastMembers = members;  // 静态变量用于比较变化
 
   if(msgClient_.isPeerGroup()) {
-    for(auto & entry : members) {
+    // 检查成员列表是否变化
+    bool membersChanged = (lastMembers != members);
+    lastMembers = members;  // 更新缓存
+    
+    Elements sidebarText;
+    for(const auto& entry : members) {  // 使用const避免修改
+      if(entry.empty()) continue;  // 安全处理空条目
+      
+      // 安全提取成员信息和等级
+      const char memberLevel = entry.back();
+      const std::string memberName = entry.substr(0, entry.size() - 1);
+      
+      // 创建元素
       Element text_show;
-      auto memberLevel = entry[entry.size()-1];
-      entry.resize(entry.size() - 1);
       if(memberLevel == GROUP_OWNER[0]) {
-        text_show = text(entry + " (群主)") | bold | color(Color::DarkGoldenrod);
+        text_show = text(memberName + " (群主)") | bold | color(Color::DarkGoldenrod);
       } else if(memberLevel == GROUP_OP[0]) {
-        text_show = text(entry + " 🛡️") | color(Color::CyanLight);
+        text_show = text(memberName + " 🛡️") | color(Color::CyanLight);
       } else {
-        text_show = text(entry);
+        text_show = text(memberName);
       }
       sidebarText.push_back(text_show);
     }
+    
+    // 返回群成员面板
     return vbox({
       text("群成员") | bold | center,
       separator(),
-      vbox({vbox(sidebarText) | flex | center})
-        | vscroll_indicator 
-        | frame 
-        | flex
-    }) 
-    | border;
+      vbox(std::move(sidebarText))  // 移动语义优化
+        | flex | vscroll_indicator | frame
+    }) | border;
   } else {
-    return vbox();
+    return vbox();  // 非群组时返回空
   }
 }
 
