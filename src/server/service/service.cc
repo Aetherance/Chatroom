@@ -95,9 +95,11 @@ bool ServiceHandler::isUserGroupMember(const std::string & user,const std::strin
 
   for(auto & entry : reply.as_array()) {
     if(entry.as_string() == user) {
+      LOG_INFO(user + " is a member of " + group);
       return true;
     }
   }
+  LOG_WARN(user + " is not a member of " + group);
   return false;
 }
 

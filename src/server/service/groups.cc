@@ -160,6 +160,7 @@ void ServiceHandler::onBreakGroup(const net::TcpConnectionPtr & conn,Message msg
       chatServer_->redis_.srem(groupSet + entry.as_string(),{group});
       chatServer_->sendOrSave(entry.as_string(),response.SerializeAsString());
     }
+    chatServer_->redis_.del({groupOpSet + group});
     chatServer_->redis_.srem(chatServer_->allGroupSet,{group});
     chatServer_->redis_.hdel(chatServer_->groupHashOwner,{group});
     chatServer_->redis_.del({chatServer_->groupMembers + group});
@@ -327,7 +328,7 @@ void ServiceHandler::onRmGroupMember(const net::TcpConnectionPtr & conn,Message 
   ServiceMsg.set_to(group);
   ServiceMsg.set_isservice(true);
 
-  onQuitGroup(conn,ServiceMsg);
+  onQuitGroup(userHashConn[user],ServiceMsg);
 
   LOG_INFO("User " + user + " was remove from " + group);
 }

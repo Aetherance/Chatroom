@@ -47,7 +47,7 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
     } else if( !msg.isservice() && isExists && msg.from() != msg.to()) {
       LOG_INFO(COLOR_YELLOW + msg.from() + COLOR_RESET + " says" + " to " + COLOR_YELLOW + msg.to() + COLOR_RESET + " : " + msg.text());
 
-      if(serviceHandler_.isUserBlocked(msg.from(),msg.to()) || (! isFriendsOf(msg.to(),msg.from()) && ! isGroupMember(msg.to(),msg.from()))) {
+      if(serviceHandler_.isUserBlocked(msg.from(),msg.to()) || (! isFriendsOf(msg.to(),msg.from()) || (!isGroupMember(msg.to(),msg.from())))) {
         tellBlocked(msg.from(),msg.to());
         return;
       }
@@ -129,6 +129,12 @@ bool ChatServer::isUserExist(const std::string & user) {
 
 void ChatServer::onGroupMessage(const std::string & group,Message & msgProto) {
   msgProto.set_isgroupmessage(true);
+
+  if(!isGroupMember(msgProto.to(),msgProto.from())) {
+    tellBlocked(msgProto.from(),msgProto.to());
+    return ;
+  }
+
   std::string msg = msgProto.SerializeAsString();
   auto future = redis_.smembers(groupMembers + group);
   redis_.sync_commit();
