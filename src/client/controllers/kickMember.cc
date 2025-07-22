@@ -7,6 +7,8 @@ void Client::kickMember() {
   std::string status_message;
   bool operation_success = false;
 
+  auto & members = msgClient_.getGroupMembers(msgClient_.peerEmail());
+
   // 邮箱输入框组件
   Component email_input = Input(&email, "输入成员邮箱");
 
@@ -17,6 +19,26 @@ void Client::kickMember() {
       operation_success = false;
       return;
     }
+
+    if(email == msgClient_.LocalEmail()) {
+      status_message = "不要踢自己!";
+      email.clear();     
+      return ;
+    }
+
+    bool isExist = false;
+
+    for(auto m : members) {
+      if(m.find(email) != m.npos && email.find('@') != m.npos && email.find('.') != m.npos) {
+        isExist = true;
+      }
+    }
+
+    if( !isExist) {
+      status_message = "错误： 成员不存在";
+      operation_success = false;
+      return;
+    } 
     
     msgClient_.rmGroupMember(email,msgClient_.peerEmail());
 

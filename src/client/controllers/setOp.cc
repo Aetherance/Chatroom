@@ -27,7 +27,7 @@ void Client::setOp() {
     bool isExist = false;
 
     for(auto m : members) {
-      if(m.find(email) && email.find('@') && email.find('.')) {
+      if(m.find(email) != m.npos && email.find('@') != m.npos && email.find('.') != m.npos) {
         isExist = true;
       }
     }
@@ -55,7 +55,7 @@ void Client::setOp() {
     bool isExist = false;
 
     for(auto m : members) {
-      if(m.find(email) && email.find('@') && email.find('.')) {
+      if(m.find(email) != m.npos && email.find('@') != m.npos && email.find('.') != m.npos) {
         isExist = true;
       }
     }
