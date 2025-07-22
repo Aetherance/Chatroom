@@ -66,7 +66,6 @@ void Client::LoginController() {
         loginScreen_.Exit();
         return;
       }
-      info = "账号或密码错误!";
     }
   });
   

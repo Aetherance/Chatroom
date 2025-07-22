@@ -33,10 +33,11 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
   if(isGroupMessage(msg.to()) && !msg.isservice()) {
     onGroupMessage(msg.to(),msg);
   } else {
-    bool isExists = isUserExist(msg.to());
+    bool isExists = isUserExist(msg.to()) | serviceHandler_.isGroupExist(msg.to());
   
     if(isExists == false && !msg.isservice()) {
-      LOG_ERROR("parseMessage: User Not Found!");
+      tellBlocked(msg.from(),msg.to());
+      LOG_ERROR("parseMessage: User or Group Not Found!");
     }
 
     if(msg.isservice()) {

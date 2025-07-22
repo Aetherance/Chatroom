@@ -306,7 +306,15 @@ void MsgClient::enMapYouMessage(Message msgProto) {
 }
 
 void MsgClient::doBlockedMessage(Message message) {
-  messageMap[message.from()].push_back({"系统","消息已发出，但被对方拒收了",Timestamp::now().microSecondsSinceEpoch()});
+  if(message.from().find('@') != message.from().npos) {
+    messageMap[message.from()].push_back({"系统","消息已发出，但被对方拒收了",Timestamp::now().microSecondsSinceEpoch()});
+  } else {
+    messageMap[message.from()].push_back({"系统","您已不是该群成员或该群不存在!",Timestamp::now().microSecondsSinceEpoch()});
+    Message msg;
+    msg.set_from(message.from());
+    msg.set_to(QUIT_GROUP_SUCCESS);
+    doQuitGroup(msg);
+  }
   
   MsgScreenScrollOffset[message.from()] = std::max(0, static_cast<int>(messageMap[message.from()].size()) - visible_lines);
 
