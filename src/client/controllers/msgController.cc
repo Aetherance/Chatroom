@@ -47,6 +47,7 @@ void Client::MsgController() {
   }
 
   auto input_option = InputOption();
+
   input_option.on_enter = [&,this] {
     if (!input_content.empty()) {   
       if(parseCommand(input_content)) {
