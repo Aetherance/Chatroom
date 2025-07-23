@@ -14,6 +14,8 @@ public:
   ClientHeart(int ConnFd);
   ~ClientHeart();
   
+  void run();
+
   void setSendMessageCallback(sendMessageCallback callback) { sendMessageCallback_ = callback; };
 
   void recvAck();
@@ -27,7 +29,9 @@ private:
   sendMessageCallback sendMessageCallback_;
 };
 
-inline ClientHeart::ClientHeart(int ConnFd) {
+inline ClientHeart::ClientHeart(int ConnFd) : fd_(ConnFd) {}
+
+inline void ClientHeart::run() {
   epfd_ = ::epoll_create1(0);
   std::thread([&]{
     while (true) {

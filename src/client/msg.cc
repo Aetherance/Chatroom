@@ -326,12 +326,14 @@ void MsgClient::doRecvFile(Message msgProto) {
   
   if(msgProto.isgroupmessage()) {
     std::string fileName = msgProto.to();
-    messageMap[msgProto.to()].push_back({"系统","你收到了来自" + msgProto.from() + "的文件。 请前往文件页面接收。",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
-    messageMap[msgProto.to()].push_back({"系统","文件名: " + fileName,ilib::base::Timestamp::now().microSecondsSinceEpoch()});
+    messageMap[msgProto.from()].push_back({"系统","你收到了来自" + msgProto.from() + "的文件。 请前往文件页面接收。",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
+    messageMap[msgProto.from()].push_back({"系统","文件名: " + fileName,ilib::base::Timestamp::now().microSecondsSinceEpoch()});
+    show_info2 = "你收到了来自" + msgProto.from() + "的文件。";
   } else {
     std::string fileName = msgProto.to();
     messageMap[msgProto.from()].push_back({"系统","你收到了来自" + msgProto.from() + "的文件。 请前往文件页面接收。",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
     messageMap[msgProto.from()].push_back({"系统","文件名: " + fileName,ilib::base::Timestamp::now().microSecondsSinceEpoch()});
+    show_info = "你收到了来自" + msgProto.from() + "的文件。";
   }
   
   if(msgProto.isgroupmessage()) {

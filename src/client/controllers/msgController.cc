@@ -12,6 +12,10 @@ extern std::unordered_map<std::string,bool> NewMessageMap;
 
 extern bool isGroupBreak;
 
+extern std::string show_info;
+
+extern std::string show_info2;
+
 std::string MessageKey;
 std::string PeerUserName;
 std::string PeerEmail;
@@ -32,6 +36,7 @@ Component setting_btn;
 
 void Client::MsgController() {
   // 输入组件及配置
+  visible_lines = Terminal::Size().dimy - 13;
   MessageKey = msgClient_.peerEmail();
   PeerUserName = msgClient_.peerUsername();
   PeerEmail = msgClient_.peerEmail();
@@ -49,6 +54,7 @@ void Client::MsgController() {
   auto input_option = InputOption();
 
   input_option.on_enter = [&,this] {
+    visible_lines = Terminal::Size().dimy - 13;
     if (!input_content.empty()) {   
       if(parseCommand(input_content)) {
         return;
@@ -171,31 +177,39 @@ Component Client::makeRenderer() {
 
     // 基本边栏框架
     auto sidebar = makeSidebar();
-
-    return hbox({
+    
+    return vbox(
+      hbox({
+        text(" 💬  " + show_info)
+      }) | size(HEIGHT,EQUAL, show_info.empty() ? 0 : 1) | (show_info.empty() ? size(WIDTH,EQUAL,0) : border),
+      hbox({
+        text(" 💬 " + show_info2)
+      }) | size(HEIGHT,EQUAL, show_info2.empty() ? 0 : 1) | (show_info2.empty() ? size(WIDTH,EQUAL,0) : border),
       // 主聊天区域
-      vbox({
-        text(PeerUserName) | bold | center,
-        text(PeerEmail) | center,
-        separator(),
-        vbox(visible_elements)  // 只渲染可见部分
-          | vscroll_indicator 
-          | frame 
-          | yflex 
-          | flex_shrink 
-          | border,
-        separator(),
-        hbox({
-          input->Render() | flex,
-          send_btn->Render(),
-          file_btn->Render(),
-          setting_btn->Render()
-        }) | border
-      }) | flex,
-      
-      // 右侧边栏
-      sidebar
-    }) | border | flex;
+      hbox({
+        vbox({
+          text(PeerUserName) | bold | center,
+          text(PeerEmail) | center,
+          separator(),
+          vbox(visible_elements)  // 只渲染可见部分
+            | vscroll_indicator 
+            | frame 
+            | yflex 
+            | flex_shrink 
+            | border,
+          separator(),
+          hbox({
+            input->Render() | flex,
+            send_btn->Render(),
+            file_btn->Render(),
+            setting_btn->Render()
+          }) | border
+        }) | flex,
+        
+        // 右侧边栏
+        sidebar
+      }) | border | flex
+    );
   }) | CatchEvent([&](Event event) -> bool {
     if (event == Event::Escape) {
       MsgScreen.Exit();

@@ -36,6 +36,7 @@ public:
   bool hasLogin() const { return hasLogin_; }
 private:
   void Send(std::string msg);
+  
   int Recv();
 
   std::string ConstructRegister1(const std::string email);
