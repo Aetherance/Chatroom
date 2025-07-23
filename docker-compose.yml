@@ -1,0 +1,10 @@
+services:
+  chatroom-cli:
+    image: chatroom-cli:latest
+    container_name: chatroom-cli
+    volumes:
+      - /tmp/history:/Chatroom/history
+      - /tmp/download:/Chatroom/download
+      - /tmp/upload:/Chatroom/upload
+
+    command: ["./client", "10.30.0.131"]
