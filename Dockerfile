@@ -1,19 +1,16 @@
 FROM ubuntu:25.04
 
-ENV DEBIAN_FRONTEND=noninteractive
-
 RUN apt-get update && \
      apt-get install -y \
      cmake \
      g++ \
      wget  \
      protobuf-compiler \
-     lolcat \
      && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /Chatroom
 
-COPY ./client .
+COPY ./build/client .
 
  RUN wget -q https://github.com/open-source-parsers/jsoncpp/archive/1.9.6.tar.gz \
 	tar -xzf 1.9.6.tar.gz \
@@ -27,10 +24,15 @@ RUN apt-get update && apt-get install -y tzdata && \
     ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
     echo $TZ > /etc/timezone
 
+RUN apt remove -y \
+    wget \
+    cmake \
+    g++
+
 RUN mkdir download
 
 RUN mkdir history
 
 RUN mkdir /user-home
 
-CMD ["./client 10.30.0.131"]
+CMD ["./client","10.30.0.131"]

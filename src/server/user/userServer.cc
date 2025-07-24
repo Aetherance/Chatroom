@@ -20,7 +20,7 @@ UserServer::UserServer()
   server_.setMessageCallback([this](const TcpConnectionPtr & conn,Buffer * buff,Timestamp time){ onMessage(conn,buff,time); });
 
   /* 设置redis */
-  redis_.connect("127.0.0.1",6379);
+  redis_.connect(REDIS_HOST,REDIS_PORT);
 }
 
 UserServer::~UserServer() {

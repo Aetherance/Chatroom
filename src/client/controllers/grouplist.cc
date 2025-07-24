@@ -115,7 +115,7 @@ void Client::GroupList() {
     } else {
       return false;
     }
-  }) | color(Color::White) | bgcolor(Color::RGB(22, 22, 30));
+  }) | bgcolor(Color::RGB(22, 22, 30));
 
   GroupListScreen.Loop(main_renderer);
 }

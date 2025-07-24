@@ -1,6 +1,7 @@
 #include"FtpServer.h"
 #include"fileInfo.pb.h"
 #include"fcntl.h"
+#include"responsecode.h"
 
 #define TCP_HEAD_LEN sizeof(uint32_t)
 
@@ -15,7 +16,7 @@ FtpServer::FtpServer(ChatServer * chatServer)
   server_.setThreadNum(4);
   std::filesystem::create_directory(root_);
 
-  redis_.connect("localhost",6379);
+  redis_.connect(REDIS_HOST,REDIS_PORT);
 }
 
 FtpServer::~FtpServer() {

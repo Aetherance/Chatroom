@@ -143,7 +143,7 @@ void Client::FriendList() {
     } else {
       return false;
     }
-  }) | color(Color::White) | bgcolor(Color::RGB(22, 22, 30));
+  }) | bgcolor(Color::RGB(22, 22, 30));
 
   FriendListScreen.Loop(main_renderer);
 }

@@ -1,10 +1,15 @@
 services:
-  chatroom-cli:
-    image: chatroom-cli:latest
-    container_name: chatroom-cli
-    volumes:
-      - /tmp/history:/Chatroom/history
-      - /tmp/download:/Chatroom/download
-      - /tmp/upload:/Chatroom/upload
+  redis:
+    image: redis:7.0
+    ports:
+      - "6380:6379"
+    tty: true             
+    stdin_open: true
 
-    command: ["./client", "10.30.0.131"]
+  chatroom-server:
+    image: chatroom-server:latest
+    network_mode: host      
+    tty: true               
+    stdin_open: true
+    depends_on:
+      - redis

@@ -92,3 +92,6 @@ inline void SendResponseCode(int code,int fd) {
 #define HEARTBEAT_MSG_LEN 9 // 心跳消息长度
 #define HEARTBEAT_BACK_MSG "ACK_HEARTBEAT" // 心跳回复消息
 #define HEARTBEAT_BACK_MSG_LEN 13 // 心跳回复消息长度
+
+#define REDIS_HOST "localhost"
+#define REDIS_PORT 6380

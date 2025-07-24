@@ -27,6 +27,7 @@ ScreenInteractive MsgScreen = ScreenInteractive::Fullscreen();
 std::unordered_map<std::string,int> MsgScreenScrollOffset;
 
 int visible_lines = Terminal::Size().dimy - 13;
+
 std::string input_content;
 
 Component input;
@@ -172,7 +173,11 @@ Component Client::makeRenderer() {
 
     Elements visible_elements;
     for (int i = start; i < end; ++i) {
-      visible_elements.push_back(text(getTime(messageMap[MessageKey][i].timestamp) + messageMap[MessageKey][i].from + ": " + messageMap[MessageKey][i].text));
+      if(messageMap[MessageKey][i].from == "You") {
+        visible_elements.push_back(text(getTime(messageMap[MessageKey][i].timestamp) + messageMap[MessageKey][i].from + ": " + messageMap[MessageKey][i].text) | color(Color::GrayLight));
+      } else {
+        visible_elements.push_back(text(getTime(messageMap[MessageKey][i].timestamp) + messageMap[MessageKey][i].from + ": " + messageMap[MessageKey][i].text));
+      }
     }
 
     // 基本边栏框架
