@@ -1,14 +1,16 @@
 #!/bin/bash
 
 if ! docker image inspect "chatroom-cli:latest" >/dev/null 2>&1; then
-########################################################
+
+#  获取客户端镜像  ########################################
   wget http://$1:9090/download/chatroom-cli.tar
   docker load < chatroom-cli.tar
   rm chatroom-cli.tar                                  
 ########################################################
 fi
 
-########################################################
+
+#  运行客户端镜像  ########################################
 
 if [ ! -d "/tmp/history" ]; then
   mkdir /tmp/history
