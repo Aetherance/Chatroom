@@ -29,8 +29,14 @@ void Client::fileService() {
       status = "文件不存在!";
       return ;
     }
-
+    
     std::string filename = std::filesystem::path(upload_path).filename();
+    
+    std::string show_filename(filename);
+
+    if(ftpClient_.transList.find(filename) != ftpClient_.transList.end()) {
+      filename += ".1";
+    }
 
     std::thread([&,upload_path,filename]{ 
       ftpClient_.transList.insert({filename,"正在传输"});
@@ -61,9 +67,15 @@ void Client::fileService() {
     download_buttons.push_back(
       Button(downloadable_files[i], [&,i] {
         std::thread([&]{
-          ftpClient_.transList.insert({downloadable_files[i],"正在传输"});
+          std::string filename_download = downloadable_files[i];
 
-          ftpClient_.transProgressMap[downloadable_files[i]] = 0.0f;
+          if(ftpClient_.transList.find(filename_download) != ftpClient_.transList.end()) {
+            filename_download += ".1";
+          }
+
+          ftpClient_.transList.insert({filename_download,"正在传输"});
+
+          ftpClient_.transProgressMap[filename_download] = 0.0f;
 
           std::filesystem::path savePath = "./download";
           std::filesystem::create_directory(savePath);
