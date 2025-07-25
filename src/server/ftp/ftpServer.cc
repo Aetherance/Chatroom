@@ -5,11 +5,10 @@
 
 #define TCP_HEAD_LEN sizeof(uint32_t)
 
-FtpServer::FtpServer(ChatServer * chatServer)
+FtpServer::FtpServer()
     : address_(InetAddress(6060)),
       server_(&loop_, address_),
-      root_("../root"),
-      chatServer_(chatServer)
+      root_("../root")
 {
   server_.setConnectionCallback([this](const TcpConnectionPtr & conn){ onConnection(conn); });
   server_.setMessageCallback([this](const TcpConnectionPtr & conn, Buffer * buf, Timestamp time) { onMessage(conn, buf, time); });

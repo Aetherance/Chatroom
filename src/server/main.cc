@@ -12,7 +12,7 @@ int main() {
   });
 
   std::thread ftp([&]{ 
-    FtpServer ftpServer(&chatServer);
+    FtpServer ftpServer;
     ftpServer.run();
   });
 

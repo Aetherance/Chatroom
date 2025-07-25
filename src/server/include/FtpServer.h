@@ -12,7 +12,7 @@ class FtpServer
 {
 friend class ServiceHandler;
 public:
-  FtpServer(ChatServer * chatServer);
+  FtpServer();
 
   void run();
 
@@ -44,6 +44,4 @@ private:
   cpp_redis::client redis_;
 
   const std::string redisFileToFromSet_ = "redisFileToFromSet_:";
-
-  ChatServer * chatServer_;
 };
