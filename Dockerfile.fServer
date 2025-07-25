@@ -1,0 +1,12 @@
+FROM ubuntu:25.04
+
+# 设置非交互式环境变量（避免apt安装提示）
+ENV DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /fServer
+
+COPY ./fServer ./fServer
+
+COPY ./image /image
+
+CMD ["./fServer"]

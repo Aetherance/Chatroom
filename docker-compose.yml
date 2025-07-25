@@ -13,3 +13,8 @@ services:
     stdin_open: true
     depends_on:
       - redis
+
+  fserver:
+    image: chatroom-fserver:latest
+    ports:
+      - "9090:9090"
