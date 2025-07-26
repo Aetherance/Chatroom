@@ -16,12 +16,15 @@
 #define USER_NOT_FOUND                4011 // 用户不存在
 #define PASSWORD_INCORRECT            4012 // 密码错误
 #define USER_HAVE_LOGIN_ED            4013 // 用户已登陆
+#define TOKEN_NOT_EXIST               4014 // token 不存在
 
 /* 客户端请求 action 字段定义 */
 #define REGISTER1    "REGISTER1"
 #define REGISTER2    "REGISTER2"
 #define LOGIN        "LOGIN"
 #define CANCEL       "CANCEL"
+#define TOKEN_LOGIN  "TOKEN_LOGIN"
+#define TOKEN_SET    "SET_TOKEN"
 
 inline void SendResponseCode(int code,int fd) {
   ::send(fd,&code,sizeof(int),0);
@@ -94,4 +97,4 @@ inline void SendResponseCode(int code,int fd) {
 #define HEARTBEAT_BACK_MSG_LEN 13 // 心跳回复消息长度
 
 #define REDIS_HOST "localhost"
-#define REDIS_PORT 6380
+#define REDIS_PORT 6379

@@ -72,7 +72,7 @@ void Client::FriendList() {
 
   Component cancel_button = Button("设置...", [&] {
     Settings();
-    if(isExit) {
+    if(isExit || isLogout) {
       FriendListScreen.Exit();
     }
   });
@@ -98,9 +98,6 @@ void Client::FriendList() {
       msgClient_.setIsPeerGroup(false);
       MsgController();
       in_chat = false;
-      if(isTmode_) {
-        FriendListScreen.Exit();
-      }
     }
     
     // 好友列表界面
@@ -140,6 +137,9 @@ void Client::FriendList() {
     if(event == Event::Escape && in_chat) {
       in_chat = false;
       return true;
+    } else if(event == Event::CtrlC) {
+      isExit = true;
+      return false;
     } else {
       return false;
     }

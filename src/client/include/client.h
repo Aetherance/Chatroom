@@ -104,4 +104,5 @@ private:
   std::string localUsername_;
 
   bool isTmode_ = false;
+  bool isLogout = false;
 };

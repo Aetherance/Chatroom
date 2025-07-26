@@ -52,7 +52,7 @@ void Client::LoginController() {
       info =  "密码或邮箱不能为空!";
     } else if( ! isValidEmail(email_in) && email_in != "op"){
       info = "邮箱格式有误!";
-    } else if(email_in.size() > 20 || passwd_in.size() > 20) {
+    } else if(email_in.size() > 40 || passwd_in.size() > 20) {
       info = "邮箱或密码长度过长!";
     } else if( ! userClient_.isConnected()) {
       info = "登录服务器未连接!";
@@ -102,6 +102,7 @@ bool Client::LoginSubmit(const std::string & email,const std::string & passwd,st
     localUserEmail_ = email;
     loginScreen_.Exit();
     mainScreen_.Exit();
+    userClient_.setToken(email);
     return true;
   } else if(recv == USER_HAVE_LOGIN_ED) {
     info = "用户已登陆!";

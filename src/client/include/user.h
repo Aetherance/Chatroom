@@ -6,6 +6,7 @@
 
 #include"Socket.h"
 #include<vector>
+#include<filesystem>
 
 struct Friend;
 struct Group;
@@ -34,6 +35,12 @@ public:
   void setHasLogin(bool has) { hasLogin_ = has; }
 
   bool hasLogin() const { return hasLogin_; }
+
+  std::string verifyToken();
+
+  void setToken(const std::string &email);
+
+  void removeToken() { std::filesystem::remove(token_path); }
 private:
   void Send(std::string msg);
   
@@ -58,6 +65,8 @@ private:
   bool hasLogin_ = false;
 
   const std::string ip_;
+
+  const std::string token_path = "./history/.token";
 };
 
 #endif

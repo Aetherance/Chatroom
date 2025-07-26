@@ -3,7 +3,7 @@ syntax = "proto3";
 message Message {
     string from = 1;
     string to   = 2;
-    string text = 3; // 服务信息的类别
+    bytes text = 3; // 服务信息的类别
     int64 timestamp = 4;
     repeated string args = 5;
     bool isService = 6;

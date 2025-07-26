@@ -3,6 +3,8 @@
 #include<jsoncpp/json/json.h>
 #include"responsecode.h"
 #include"logger.h"
+#include"sole/sole.hpp"
+#include"filesystem"
 
 void UserClient::Connect() {
   sockaddr_in peerAddr = ilib::net::InetAddress(ip_,SERVER_PORT).getSockAddr();
@@ -102,4 +104,66 @@ std::string UserClient::ConstructLogin(const std::string & email,const std::stri
   Json::StreamWriterBuilder writer;
   std::string LogMsg = Json::writeString(writer,LoginRequestMessage);
   return LogMsg;
+}
+
+std::string UserClient::verifyToken() {
+  if(!std::filesystem::exists(token_path)) {
+    return "";
+  } else {
+    std::fstream file(token_path);
+
+    std::string data;
+    std::string buff;
+
+    while(getline(file,buff)) {
+      data += buff;
+    }
+
+    Json::Value root;
+    
+    Json::CharReaderBuilder readerBuilder;
+    std::istringstream Stream(data);
+    Json::parseFromStream(readerBuilder,Stream,&root,nullptr);
+
+    std::string token = root["token"].asString();
+    std::string email = root["email"].asString();
+
+    Json::Value TokenLoginRequest;
+    TokenLoginRequest["action"] = TOKEN_LOGIN;
+    TokenLoginRequest["token"] = token;
+    TokenLoginRequest["email"] = email;
+
+    Json::StreamWriterBuilder writer;
+    std::string Msg = Json::writeString(writer,TokenLoginRequest);
+
+    Send(Msg);
+
+    int retVal = Recv();
+
+    return retVal == USER_OK ? email : "";
+  }
+}
+
+void UserClient::setToken(const std::string &email) {
+    const std::string token = sole::uuid4().base62();
+  
+    Json::Value TokenLoginRequest;
+    TokenLoginRequest["action"] = TOKEN_SET;
+    TokenLoginRequest["token"] = token;
+    TokenLoginRequest["email"] = email;
+
+    Json::StreamWriterBuilder writer;
+    std::string Msg = Json::writeString(writer,TokenLoginRequest);
+    
+    Send(Msg);
+
+    Json::Value Token;
+    Token["token"] = token;
+    Token["email"] = email;
+
+    std::string tokenJson = Json::writeString(writer,Token);
+    
+    std::ofstream file(token_path, std::ios::trunc);
+
+    file << tokenJson;
 }

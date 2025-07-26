@@ -85,7 +85,7 @@ void Client::RegisterController() {
       info =  "密码或邮箱不能为空!";
     } else if( ! isValidEmail(email_in)){
       info = "邮箱格式有误!";
-    } else if(email_in.size() > 20 || passwd_in.size() > 20) {
+    } else if(email_in.size() > 40 || passwd_in.size() > 20) {
       info = "邮箱或密码长度过长!";
     } else {
         email_save = email_in , passwd_save = passwd_in , username_save = username_in;

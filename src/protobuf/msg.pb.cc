@@ -68,7 +68,7 @@ static const ::_pb::Message* const file_default_instances[] = {
 
 const char descriptor_table_protodef_msg_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\tmsg.proto\"}\n\007Message\022\014\n\004from\030\001 \001(\t\022\n\n\002"
-  "to\030\002 \001(\t\022\014\n\004text\030\003 \001(\t\022\021\n\ttimestamp\030\004 \001("
+  "to\030\002 \001(\t\022\014\n\004text\030\003 \001(\014\022\021\n\ttimestamp\030\004 \001("
   "\003\022\014\n\004args\030\005 \003(\t\022\021\n\tisService\030\006 \001(\010\022\026\n\016is"
   "GroupMessage\030\007 \001(\010b\006proto3"
   ;
@@ -235,13 +235,12 @@ const char* Message::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
         } else
           goto handle_unusual;
         continue;
-      // string text = 3;
+      // bytes text = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           auto str = _internal_mutable_text();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "Message.text"));
         } else
           goto handle_unusual;
         continue;
@@ -333,13 +332,9 @@ uint8_t* Message::_InternalSerialize(
         2, this->_internal_to(), target);
   }
 
-  // string text = 3;
+  // bytes text = 3;
   if (!this->_internal_text().empty()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_text().data(), static_cast<int>(this->_internal_text().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "Message.text");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         3, this->_internal_text(), target);
   }
 
@@ -409,10 +404,10 @@ size_t Message::ByteSizeLong() const {
         this->_internal_to());
   }
 
-  // string text = 3;
+  // bytes text = 3;
   if (!this->_internal_text().empty()) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_text());
   }
 

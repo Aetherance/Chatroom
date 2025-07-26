@@ -23,12 +23,18 @@ void Client::Settings() {
   auto button3 = Button("返回...", [&]{ 
     setting_screen.Exit();
   });
-  
+
+  auto button4 = Button("登出",[&]{ 
+    setting_screen.Exit();
+    isLogout = true;
+    userClient_.removeToken();
+  });
 
   auto container = Container::Vertical({
     button1,
     button2,
-    button3
+    button3,
+    button4
   });
 
   // 渲染器定义布局
@@ -39,7 +45,8 @@ void Client::Settings() {
       vbox({
         button1->Render() | size(WIDTH, EQUAL, 20),
         button2->Render() | size(WIDTH, EQUAL, 20),
-        button3->Render() | size(WIDTH, EQUAL, 20)
+        button3->Render() | size(WIDTH, EQUAL, 20),
+        button4->Render() | size(WIDTH, EQUAL, 20)
       }) | border | center,
       
       filler()

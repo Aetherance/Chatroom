@@ -159,6 +159,10 @@ void UserServer::parseMessage(const std::string & MessageStr,const TcpConnection
     onRegister2(fromJsonObjToStr(message["userInfo"]),message["userInfo"]["email"].asString(),message["code"].asString(),conn);
   } else if(action == LOGIN) {
     onLogin(message["email"].asString(),message["passwd"].asString(),conn);
+  } else if(action == TOKEN_LOGIN) {
+    onTokenLogin(message["token"].asString(),message["email"].asString(),conn);
+  } else if(action ==TOKEN_SET) {
+    onSetToken(message["token"].asString(),message["email"].asString(),conn);
   }
 }
 
@@ -168,5 +172,35 @@ void UserServer::makeEmailNameHash(const std::string & userInfo,const std::strin
   std::istringstream str(userInfo);
   Json::parseFromStream(reader,str,&val,nullptr);
   redis_.hset(EMAIL_HASH_USERNAME,email,val["username"].asString());
+  redis_.sync_commit();
+}
+
+void UserServer::onTokenLogin(const std::string & token,const std::string & email,const TcpConnectionPtr & conn) {
+  auto future_isUserOnline = redis_.sismember(onlineUserSet,email);
+  redis_.sync_commit();
+  auto reply_isUserOnline = future_isUserOnline.get();
+
+  if(reply_isUserOnline.as_integer()) {
+    SendResponseCode(USER_HAVE_LOGIN_ED,conn->fd());
+    LOG_CLIENT_WARN("User already be online",conn->fd());
+    return;
+  }
+  
+  auto future = redis_.get("token:" + email);
+  redis_.sync_commit();
+
+  auto reply = future.get();
+
+  if(!reply.is_null() && reply.as_string() == token) {
+    SendResponseCode(USER_OK,conn->fd());
+    LOG_INFO("PASS");
+  } else {
+    SendResponseCode(TOKEN_NOT_EXIST,conn->fd());
+  }
+}
+
+void UserServer::onSetToken(const std::string & token,const std::string & email,const TcpConnectionPtr & conn) {
+  redis_.set("token:" + email, {token});
+  redis_.expire("token:" + email, 12 * 60 * 60);
   redis_.sync_commit();
 }

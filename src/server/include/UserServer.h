@@ -46,6 +46,10 @@ private:
 
   void onCancel(const std::string & email,const net::TcpConnectionPtr & conn);
 
+  void onSetToken(const std::string & token,const std::string & email,const net::TcpConnectionPtr & conn);
+
+  void onTokenLogin(const std::string & token,const std::string & email,const net::TcpConnectionPtr & conn);
+
   /* redis email-code 哈希表的名称 */
   inline static const std::string RedisEmailCodeHash_ = "email_code";
   /* redis 用户信息哈希表的名称 */

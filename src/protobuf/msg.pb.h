@@ -234,7 +234,7 @@ class Message final :
   std::string* _internal_mutable_to();
   public:
 
-  // string text = 3;
+  // bytes text = 3;
   void clear_text();
   const std::string& text() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -406,7 +406,7 @@ inline void Message::set_allocated_to(std::string* to) {
   // @@protoc_insertion_point(field_set_allocated:Message.to)
 }
 
-// string text = 3;
+// bytes text = 3;
 inline void Message::clear_text() {
   _impl_.text_.ClearToEmpty();
 }
@@ -418,7 +418,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void Message::set_text(ArgT0&& arg0, ArgT... args) {
  
- _impl_.text_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.text_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:Message.text)
 }
 inline std::string* Message::mutable_text() {

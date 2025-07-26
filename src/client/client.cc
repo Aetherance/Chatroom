@@ -60,6 +60,10 @@ void Client::Verify() {
     perror("::connect()");
     exit(EXIT_FAILURE);
   }
+
+  if((localUserEmail_ =  userClient_.verifyToken()) != "") {
+    return;
+  }
   
   /* 登录回调 */
   Component login_button = Button("登录",[&]{ LoginController(); mainScreen_.Exit(); });
@@ -157,14 +161,14 @@ void Client::flush_terminal_input() {
     termios original;
     TermiosGuard() { tcgetattr(STDIN_FILENO, &original); }
     ~TermiosGuard() { tcsetattr(STDIN_FILENO, TCSANOW, &original); }
-} guard;
+  } guard;
 
-termios settings = guard.original;
-settings.c_lflag &= ~(ICANON | ECHO);
-settings.c_cc[VMIN] = 0;
-settings.c_cc[VTIME] = 1;
+  termios settings = guard.original;
+  settings.c_lflag &= ~(ICANON | ECHO);
+  settings.c_cc[VMIN] = 0;
+  settings.c_cc[VTIME] = 1;
 
-tcsetattr(STDIN_FILENO, TCSANOW, &settings);
+  tcsetattr(STDIN_FILENO, TCSANOW, &settings);
 
 std::string buf;
   for (char c; read(STDIN_FILENO, &c, 1) == 1;) {
