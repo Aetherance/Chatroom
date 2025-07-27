@@ -2,130 +2,89 @@
 
 using namespace ftxui;
 
+struct Member {
+  std::string email;
+  std::string name;
+  bool selected = false;
+};
+
+extern std::string show_info;
+
+std::vector<Member> op_mems = {};
+
 void Client::setOp() {
-  // std::string email;
-  // std::string status_message;
-  // bool operation_success = false;
-  // bool last_action_was_set = true; // 记录最后一次操作类型
+    auto screen = ScreenInteractive::Fullscreen();
 
-  // auto screen = ScreenInteractive::TerminalOutput();
+  std::string group_name = msgClient_.peerEmail();
+
+  std::vector<std::string> me = msgClient_.getGroupMemberEmail(group_name);
   
-  // auto & members = msgClient_.getGroupMembers(msgClient_.peerEmail());
+  std::vector<std::string> m = msgClient_.getGroupMembers(group_name);
 
-  // // 邮箱输入框组件
-  // Component email_input = Input(&email, "输入成员邮箱");
+  op_mems.clear();
 
-  // // 操作按钮组件
-  // Component set_button = Button("设为管理员", [&] {
-  //   last_action_was_set = true;
-  //   if (email.empty()) {
-  //     status_message = "错误：邮箱不能为空";
-  //     operation_success = false;
-  //     return;
-  //   }
+  for(int i = 0;i<m.size();i++) {
+    if( !msgClient_.isGroupOwner(me[i],group_name)) {
+      m[i].resize(m[i].size()-1);
+      op_mems.push_back({me[i],m[i],msgClient_.isGroupOp(me[i],group_name)});
+    }
+  }
 
-  //   bool isExist = false;
+  auto member_list = Container::Vertical({});
 
-  //   for(auto m : members) {
-  //     if(m.find(email) != m.npos && email.find('@') != m.npos && email.find('.') != m.npos) {
-  //       isExist = true;
-  //     }
-  //   }
+  for (auto& member : op_mems) {
+      member_list->Add(
+          Checkbox(member.name, &member.selected)
+      );
+  }
 
-  //   if( !isExist) {
-  //     status_message = "错误： 成员不存在";
-  //     operation_success = false;
-  //     return;
-  //   } 
-    
-  //   msgClient_.setOP(email,msgClient_.peerEmail());
-    
-  //   status_message = "已设置为管理员: " + email;
-  //   email.clear();
-  // });
+  auto btn_confirm = Button("好！", [&,this]{
+    for(auto & m : op_mems) {
+      if(m.selected) {
+        msgClient_.setOP(m.email,msgClient_.peerEmail());
+      } else {
+        msgClient_.deOP(m.email,msgClient_.peerEmail());
+      }
+    }
 
-  // Component remove_button = Button("取消管理员", [&] {
-  //   last_action_was_set = false;
-  //   if (email.empty()) {
-  //     status_message = "错误：邮箱不能为空";
-  //     operation_success = false;
-  //     return;
-  //   }
+    msgClient_.pullGroupMembers(false,group_name);
+    msgClient_.pullGroupOPs();
 
-  //   bool isExist = false;
+    show_info = "管理员设置完成!";
+    screen.Exit();
+  });
+  auto btn_cancel = Button("返回", screen.ExitLoopClosure());
 
-  //   for(auto m : members) {
-  //     if(m.find(email) != m.npos && email.find('@') != m.npos && email.find('.') != m.npos) {
-  //       isExist = true;
-  //     }
-  //   }
+  // 布局（保持原有结构）
+  auto layout = Container::Vertical({
+      member_list,
+      Container::Horizontal({btn_confirm, btn_cancel})
+  });
 
-  //   if( !isExist) {
-  //     status_message = "错误： 成员不存在";
-  //     operation_success = false;
-  //     return;
-  //   }  
-    
-  //   msgClient_.deOP(email,msgClient_.peerEmail());
+  // 渲染器（优化显示效果）
+  auto renderer = Renderer(layout, [&] {
+      return vbox({
+          // 标题栏
+          hbox({text(" 请选择群聊的管理员 ") | bold | bgcolor(Color::Green) | color(Color::White)}) | center,
+          separator(),
 
-  //   status_message = "已取消管理员权限: " + email;
-  //   email.clear();
-  // });
+          // 主内容区域
+              vbox({
+                  separator(),
+                  window(text("选择成员") | bold,
+                      vbox({member_list->Render() | yframe | flex})) | flex
+              }) | flex,
 
-  // // 退出按钮组件
-  // Component quit_button = Button("退出", [&] {
-  //   screen.Exit();
-  // });
+          separator(),
 
-  // // 主布局组件
-  // auto layout = Container::Vertical({
-  //   email_input,
-  //   Container::Horizontal({
-  //     set_button,
-  //     remove_button,
-  //     quit_button
-  //   })
-  // });
+          // 按钮区域
+          hbox({
+              btn_confirm->Render() | borderLight | color(Color::GreenLight),
+              text(" "),
+              btn_cancel->Render() | borderLight
+          }) | center
+      }) | border | color(Color::White) | bgcolor(Color::RGB(22, 22, 30));
+  });
 
-  // // 渲染器
-  // auto renderer = Renderer(layout, [&] {
-  //   // 标题
-  //   auto title = text("管理员权限管理") | bold | center | color(Color::Cyan);
-    
-  //   // 状态消息（使用emptyElement替代nothing）
-  //   Element status_text = emptyElement();
-  //   if (!status_message.empty()) {
-  //     auto color = operation_success ? Color::Green : Color::Red;
-  //     status_text = text(status_message) | center;
-  //   }
-    
-  //   // 操作模式提示
-  //   auto mode_hint = text(last_action_was_set ? "操作模式: 设置管理员" : "操作模式: 取消管理员") | center;
-    
-  //   // 按钮组
-  //   auto buttons = hbox({
-  //     set_button->Render(),
-  //     text("  "),
-  //     remove_button->Render(),
-  //     text("  "),
-  //     quit_button->Render()
-  //   }) | center;
-    
-  //   // 主界面
-  //   return vbox({
-  //     vbox({
-  //       title,
-  //       separator(),
-  //       hbox(text("邮箱: "), email_input->Render()) | borderEmpty,
-  //       separator(),
-  //       mode_hint,
-  //       separator(),
-  //       buttons,
-  //       separator(),
-  //       status_text
-  //     }) | border | size(WIDTH, LESS_THAN, 70),
-  //   }) | flex | center;
-  // });
-
-  // screen.Loop(renderer);
+  screen.Loop(renderer);
 }

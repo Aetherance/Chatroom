@@ -26,7 +26,14 @@ void Client::CreateGroup() {
   }
 
   // 组件定义
-  auto input_group = Input(&group_name, "输入群聊名称");
+  auto input_group = Input(&group_name, "输入群聊名称") | CatchEvent([&](Event event) {
+    if(event == Event::Return) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+
   auto member_list = Container::Vertical({});
   for (auto& member : members) {
       member_list->Add(

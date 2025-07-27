@@ -47,12 +47,6 @@ void Client::kickMember() {
 
     msgClient_.pullGroupMembers(false,group_name);
 
-    for(int i = mems.size()-1;i>=0;i--) {
-      if(mems[i].selected) {
-        mems.erase(mems.begin() + i);
-      }
-    }
-
     show_info = "你移除了一个群的群成员!";
     screen.Exit();
   });

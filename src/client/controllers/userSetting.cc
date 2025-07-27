@@ -39,8 +39,7 @@ void Client::UserSettings() {
             filler(),
             vbox({
                 button2->Render() 
-                    | size(WIDTH, EQUAL, 20) 
-                    | color(Color::Black),
+                    | size(WIDTH, EQUAL, 20) ,
                     
                 blocked ? 
                     button0->Render() | size(WIDTH, EQUAL, 20) | color(Color::RedLight) :
