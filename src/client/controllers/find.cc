@@ -17,9 +17,12 @@ void Client::FindFriend() {
 
   // 为每个用户创建界面元素
   for (size_t i = 0; i < display_users.size(); ++i) {
-
     std::string user_id = display_users[i].email;
     
+    if(user_id == msgClient_.LocalEmail()) {
+      continue;
+    }
+
     auto add_btn = Button("加好友", [&, user_id] {
       msgClient_.addFriend(msgClient_.LocalEmail(), user_id);
 

@@ -256,8 +256,8 @@ void MsgClient::doAddGroup(const Message & msgProto) {
   }
 
   if( !isExist) {
-    applications.push_back({msgProto.from(),msgProto.to()});
     showInfo("有新的加群申请!");
+    applications.push_back({msgProto.from(),msgProto.to()});
     groupVerifyScreen.PostEvent(ftxui::Event::Custom);
   }
 }
