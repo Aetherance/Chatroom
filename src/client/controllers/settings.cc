@@ -24,7 +24,7 @@ void Client::Settings() {
     setting_screen.Exit();
   });
 
-  auto button4 = Button("登出",[&]{ 
+  auto button4 = Button("登出...",[&]{ 
     setting_screen.Exit();
     isLogout = true;
     userClient_.removeToken();

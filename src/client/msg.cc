@@ -202,9 +202,19 @@ void MsgClient::doAddFriendBack(const Message & msgProto) {
 std::mutex friendRequestsLock;
 
 void MsgClient::doAddFriend(const Message & msgProto) {
-  showInfo("新的好友申请!");
   std::lock_guard<std::mutex> lock(friendRequestsLock);
-  friendRequests.push_back(msgProto.from());
+  
+  bool isExist = false;
+  for(auto & fr : friendRequests) {
+    if(fr == msgProto.from()) {
+      isExist = true;
+    }
+  }
+  
+  if( !isExist) {
+    showInfo("新的好友申请!");
+    friendRequests.push_back(msgProto.from());
+  }
 }
 
 void MsgClient::doUpdateFriendState(const Message & msgProto,bool isOnline) {
@@ -238,9 +248,18 @@ std::mutex groupRequestsLock;
 
 void MsgClient::doAddGroup(const Message & msgProto) {
   std::lock_guard<std::mutex> lock(groupRequestsLock);
-  applications.push_back({msgProto.from(),msgProto.to()});
-  showInfo("有新的加群申请!");
-  groupVerifyScreen.PostEvent(ftxui::Event::Custom);
+  bool isExist = false;
+  for(auto & app : applications) {
+    if(app.user == msgProto.from() && app.group == msgProto.to()) {
+      isExist = true;
+    }
+  }
+
+  if( !isExist) {
+    applications.push_back({msgProto.from(),msgProto.to()});
+    showInfo("有新的加群申请!");
+    groupVerifyScreen.PostEvent(ftxui::Event::Custom);
+  }
 }
 
 void MsgClient::verifyGroup(const std::string & who, const std::string & group) {
