@@ -2,76 +2,92 @@
 
 using namespace ftxui;
 
-void Client::kickMember() {
+struct Member {
   std::string email;
-  std::string status_message;
-  bool operation_success = false;
+  std::string name;
+  bool selected = false;
+};
 
-  auto & members = msgClient_.getGroupMembers(msgClient_.peerEmail());
+extern std::string show_info;
 
-  // 邮箱输入框组件
-  Component email_input = Input(&email, "输入成员邮箱");
+std::vector<Member> mems = {};
 
-  // 踢出按钮组件
-  Component kick_button = Button("踢出成员", [&] {
-    if (email.empty()) {
-      status_message = "错误：邮箱不能为空";
-      operation_success = false;
-      return;
+void Client::kickMember() {
+  auto screen = ScreenInteractive::Fullscreen();
+
+  std::string group_name = msgClient_.peerEmail();
+
+  std::vector<std::string> me = msgClient_.getGroupMemberEmail(group_name);
+  
+  std::vector<std::string> m = msgClient_.getGroupMembers(group_name);
+
+  mems.clear();
+
+  for(int i = 0;i<m.size();i++) {
+    if( !msgClient_.isGroupOwner(me[i],group_name)) {
+      m[i].resize(m[i].size()-1);
+      mems.push_back({me[i],m[i],false});
     }
+  }
 
-    if(email == msgClient_.LocalEmail()) {
-      status_message = "不要踢自己!";
-      email.clear();     
-      return ;
-    }
+  auto member_list = Container::Vertical({});
 
-    bool isExist = false;
+  for (auto& member : mems) {
+      member_list->Add(
+          Checkbox(member.name, &member.selected)
+      );
+  }
 
-    for(auto m : members) {
-      if(m.find(email) != m.npos && email.find('@') != m.npos && email.find('.') != m.npos) {
-        isExist = true;
+  auto btn_confirm = Button("踢！", [&,this]{
+    for(auto & m : mems) {
+      if(m.selected) {
+        msgClient_.rmGroupMember(m.email,msgClient_.peerEmail());
       }
     }
 
-    if( !isExist) {
-      status_message = "错误： 成员不存在";
-      operation_success = false;
-      return;
-    } 
-    
-    msgClient_.rmGroupMember(email,msgClient_.peerEmail());
+    msgClient_.pullGroupMembers(false,group_name);
 
-    status_message = "成功踢出: " + email;
-    email.clear();
-  });
-
-  // 主布局组件
-  auto layout = Container::Vertical({
-    email_input,
-    kick_button,
-  });
-
-  // 渲染器
-  auto renderer = Renderer(layout, [&] {
-    Element status_text;
-    if (operation_success) {
-      status_text = text(status_message) | color(Color::Green);
-    } else {
-      status_text = text(status_message) | color(Color::Red);
+    for(int i = mems.size()-1;i>=0;i--) {
+      if(mems[i].selected) {
+        mems.erase(mems.begin() + i);
+      }
     }
-    
-    return vbox({
-      hbox(text("邮箱: "), email_input->Render()),
-      separator(),
-      hbox({
-        kick_button->Render(),
-      }),
-      separator(),
-      status_text
-    }) | border | size(WIDTH, GREATER_THAN, 60) | center;
+
+    show_info = "你移除了一个群的群成员!";
+    screen.Exit();
+  });
+  auto btn_cancel = Button("返回", screen.ExitLoopClosure());
+
+  // 布局（保持原有结构）
+  auto layout = Container::Vertical({
+      member_list,
+      Container::Horizontal({btn_confirm, btn_cancel})
   });
 
-  auto screen = ScreenInteractive::TerminalOutput();
+  // 渲染器（优化显示效果）
+  auto renderer = Renderer(layout, [&] {
+      return vbox({
+          // 标题栏
+          hbox({text(" 请选择要踢出的群成员 ") | bold | bgcolor(Color::Red) | color(Color::White)}) | center,
+          separator(),
+
+          // 主内容区域
+              vbox({
+                  separator(),
+                  window(text("选择成员") | bold,
+                      vbox({member_list->Render() | yframe | flex})) | flex
+              }) | flex,
+
+          separator(),
+
+          // 按钮区域
+          hbox({
+              btn_confirm->Render() | borderLight | color(Color::RedLight),
+              text(" "),
+              btn_cancel->Render() | borderLight
+          }) | center
+      }) | border | color(Color::White) | bgcolor(Color::RGB(22, 22, 30));
+  });
+
   screen.Loop(renderer);
 }

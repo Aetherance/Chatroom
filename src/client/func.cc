@@ -129,6 +129,31 @@ void MsgClient::pullGroupList(bool isRecv,Message msg) {
   GroupListScreen.PostEvent(ftxui::Event::Custom);
 }
 
+std::string extractSubstring(const std::string& str) {
+    int len = str.length();
+    if (len < 2) {
+        return "";
+    }
+    
+    int pos = -1;  // 用于记录找到的']'的位置
+    for (int i = len - 2; i >= 0; i--) {
+        if (str[i] == '[') {
+            if (i < len - 2) {
+                pos = i;
+                break;
+            }
+        }
+    }
+    if (pos == -1) {
+        return "";
+    }
+    
+    int start = pos + 1;
+    int length = (len - 2) - (pos + 1);
+
+    return str.substr(start, length);
+}
+
 void MsgClient::pullGroupMembers(bool isRecv,std::string request_group,Message msg) {
   if(!isRecv) {
     SerializeSend(PULL_GROUP_MEMBERS,request_group,PULL_GROUP_MEMBERS);
@@ -137,6 +162,7 @@ void MsgClient::pullGroupMembers(bool isRecv,std::string request_group,Message m
     groupMembers[group].clear();
     for(int i = 0;i<msg.args_size();i++) {
       groupMembers[group].push_back(msg.args(i));
+      groupMembersEmail[group].push_back(extractSubstring(msg.args(i)));
     }
   }
 

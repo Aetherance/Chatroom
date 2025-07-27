@@ -139,7 +139,7 @@ public:
 
   void doGroupExist(Message message);
 
-  std::vector<std::string>& getGroupMembers(std::string group) { return groupMembers[group]; }
+  std::vector<std::string>getGroupMembers(std::string group) { return groupMembers[group]; }
 
   void pullDownloadList(const std::string & receiver,const std::string sender);
 
@@ -154,6 +154,8 @@ public:
   void pullGroupOPs(bool isRecv = false,std::string = {},Message msg = {});
 
   bool isGroupOp(std::string user, std::string group);
+
+  std::vector<std::string> getGroupMemberEmail(std::string group) { return groupMembersEmail[group]; }
 private:
   void sendMsgTo(const std::string & who,const std::string & msg);
 
@@ -187,6 +189,8 @@ private:
   std::unordered_map<std::string,std::string> groupHashOwner;
 
   std::unordered_map<std::string,std::vector<std::string>> groupOPs;
+
+  std::unordered_map<std::string,std::vector<std::string>> groupMembersEmail;
 
   FtpClient & ftpClient_;
 

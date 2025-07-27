@@ -113,12 +113,6 @@ void Client::MsgController() {
 
   file_btn = Button("文件...", [&] {
     fileService();
-  }) | CatchEvent([&](Event event){
-    if (event == ftxui::Event::Character('\n')) {
-      return true;      
-    } else {
-      return false;
-    }
   });
 
   setting_btn = Button("设置...",[&] {
@@ -129,12 +123,6 @@ void Client::MsgController() {
       }
     } else {
       UserSettings();
-    }
-  }) | CatchEvent([&](Event event){
-    if (event == ftxui::Event::Character('\n')) {
-      return true;      
-    } else {
-      return false;
     }
   });
 
