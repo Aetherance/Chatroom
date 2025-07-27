@@ -106,3 +106,5 @@ private:
   bool isTmode_ = false;
   bool isLogout = false;
 };
+
+void showInfo(const std::string info);

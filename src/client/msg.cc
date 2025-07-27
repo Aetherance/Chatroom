@@ -11,12 +11,6 @@ using namespace ilib;
 
 extern std::string show_info;
 
-extern std::string show_info2;
-
-extern std::string show_info3;
-
-extern std::string show_info4;
-
 extern std::vector<std::string> friendRequests;
 
 extern std::vector<Friend>friends;
@@ -199,17 +193,16 @@ void MsgClient::initServiceCallbackMap() {
 
 void MsgClient::doAddFriendBack(const Message & msgProto) {
   if(msgProto.text() == ADD_FRIEND_SEND_SUCCESS) {
-    show_info = "好友申请已发送!";
+    showInfo("好友申请已发送!");
   } else if(msgProto.text() == ADD_FRIEND_SEND_FAILED) {
-    show_info = "用户不存在!";
+    showInfo("用户不存在!");
   }
-  std::thread([&]{ sleep(2); show_info = ""; }).detach();
 }
 
 std::mutex friendRequestsLock;
 
 void MsgClient::doAddFriend(const Message & msgProto) {
-  show_info2 = "新的好友申请!";
+  showInfo("新的好友申请!");
   std::lock_guard<std::mutex> lock(friendRequestsLock);
   friendRequests.push_back(msgProto.from());
 }
@@ -225,23 +218,20 @@ void MsgClient::doUpdateFriendState(const Message & msgProto,bool isOnline) {
 void MsgClient::doDeleteFriend(const Message & msgProto) {
   friends.clear();
   pullFriendList();
-  show_info = "您已和" + msgProto.from() + "的好友关系已断开!";
-  std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
+  showInfo("您已和" + msgProto.from() + "的好友关系已断开!");
 }
 
 void MsgClient::doCreateGroup(const Message & msgProto) {
-  show_info3 = "已加入新群聊" + msgProto.from();
+  showInfo("已加入新群聊" + msgProto.from());
   pullGroupList();
-  std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
 }
 
 void MsgClient::doAddGroupBack(const Message & msgProto) {
   if(msgProto.text() == ADD_GROUP_SEND_SUCCESS) {
-    show_info4 = "加群申请已发送";
+    showInfo("加群申请已发送");
   } else {
-    show_info4 = "群聊不存在!";
+    showInfo("群聊不存在!");
   } 
-  std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
 }
 
 std::mutex groupRequestsLock;
@@ -249,7 +239,7 @@ std::mutex groupRequestsLock;
 void MsgClient::doAddGroup(const Message & msgProto) {
   std::lock_guard<std::mutex> lock(groupRequestsLock);
   applications.push_back({msgProto.from(),msgProto.to()});
-  show_info3 = "有新的加群申请!";
+  showInfo("有新的加群申请!");
   groupVerifyScreen.PostEvent(ftxui::Event::Custom);
 }
 
@@ -260,28 +250,24 @@ void MsgClient::verifyGroup(const std::string & who, const std::string & group) 
 void MsgClient::doVeriGroup(const Message & msg) {
   if(msg.to() == ENTERING_NEW_GROUP) {
     groups.push_back({msg.from()});
-    show_info4 = "您已经加入" + msg.from();
-    std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
+    showInfo("您已经加入" + msg.from());
     pullGroupList();
   } else if(msg.to() == VERI_GROUP_SUCCESS) {
-    show_info4 = msg.from() + "加入了您的群聊";
-    std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
+    showInfo(msg.from() + "加入了您的群聊");
   }
 }
 
 void MsgClient::doGroupMemberQuit(const Message & msg) {
-  show_info4 = "用户 " + msg.from() + " 退出了您的群聊 " + msg.to();
-  std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
+  showInfo("用户 " + msg.from() + " 退出了您的群聊 " + msg.to());
   pullGroupList();
 }
 
 void MsgClient::doQuitGroup(const Message & msg) {
   if(msg.to() == QUIT_GROUP_SUCCESS) {
-    show_info4 = "已退出群聊" + msg.from();
+    showInfo("已退出群聊" + msg.from());
   } else if(msg.to() == QUIT_GROUP_FAILED) {
-    show_info4 = "退出失败! 您不能退出自己的群聊。 尝试解散群聊!";
+    showInfo("退出失败! 您不能退出自己的群聊。 尝试解散群聊!");
   }
-  std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
   pullGroupList();
 }
 
@@ -328,12 +314,12 @@ void MsgClient::doRecvFile(Message msgProto) {
     std::string fileName = msgProto.to();
     messageMap[msgProto.from()].push_back({"系统","你收到了来自" + msgProto.from() + "的文件。 请前往文件页面接收。",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
     messageMap[msgProto.from()].push_back({"系统","文件名: " + fileName,ilib::base::Timestamp::now().microSecondsSinceEpoch()});
-    show_info2 = "你收到了来自" + msgProto.from() + "的文件。";
+    showInfo("你收到了来自" + msgProto.from() + "的文件。");
   } else {
     std::string fileName = msgProto.to();
     messageMap[msgProto.from()].push_back({"系统","你收到了来自" + msgProto.from() + "的文件。 请前往文件页面接收。",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
     messageMap[msgProto.from()].push_back({"系统","文件名: " + fileName,ilib::base::Timestamp::now().microSecondsSinceEpoch()});
-    show_info = "你收到了来自" + msgProto.from() + "的文件。";
+    showInfo("你收到了来自" + msgProto.from() + "的文件。");
   }
   
   if(msgProto.isgroupmessage()) {
@@ -346,8 +332,7 @@ void MsgClient::doRecvFile(Message msgProto) {
 }
 
 void MsgClient::doGroupExist(Message message) {
-  show_info4 = "创建失败! 已经存在一个同名的群聊了!";
-  std::thread([&]{ sleep(2); show_info4 = ""; }).detach();
+  showInfo("创建失败! 已经存在一个同名的群聊了!");
 }
 
 void MsgClient::doPullDlList(Message msgProto) {

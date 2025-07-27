@@ -200,4 +200,6 @@ private:
   threadpool pool_;
 };
 
+void showInfo(const std::string);
+
 #endif

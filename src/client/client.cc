@@ -21,6 +21,10 @@ extern std::unordered_map<std::string,bool> NewMessageMap;
 
 extern ScreenInteractive FriendListScreen;
 
+extern std::string show_info;
+
+threadpool InfoPool(1);
+
 /* 构造函数 : 初始化UI界面 */
 Client::Client(const std::string & ip) : loginScreen_(ScreenInteractive::Fullscreen()),
                    registerScreen_(ScreenInteractive::Fullscreen()),
@@ -258,3 +262,12 @@ void Client::downloadFile(const std::string & filename,const std::string & local
 }
 
 void Client::tMode() {}
+
+void showInfo(const std::string info) {
+  InfoPool.enqueue([info]{
+    show_info = info;
+    sleep(3);
+    show_info = "";
+    MsgScreen.PostEvent(ftxui::Event::Custom);
+  });
+}

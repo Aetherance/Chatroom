@@ -50,7 +50,7 @@ void Client::setOp() {
     msgClient_.pullGroupMembers(false,group_name);
     msgClient_.pullGroupOPs();
 
-    show_info = "管理员设置完成!";
+    showInfo("管理员设置完成!");
     screen.Exit();
   });
   auto btn_cancel = Button("返回", screen.ExitLoopClosure());

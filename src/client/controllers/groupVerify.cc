@@ -4,7 +4,7 @@ using namespace ftxui;
 
 std::vector<GroupApplication> applications = {};
 
-extern std::string show_info3;
+extern std::string show_info;
 
 ScreenInteractive groupVerifyScreen = ScreenInteractive::Fullscreen();
 
@@ -12,8 +12,6 @@ void Client::GroupVerify() {
   
   int selected_application = 0;
   auto application_list = Container::Vertical({});
-  
-  show_info3.clear();
   
   for (size_t i = 0; i < applications.size(); ++i) {
     auto approve_btn = Button(" 通过 ", [=] { 

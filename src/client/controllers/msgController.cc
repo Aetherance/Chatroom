@@ -14,8 +14,6 @@ extern bool isGroupBreak;
 
 extern std::string show_info;
 
-extern std::string show_info2;
-
 std::string MessageKey;
 std::string PeerUserName;
 std::string PeerEmail;
@@ -201,9 +199,6 @@ Component Client::makeRenderer() {
       hbox({
         text(" 💬  " + show_info)
       }) | size(HEIGHT,EQUAL, show_info.empty() ? 0 : 1) | (show_info.empty() ? size(WIDTH,EQUAL,0) : border),
-      hbox({
-        text(" 💬 " + show_info2)
-      }) | size(HEIGHT,EQUAL, show_info2.empty() ? 0 : 1) | (show_info2.empty() ? size(WIDTH,EQUAL,0) : border),
       // 主聊天区域
       hbox({
         vbox({

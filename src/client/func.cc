@@ -17,8 +17,6 @@ extern ftxui::ScreenInteractive MsgScreen;
 
 extern ftxui::ScreenInteractive findScreen;
 
-extern std::string show_info2;
-
 std::vector<Friend> users;
 
 std::unordered_map<std::string,std::string> emailHashUserInfo;
@@ -92,7 +90,7 @@ void MsgClient::pullFriendList(bool isRecv,Message msg) {
   
 
   if(friends.empty()) {
-    show_info2 = "前往\"发现\"或搜索邮箱以添加您的第一个好友! ";
+    showInfo("前往\"发现\"或搜索邮箱以添加您的第一个好友! ");
   }
 
   FriendListScreen.PostEvent(ftxui::Event::Custom);

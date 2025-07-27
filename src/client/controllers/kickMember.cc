@@ -47,7 +47,7 @@ void Client::kickMember() {
 
     msgClient_.pullGroupMembers(false,group_name);
 
-    show_info = "你移除了一个群的群成员!";
+    showInfo("你移除了一个群的群成员!");
     screen.Exit();
   });
   auto btn_cancel = Button("返回", screen.ExitLoopClosure());

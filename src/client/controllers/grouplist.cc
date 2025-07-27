@@ -4,9 +4,7 @@ using namespace ftxui;
 
 std::vector<Group> groups = {};
 
-std::string show_info3;
-
-std::string show_info4;
+extern std::string show_info;
 
 extern std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
 
@@ -89,11 +87,8 @@ void Client::GroupList() {
     return vbox({
       text("Chatroom") | bold | center,
       hbox({
-        text(" 💬  " + show_info3)
-      }) | size(HEIGHT,EQUAL, show_info3.empty() ? 0 : 1) | (show_info3.empty() ? size(WIDTH,EQUAL,0) : border),
-      hbox({
-        text(" 💬 " + show_info4)
-      }) | size(HEIGHT,EQUAL, show_info4.empty() ? 0 : 1) | (show_info4.empty() ? size(WIDTH,EQUAL,0) : border),
+        text(" 💬  " + show_info)
+      }) | size(HEIGHT,EQUAL, show_info.empty() ? 0 : 1) | (show_info.empty() ? size(WIDTH,EQUAL,0) : border),
       hbox({
         input->Render() | flex,
         add_button->Render(),

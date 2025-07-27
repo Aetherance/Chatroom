@@ -8,8 +8,6 @@ std::vector<Friend> friends = {};
 
 std::string show_info;
 
-std::string show_info2;
-
 extern std::unordered_map<std::string,std::vector<messageinfo>> messageMap;
 
 extern std::unordered_map<std::string,bool> NewMessageMap;
@@ -24,9 +22,8 @@ void Client::FriendList() {
   msgClient_.pullAllUsers();
 
   if(isFirstLogin) {
-    show_info = "👋 " + getCurrentTimePeriod() + "好!";
+    showInfo("👋 " + getCurrentTimePeriod() + "好!");
     isFirstLogin = false;
-    std::thread([]{ sleep(3); show_info.clear(); FriendListScreen.PostEvent(Event::Custom); }).detach();
   } else {
     show_info = "";
   }
@@ -48,6 +45,11 @@ void Client::FriendList() {
   
   // 添加好友按钮
   Component add_button = Button("添加", [&] {
+    if(new_friend == msgClient_.LocalEmail()) {
+      showInfo("不可以添加自己为好友!");
+      new_friend.clear();
+      return ;
+    }
     if (!new_friend.empty()) {
       msgClient_.addFriend(msgClient_.LocalEmail(),new_friend);
       new_friend.clear();
@@ -115,9 +117,6 @@ void Client::FriendList() {
       hbox({
         text(" 💬  " + show_info)
       }) | size(HEIGHT,EQUAL, show_info.empty() ? 0 : 1) | (show_info.empty() ? size(WIDTH,EQUAL,0) : border),
-      hbox({
-        text(" 💬 " + show_info2)
-      }) | size(HEIGHT,EQUAL, show_info2.empty() ? 0 : 1) | (show_info2.empty() ? size(WIDTH,EQUAL,0) : border),
       hbox({
         input->Render() | flex,
         add_button->Render(),

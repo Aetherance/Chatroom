@@ -4,12 +4,8 @@ using namespace ftxui;
 
 std::vector<std::string> friendRequests = {};
 
-extern std::string show_info2;
-
 void Client::VerifyFriend() {
   auto screen = ScreenInteractive::Fullscreen();
-
-  show_info2 = "";
 
   // 主容器
   auto main_container = Container::Vertical({});
