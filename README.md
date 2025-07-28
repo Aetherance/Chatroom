@@ -26,7 +26,9 @@
 
 # 使用客户端
 
-使用客户端 (需要提前安装docker): 
+使用客户端:
+
+依赖 `docker`
 
 获取 run_cli.sh
 
@@ -130,7 +132,7 @@ SUM:                            88           1781            274           6644
 
 目录结构
 ```
-../src/
+src/
 ├── base
 │   └── responsecode.h
 ├── client
@@ -140,6 +142,7 @@ SUM:                            88           1781            274           6644
 │   │   ├── createGroup.cc
 │   │   ├── deleteFriend.cc
 │   │   ├── deleteGroup.cc
+│   │   ├── download
 │   │   ├── fileService.cc
 │   │   ├── fileTrans.cc
 │   │   ├── find.cc
@@ -148,26 +151,29 @@ SUM:                            88           1781            274           6644
 │   │   ├── grouplist.cc
 │   │   ├── groupSetting.cc
 │   │   ├── groupVerify.cc
+│   │   ├── history
 │   │   ├── kickMember.cc
 │   │   ├── loginController.cc
 │   │   ├── msgController.cc
+│   │   ├── prompts.cc
 │   │   ├── registerController.cc
 │   │   ├── setOp.cc
 │   │   ├── settings.cc
+│   │   ├── upload
 │   │   └── userSetting.cc
-│   ├── download
 │   ├── ftp.cc
 │   ├── func.cc
 │   ├── include
-│   │   ├── ClHeartBeat.h
 │   │   ├── client.h
 │   │   ├── ClientHeartBeat.h
 │   │   ├── ftp.h
 │   │   ├── msg.h
 │   │   ├── sig.h
+│   │   ├── threadpool.h
 │   │   └── user.h
 │   ├── main.cc
 │   ├── msg.cc
+│   ├── threadpool.cc
 │   └── user.cc
 ├── netlib
 │   ├── base
@@ -216,9 +222,11 @@ SUM:                            88           1781            274           6644
 └── server
     ├── chat
     │   ├── chatServer.cc
+    │   ├── chat-service.cc
     │   └── msgHandler.cc
     ├── CMakeLists.txt
     ├── ftp
+    │   ├── file-service.cc
     │   └── ftpServer.cc
     ├── include
     │   ├── ChatServer.h
@@ -234,8 +242,9 @@ SUM:                            88           1781            274           6644
     │   ├── groups.cc
     │   └── service.cc
     └── user
+        ├── auth-service.cc
         ├── userServer.cc
         └── verifiCode.cc
 
-16 directories, 90 files
+18 directories, 95 files
 ```
