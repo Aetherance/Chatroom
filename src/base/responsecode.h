@@ -77,6 +77,7 @@ inline void SendResponseCode(int code,int fd) {
 #define PULL_ALL_USERS              "PULL_ALL_USERS"
 #define PULL_GROUP_OWNER            "PULL_GROUP_OWNER"
 #define PULL_GROUP_OPS              "PULL_GROUP_OPS"
+#define REJECT                      "REJECT"
 
 /* 群成员标识 */
 

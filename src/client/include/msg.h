@@ -156,6 +156,10 @@ public:
   bool isGroupOp(std::string user, std::string group);
 
   std::vector<std::string> getGroupMemberEmail(std::string group) { return groupMembersEmail[group]; }
+
+  void reject(const std::string &);
+
+  void doRejected(Message msg);
 private:
   void sendMsgTo(const std::string & who,const std::string & msg);
 

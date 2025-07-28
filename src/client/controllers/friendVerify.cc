@@ -22,7 +22,8 @@ void Client::VerifyFriend() {
     });
 
     // 拒绝按钮回调
-    auto reject_btn = Button("忽略", [i,req, &screen] {
+    auto reject_btn = Button("拒绝", [i,req, &screen,this] {
+      msgClient_.reject(req);
       friendRequests.erase(friendRequests.begin() + i);
       screen.PostEvent(Event::Custom);
     });

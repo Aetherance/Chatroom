@@ -34,6 +34,7 @@ ServiceHandler::ServiceHandler(ChatServer * server) : chatServer_(server) {
   server->serviceCallBacks_[PULL_ALL_USERS] = std::bind(&ServiceHandler::onPullAllUser,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[PULL_GROUP_OWNER] = std::bind(&ServiceHandler::onPullGroupOwner,this,std::placeholders::_1,std::placeholders::_2);
   server->serviceCallBacks_[PULL_GROUP_OPS] = std::bind(&ServiceHandler::onPullGroupOPs,this,std::placeholders::_1,std::placeholders::_2);
+  server->serviceCallBacks_[REJECT] = std::bind(&ServiceHandler::onReject,this,std::placeholders::_1,std::placeholders::_2);
 }
 
 std::string ServiceHandler::getGroupOwner(const std::string & group) const {
@@ -158,4 +159,11 @@ void ServiceHandler::onPullAllUser(const net::TcpConnectionPtr & conn,Message ms
   chatServer_->sendMsgToUser(resp,conn);
 
   LOG_INFO_SUCCESS(conn->user_email() + ": Pull All User List!");
+}
+
+void ServiceHandler::onReject(const net::TcpConnectionPtr & conn,Message msgProto) {
+  LOG_INFO(msgProto.from() + " rejected " + msgProto.to());
+  std::string request = msgProto.SerializeAsString();
+
+  chatServer_->sendOrSave(msgProto.to(),request);
 }

@@ -79,6 +79,10 @@ void Client::FriendList() {
     }
   });
 
+  Component infos_button = Button("消息",[&] {
+    infos();
+  });
+
   Component reload = Button("↻ 刷新", [&] {
     msgClient_.pullFriendList();
   });
@@ -88,7 +92,7 @@ void Client::FriendList() {
 
   // 主界面组件
   auto main_component = Container::Vertical({
-    Container::Horizontal({input, add_button , verify_button , delete_button , group_button , find_button , reload}),
+    Container::Horizontal({input, add_button , verify_button , delete_button , group_button , find_button , infos_button ,reload}),
     friends_container,
     cancel_button
   });
@@ -124,6 +128,7 @@ void Client::FriendList() {
         delete_button->Render(),
         group_button->Render(),
         find_button->Render(),
+        infos_button->Render(),
         reload->Render()
       }) | border,
       vbox({

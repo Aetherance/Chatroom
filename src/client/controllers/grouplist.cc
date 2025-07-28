@@ -53,6 +53,10 @@ void Client::GroupList() {
     GroupListScreen.Exit();
   });
 
+  Component info_button = Button("信息", [&] {
+    infos();
+  });
+
   Component reload = Button("↻ 刷新", [&] {
     msgClient_.pullGroupList();
   });
@@ -62,7 +66,7 @@ void Client::GroupList() {
 
   // 主界面组件
   auto main_component = Container::Vertical({
-    Container::Horizontal({input, add_button , create_button , verify_button , delete_button , group_button , reload}),
+    Container::Horizontal({input, add_button , create_button , verify_button , delete_button , group_button , info_button , reload}),
     friends_container,
   });
 
@@ -96,6 +100,7 @@ void Client::GroupList() {
         verify_button->Render(),
         delete_button->Render(),
         group_button->Render(),
+        info_button->Render(),
         reload->Render()
       }) | border,
       vbox({

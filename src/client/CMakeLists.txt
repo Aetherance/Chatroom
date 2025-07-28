@@ -27,6 +27,7 @@ add_executable(client
     controllers/groupSetting.cc
     controllers/setOp.cc
     controllers/kickMember.cc
+    controllers/prompts.cc
     ../../src/protobuf/msg.pb.cc
     ../../src/protobuf/fileInfo.pb.cc
 )

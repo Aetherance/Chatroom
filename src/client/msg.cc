@@ -121,6 +121,8 @@ void MsgClient::onMessage() {
   }
 }
 
+std::vector<std::string> split_messages(const std::string& input);
+
 void MsgClient::parseMsg(std::string msg) {
   if(msg == HEARTBEAT_BACK_MSG) {
     heart.recvAck();
@@ -135,11 +137,11 @@ void MsgClient::parseMsg(std::string msg) {
     if(msgProto.isgroupmessage()) {
       NewMessageMap[msgProto.to()] = true;
       messageMap[msgProto.to()].push_back({emailHashUserInfo[msgProto.from()],msgProto.text(),msgProto.timestamp()});
-      MsgScreenScrollOffset[msgProto.to()] = std::max(0, static_cast<int>(messageMap[msgProto.to()].size()) - visible_lines);
+      MsgScreenScrollOffset[msgProto.to()] = INT_MAX;
     } else {
       NewMessageMap[msgProto.from()] = true;
       messageMap[msgProto.from()].push_back({emailHashUserInfo[msgProto.from()],msgProto.text(),msgProto.timestamp()});
-      MsgScreenScrollOffset[msgProto.from()] = std::max(0, static_cast<int>(messageMap[msgProto.from()].size()) - visible_lines);
+      MsgScreenScrollOffset[msgProto.from()] = INT_MAX;
     }
     MsgScreen.PostEvent(ftxui::Event::Custom);
   }
@@ -189,6 +191,7 @@ void MsgClient::initServiceCallbackMap() {
   serviceCallbackMap[BLOCKED] = std::bind(&MsgClient::doBlockedMessage,this,std::placeholders::_1);
   serviceCallbackMap[UPLOAD_FILE] = std::bind(&MsgClient::doRecvFile,this,std::placeholders::_1);
   serviceCallbackMap[GROUP_EXIST] = std::bind(&MsgClient::doGroupExist,this,std::placeholders::_1);
+  serviceCallbackMap[REJECT] = std::bind(&MsgClient::doRejected,this,std::placeholders::_1);
 }
 
 void MsgClient::doAddFriendBack(const Message & msgProto) {
@@ -302,10 +305,10 @@ void MsgClient::CancelAccount(const std::string & account) {
 void MsgClient::enMapYouMessage(Message msgProto) {
   if(msgProto.isgroupmessage()) {
     messageMap[msgProto.to()].push_back({"You",msgProto.text(),msgProto.timestamp()});
-    MsgScreenScrollOffset[msgProto.to()] = std::max(0, static_cast<int>(messageMap[msgProto.to()].size()) - visible_lines);
+    MsgScreenScrollOffset[msgProto.to()] = INT_MAX;
   } else {
     messageMap[msgProto.from()].push_back({"You",msgProto.text(),msgProto.timestamp()});
-    MsgScreenScrollOffset[msgProto.from()] = std::max(0, static_cast<int>(messageMap[msgProto.from()].size()) - visible_lines);
+    MsgScreenScrollOffset[msgProto.from()] = INT_MAX;
   }
   MsgScreen.PostEvent(ftxui::Event::Custom);
 }
@@ -321,7 +324,7 @@ void MsgClient::doBlockedMessage(Message message) {
     doQuitGroup(msg);
   }
   
-  MsgScreenScrollOffset[message.from()] = std::max(0, static_cast<int>(messageMap[message.from()].size()) - visible_lines);
+  MsgScreenScrollOffset[message.from()] = INT_MAX;
 
   MsgScreen.PostEvent(ftxui::Event::Custom);
 }
@@ -342,9 +345,9 @@ void MsgClient::doRecvFile(Message msgProto) {
   }
   
   if(msgProto.isgroupmessage()) {
-    MsgScreenScrollOffset[msgProto.to()] = std::max(0, static_cast<int>(messageMap[msgProto.to()].size()) - visible_lines);
+    MsgScreenScrollOffset[msgProto.to()] = INT_MAX;
   } else {
-    MsgScreenScrollOffset[msgProto.from()] = std::max(0, static_cast<int>(messageMap[msgProto.from()].size()) - visible_lines);
+    MsgScreenScrollOffset[msgProto.from()] = INT_MAX;
   }
 
   MsgScreen.PostEvent(ftxui::Event::Custom);
@@ -379,4 +382,12 @@ bool MsgClient::isGroupOp(std::string user,std::string group) {
   }
 
   return false;
+}
+
+void MsgClient::reject(const std::string & who) {
+  SerializeSend(REJECT,LocalEmail(),who);
+}
+
+void MsgClient::doRejected(Message msgProto) {
+  showInfo("您的申请已被" + msgProto.from() + "拒绝!");
 }

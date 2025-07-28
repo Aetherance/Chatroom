@@ -84,6 +84,8 @@ private:
 
   void setOp();
 
+  void infos();
+
   std::string generateUniqueFilename(const std::string& originalName);
 
   /* 登录注册客户端 */
