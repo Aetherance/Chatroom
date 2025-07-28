@@ -32,7 +32,9 @@
 
 ```
 wget http://10.30.0.131:9090/download/run_cli.sh
+```
 
+```
 chmod +x ./run_cli.sh
 ```
 
