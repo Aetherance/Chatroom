@@ -7,6 +7,8 @@ WORKDIR /fServer
 
 COPY ./fServer ./fServer
 
+COPY ./run_cli.sh /image/run_cli.sh
+
 COPY ./image /image
 
 CMD ["./fServer"]
