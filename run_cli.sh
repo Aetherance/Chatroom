@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ $# -ne 1 ]; then
+    echo "错误：需要服务器的ip地址"
+    echo "用法：$0 [ip]"
+    exit 1
+fi
+
 if ! docker image inspect "chatroom-cli:v1.0" >/dev/null 2>&1; then
 
 #  获取客户端镜像
