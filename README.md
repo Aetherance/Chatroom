@@ -32,6 +32,8 @@
 
 ```
 wget http://10.30.0.131:9090/download/run_cli.sh
+
+chmod +x ./run_cli.sh
 ```
 
 运行客户端镜像 (无镜像时自动获取)
