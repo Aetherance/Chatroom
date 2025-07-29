@@ -69,11 +69,13 @@ void ChatServer::onMessage(const net::TcpConnectionPtr & conn,net::Buffer* buff,
 
 void ChatServer::onConnection(const net::TcpConnectionPtr & conn) {
   if( conn->connected()) {
+    heart_.newConn(conn->fd());
     assert(conn);
   } else if( !conn->connected()) {
     redis_.srem(onlineUserSet,{conn->user_email()});
     redis_.sync_commit();
     serviceHandler_.FriendBeOffline(conn);
+    heart_.stopConn(conn->fd());
     LOG_INFO("User " + conn->user_email() + " left!");
   }
 }

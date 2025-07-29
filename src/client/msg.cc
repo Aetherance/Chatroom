@@ -48,6 +48,7 @@ MsgClient::MsgClient(FtpClient & ftp,const std::string & ip) :
   heart.setSendMessageCallback([this]{
     safeSend(HEARTBEAT_MSG);
   });
+  heart.run();
 }
 
 MsgClient::~MsgClient() {
@@ -334,9 +335,8 @@ void MsgClient::doRecvFile(Message msgProto) {
   
   if(msgProto.isgroupmessage()) {
     std::string fileName = msgProto.to();
-    messageMap[msgProto.from()].push_back({"系统","你收到了来自" + msgProto.from() + "的文件。 请前往文件页面接收。",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
-    messageMap[msgProto.from()].push_back({"系统","文件名: " + fileName,ilib::base::Timestamp::now().microSecondsSinceEpoch()});
-    showInfo("你收到了来自" + msgProto.from() + "的文件。");
+    messageMap[msgProto.to()].push_back({"系统","你收到了来自" + msgProto.from() + "的文件。 请前往文件页面接收。",ilib::base::Timestamp::now().microSecondsSinceEpoch()});
+    showInfo("你收到了来自" + msgProto.to() + "的文件。");
   } else {
     std::string fileName = msgProto.to();
     messageMap[msgProto.from()].push_back({"系统","你收到了来自" + msgProto.from() + "的文件。 请前往文件页面接收。",ilib::base::Timestamp::now().microSecondsSinceEpoch()});

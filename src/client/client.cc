@@ -243,7 +243,13 @@ void Client::sendFileTo(const std::string & who, const std::string fileName, con
   ftpClient_.connect();
   ftpClient_.uploadFile(filePath,who,fileName);
 
-  std::string toUser = std::filesystem::path(who).parent_path();
+  std::string toUser;
+
+  if( !msgClient_.isPeerGroup()) {
+    toUser = std::filesystem::path(who).parent_path();
+  } else {
+    toUser = who;
+  }
 
   Message msg;
   msg.set_text(UPLOAD_FILE);

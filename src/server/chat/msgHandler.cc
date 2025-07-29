@@ -24,6 +24,7 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
   if(msg.from() == msg.to() && msg.from() == "SET_CONN_USER") {
     conn->set_user_email(msg.text());
     userHashConn[msg.text()] = conn;
+    heart_.addFdHash(conn->fd(),msg.text());
     redis_.sadd(onlineUserSet,{msg.text()});
     offlineMsgConsumer(conn);
     serviceHandler_.FriendBeOnline(conn);

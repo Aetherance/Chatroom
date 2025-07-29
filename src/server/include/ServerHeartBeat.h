@@ -7,6 +7,7 @@
 #include<unistd.h>
 #include"logger.h"
 #include"TcpServer.h"
+#include"responsecode.h"
 
 using sendMessageCallback = std::function<void(const ilib::net::TcpConnectionPtr &)>;
 
@@ -19,6 +20,8 @@ public:
   ~ServerHeart();
 
   void newConn(int fd);
+
+  void addFdHash(int fd,const std::string & email) { fdHashEmail_[fd] = email; }
 
   void stopConn(int fd);
 
@@ -36,6 +39,8 @@ private:
   ilib::net::TcpServer * server_;
 
   std::unordered_set<int> conns_; 
+
+  std::unordered_map<int,std::string> fdHashEmail_;
 };
 
 inline void ServerHeart::newConn(int fd) {
@@ -50,16 +55,21 @@ inline void ServerHeart::stopConn(int fd) {
 inline ServerHeart::ServerHeart(ilib::net::TcpServer * server) {
   epfd_ = ::epoll_create1(0);
   std::thread([&]{
+    cpp_redis::client redis;
+    redis.connect(REDIS_HOST,REDIS_PORT);
     while (true) {
       std::vector<::epoll_event> revents(16);
-      int n = ::epoll_wait(epfd_,revents.data(),1,60*1000);
+      int n = ::epoll_wait(epfd_,revents.data(),1,4*1000);
       int i = 0;
       for(auto connIt = conns_.begin(); i<conns_.size() ; ++connIt,++i) {
         if(connIt != conns_.end()) {
           int conn = *connIt;
           int diff = ilib::Timestamp::now().secondsSinceEpoch() - heartBeatTimeTable_[conn];
-          if(diff > 75) {
+          LOG_INFO("Last heart beat time from fd:" + std::to_string(conn) + ": " + std::to_string(diff)) + "s ago";
+          if(diff > 50) {
             LOG_WARN("连接超时!");
+            redis.srem("onlineUserSet",{fdHashEmail_[conn]});
+            redis.sync_commit();
             stopConn(conn);
             ::close(conn);
           }

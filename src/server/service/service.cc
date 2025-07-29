@@ -108,8 +108,10 @@ void ServiceHandler::onUploadFile(const net::TcpConnectionPtr & conn,Message msg
   const std::string to_user = msgProto.args(0);
   if(isGroupExist(to_user)) {
     msgProto.set_to(to_user);
+    LOG_INFO("Sending a file in group!");
     chatServer_->onGroupMessage(to_user,msgProto);
   } else {
+    LOG_INFO("Sending a file to user!");
     chatServer_->sendOrSave(to_user,msgProto.SerializeAsString());
     LOG_INFO("User " + msgProto.from() + " upload file to " + to_user);
   }
