@@ -42,13 +42,12 @@ MsgClient::MsgClient(FtpClient & ftp,const std::string & ip) :
           chatServerAddr_(ip,7070),
           ftpClient_(ftp),
           heart(chatServerfd_),
-          pool_(1)
+          pool_(8)
 {
   initServiceCallbackMap();
   heart.setSendMessageCallback([this]{
     safeSend(HEARTBEAT_MSG);
   });
-  heart.run();
 }
 
 MsgClient::~MsgClient() {
@@ -56,6 +55,7 @@ MsgClient::~MsgClient() {
 }
 
 void MsgClient::connect() {
+  heart.run();
   ::connect(chatServerfd_,(sockaddr*)&chatServerAddr_.getSockAddr(),chatServerAddr_.getSockLen());
   Message connSetMsg;
   connSetMsg.set_from("SET_CONN_USER");
@@ -121,8 +121,6 @@ void MsgClient::onMessage() {
     }
   }
 }
-
-std::vector<std::string> split_messages(const std::string& input);
 
 void MsgClient::parseMsg(std::string msg) {
   if(msg == HEARTBEAT_BACK_MSG) {

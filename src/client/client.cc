@@ -25,7 +25,7 @@ extern std::string show_info;
 
 extern std::vector<std::string> info_list;
 
-threadpool InfoPool(1);
+threadpool * infoPool;
 
 /* 构造函数 : 初始化UI界面 */
 Client::Client(const std::string & ip) : loginScreen_(ScreenInteractive::Fullscreen()),
@@ -33,8 +33,10 @@ Client::Client(const std::string & ip) : loginScreen_(ScreenInteractive::Fullscr
                    mainScreen_(ScreenInteractive::Fullscreen()),
                    msgClient_(ftpClient_,ip),
                    ftpClient_(ip),
-                   userClient_(ip)
+                   userClient_(ip),
+                   infoPool_(1)
 {
+  infoPool = &infoPool_;
   std::filesystem::create_directory("./upload");
   std::filesystem::create_directory("./history");
 }
@@ -272,7 +274,7 @@ void Client::downloadFile(const std::string & filename,const std::string & local
 void Client::tMode() {}
 
 void showInfo(const std::string info) {
-  InfoPool.enqueue([info]{
+  infoPool->enqueue([info]{
     show_info = info;
     info_list.push_back(info);
     sleep(3);

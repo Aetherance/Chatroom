@@ -109,6 +109,8 @@ private:
 
   bool isTmode_ = false;
   bool isLogout = false;
+
+  threadpool infoPool_;
 };
 
 void showInfo(const std::string info);
