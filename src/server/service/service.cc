@@ -78,6 +78,7 @@ void ServiceHandler::onCancel(const net::TcpConnectionPtr & conn,Message msgProt
     onQuitGroup(conn,quitGroupMsg); 
   }
 
+  chatServer_->redis_.del({"token:" + user});
   chatServer_->redis_.del({chatServer_->offlineMessages + user});
   chatServer_->redis_.srem(chatServer_->onlineUserSet,{user});
   chatServer_->redis_.hdel("email_userinfos",{user});
