@@ -59,14 +59,14 @@ inline ServerHeart::ServerHeart(ilib::net::TcpServer * server) {
     redis.connect(REDIS_HOST,REDIS_PORT);
     while (true) {
       std::vector<::epoll_event> revents(16);
-      int n = ::epoll_wait(epfd_,revents.data(),1,4*1000);
+      int n = ::epoll_wait(epfd_,revents.data(),1,-1);
       int i = 0;
       for(auto connIt = conns_.begin(); i<conns_.size() ; ++connIt,++i) {
         if(connIt != conns_.end()) {
           int conn = *connIt;
           int diff = ilib::Timestamp::now().secondsSinceEpoch() - heartBeatTimeTable_[conn];
           LOG_INFO("Last heart beat time from fd:" + std::to_string(conn) + ": " + std::to_string(diff)) + "s ago";
-          if(diff > 50) {
+          if(diff > 70) {
             LOG_WARN("连接超时!");
             redis.srem("onlineUserSet",{fdHashEmail_[conn]});
             redis.sync_commit();

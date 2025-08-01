@@ -192,7 +192,13 @@ void Client::MsgController() {
         }
     };
 
-    input = Input(&input_content, "输入消息", input_option);
+    input = Input(&input_content, "输入消息", input_option) | CatchEvent([&](Event event) {
+        if(event == Event::CtrlI) {
+            return true;
+        } else {
+            return false;
+        }
+    });
 
     // 发送按钮
     send_btn = Button("发送", [&] {

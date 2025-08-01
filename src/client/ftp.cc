@@ -72,6 +72,8 @@ void FtpClient::uploadFile(const std::string &filePath, const std::string &remot
 
   if(TotalBytes == TransedBytes) {
     transList[filename] = "传输完成";
+    sleep(1);
+    transList.erase(filename);
   } else {
     transList[filename] = "传输失败";
   }
@@ -141,6 +143,8 @@ void FtpClient::downloadFile(const std::filesystem::path fileDir, const std::str
 
   if(TotalBytes == TransedBytes) {
     transList[filename] = "传输完成";
+    sleep(1);
+    transList.erase(filename);
   } else {
     transList[filename] = "传输失败";
   }

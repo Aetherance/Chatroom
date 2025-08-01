@@ -8,6 +8,8 @@ std::string info = "";
 
 auto findScreen = ScreenInteractive::Fullscreen();
 
+extern std::vector<Friend> friends;
+
 void Client::FindFriend() {
   msgClient_.pullAllUsers();
 
@@ -33,9 +35,25 @@ void Client::FindFriend() {
       findScreen.PostEvent(Event::Custom);
     });
 
+    auto add_ed_btn = Button("已添加", [&, user_id] {
+      info = "已经添加过该好友!";
+
+      std::thread([]{ sleep(3); info = ""; findScreen.PostEvent(Event::Custom); }).detach();
+
+      findScreen.PostEvent(Event::Custom);
+    });
+
+    bool isExist = false;
+
+    for(auto f : friends) {
+      if(f.email == user_id) {
+        isExist = true;
+      }
+    }
+
     auto line = Container::Horizontal({
         Renderer([i] { return text(" " + users[i].username + " (" + users[i].email  + ")") | flex; }),
-        add_btn,
+        ( !isExist ? add_btn : add_ed_btn),
     }) | border;
 
     main_container->Add(line);

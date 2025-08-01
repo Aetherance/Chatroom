@@ -3,6 +3,7 @@
 using namespace ftxui;
 
 std::vector<std::string> friendRequests = {};
+extern std::vector<Friend> friends;
 
 void Client::VerifyFriend() {
   auto screen = ScreenInteractive::Fullscreen();

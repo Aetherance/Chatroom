@@ -62,6 +62,8 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
         LOG_INFO("User is not online , message stored!");
         onOfflineMsg(msg.to(),msg_str);
       }
+
+      DBWriter_.enqueue("messages",msg.SerializeAsString());
     }
   }
 };
@@ -79,8 +81,6 @@ void ChatServer::sendMsgToUser(const std::string & Msg,const net::TcpConnectionP
   std::string buffmsg = sendBuff.retrieveAsString();
   
   conn->send(buffmsg);
-
-  DBWriter_.enqueue("messages",Msg);
 }
 
 bool ChatServer::isUserOnline(const std::string & user_email) {

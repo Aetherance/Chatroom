@@ -55,7 +55,7 @@ MsgClient::~MsgClient() {
 }
 
 void MsgClient::connect() {
-  heart.run();
+  // heart.run();
   ::connect(chatServerfd_,(sockaddr*)&chatServerAddr_.getSockAddr(),chatServerAddr_.getSockLen());
   Message connSetMsg;
   connSetMsg.set_from("SET_CONN_USER");
@@ -191,6 +191,7 @@ void MsgClient::initServiceCallbackMap() {
   serviceCallbackMap[UPLOAD_FILE] = std::bind(&MsgClient::doRecvFile,this,std::placeholders::_1);
   serviceCallbackMap[GROUP_EXIST] = std::bind(&MsgClient::doGroupExist,this,std::placeholders::_1);
   serviceCallbackMap[REJECT] = std::bind(&MsgClient::doRejected,this,std::placeholders::_1);
+  serviceCallbackMap[GROUP_BROKEN] = std::bind(&MsgClient::doGroupBreak,this,std::placeholders::_1);
 }
 
 void MsgClient::doAddFriendBack(const Message & msgProto) {
@@ -209,6 +210,12 @@ void MsgClient::doAddFriend(const Message & msgProto) {
   bool isExist = false;
   for(auto & fr : friendRequests) {
     if(fr == msgProto.from()) {
+      isExist = true;
+    } 
+  }
+
+  for(auto f : friends) {
+      if(f.email == msgProto.from()) {
       isExist = true;
     }
   }
@@ -289,6 +296,7 @@ void MsgClient::doQuitGroup(const Message & msg) {
   } else if(msg.to() == QUIT_GROUP_FAILED) {
     showInfo("退出失败! 您不能退出自己的群聊。 尝试解散群聊!");
   }
+  messageMap[msg.from()].clear();
   pullGroupList();
 }
 
@@ -388,4 +396,9 @@ void MsgClient::reject(const std::string & who) {
 
 void MsgClient::doRejected(Message msgProto) {
   showInfo("您的申请已被" + msgProto.from() + "拒绝!");
+}
+
+void MsgClient::doGroupBreak(Message msgProto) {
+  showInfo("群" + msgProto.from() + "解散了!");
+  messageMap[msgProto.from()].clear();
 }
