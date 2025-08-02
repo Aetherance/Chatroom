@@ -5,4 +5,4 @@
 /image
 /depends
 install_env.sh
-.server-deploy
+/server-deploy
