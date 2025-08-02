@@ -16,7 +16,6 @@ add_executable(server
     service/groups.cc
 )
 
-# 链接netlib库
 target_link_libraries(server
     netlib
     curl

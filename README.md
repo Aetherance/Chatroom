@@ -33,8 +33,7 @@
 获取 run_cli.sh
 
 ```
-wget http://10.30.0.131:9090/download/run_cli.sh
-chmod +x ./run_cli.sh
+wget http://10.30.0.131:9090/download/run_cli.sh && chmod +x ./run_cli.sh
 ```
 
 运行客户端镜像 (无镜像时自动获取)
@@ -53,41 +52,19 @@ chmod +x ./run_cli.sh
 
 如果使用docker镜像启动客户端 需要将要传输的文件放在 /tmp/upload 然后输入文件名上传文件
 
-# 环境配置:
+# 环境
 
-ubuntu:
+OS: `Ubuntu 25.04 x86_64`
 
-```
-sudo ./install_env.sh
-```
+Shell: `fish 4.0.1` 
 
-配置客户端动态库
+编译器: `g++ 14.2.0`
 
-Jsoncpp 1.9.6
-```
-wget https://github.com/open-source-parsers/jsoncpp/archive/refs/tags/1.9.6.tar.gz -O 1.9.6.tar.gz
-tar -xzvf 1.9.6.tar.gz
+构建工具: `CMake 3.31.6`
 
-cd jsoncpp-1.9.6/
-mkdir build
+客户端依赖于动态库 `Jsoncpp 1.9.6` 和 `protobuf 3.21.12`
 
-cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DJSONCPP_WITH_TESTS=OFF -DBUILD_SHARED_LIBS=ON ..
-make -j$(nproc)
-sudo make install
-```
-
-protobuf 3.21.12
-
-```
-https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.21.12.tar.gz
-tar -xzvf v3.21.12.tar.gz
-./autogen.sh
-./configure --prefix=/usr/local
-make -j$(nproc)
-sudo make install
-sudo ldconfig
-```
+此外 项目的依赖还有 `curl` `cpp_redis` 和 `FTXUI`
 
 # 编译 及 运行
 
@@ -96,7 +73,7 @@ sudo ldconfig
 ```
 mkdir build && cd build
 cmake ..
-make
+make -j(nproc)
 ```
 
 运行服务端
@@ -109,24 +86,30 @@ make
 ./client
 ```
 
+# 部署
+
+使用 `docker compose` 部署项目
+
+在项目根目录执行 `docker compose up`
+
 # 补充
 
-代码量约6600行
+代码量约6700行
 
 ```
-cloc ../src/server/ ../src/netlib/ ../src/client/
-      89 text files.
+      88 text files.
       88 unique files.                              
-       1 files ignored.
+       0 files ignored.
 
+github.com/AlDanial/cloc v 2.04  T=0.03 s (2925.6 files/s, 292863.2 lines/s)
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-C++                             50           1161            199           4854
-C/C++ Header                    35            600             69           1632
+C++                             50           1169            200           4901
+C/C++ Header                    35            608             78           1669
 CMake                            3             20              6            158
 -------------------------------------------------------------------------------
-SUM:                            88           1781            274           6644
+SUM:                            88           1797            284           6728
 -------------------------------------------------------------------------------
 ```
 
@@ -151,7 +134,6 @@ src/
 │   │   ├── grouplist.cc
 │   │   ├── groupSetting.cc
 │   │   ├── groupVerify.cc
-│   │   ├── history
 │   │   ├── kickMember.cc
 │   │   ├── loginController.cc
 │   │   ├── msgController.cc
@@ -159,8 +141,8 @@ src/
 │   │   ├── registerController.cc
 │   │   ├── setOp.cc
 │   │   ├── settings.cc
-│   │   ├── upload
 │   │   └── userSetting.cc
+│   ├── download
 │   ├── ftp.cc
 │   ├── func.cc
 │   ├── include
@@ -174,6 +156,7 @@ src/
 │   ├── main.cc
 │   ├── msg.cc
 │   ├── threadpool.cc
+│   ├── upload
 │   └── user.cc
 ├── netlib
 │   ├── base
@@ -231,10 +214,12 @@ src/
     ├── include
     │   ├── ChatServer.h
     │   ├── DBWriterPool.h
+    │   ├── download
     │   ├── FtpServer.h
-    │   ├── heartBeat.h
+    │   ├── history
     │   ├── ServerHeartBeat.h
     │   ├── ServiceHandler.h
+    │   ├── upload
     │   └── UserServer.h
     ├── main.cc
     ├── service
@@ -246,5 +231,5 @@ src/
         ├── userServer.cc
         └── verifiCode.cc
 
-18 directories, 95 files
+21 directories, 94 files
 ```
