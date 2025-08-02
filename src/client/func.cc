@@ -158,6 +158,7 @@ void MsgClient::pullGroupMembers(bool isRecv,std::string request_group,Message m
   } else {
     std::string group = msg.to();
     groupMembers[group].clear();
+    groupMembersEmail[group].clear();
     for(int i = 0;i<msg.args_size();i++) {
       groupMembers[group].push_back(msg.args(i));
       groupMembersEmail[group].push_back(extractSubstring(msg.args(i)));

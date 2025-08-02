@@ -50,7 +50,7 @@ void Client::kickMember() {
     showInfo("你移除了一个群的群成员!");
     screen.Exit();
   });
-  auto btn_cancel = Button("返回", screen.ExitLoopClosure());
+  auto btn_cancel = Button("返回", [&]{ screen.Exit(); });
 
   // 布局（保持原有结构）
   auto layout = Container::Vertical({

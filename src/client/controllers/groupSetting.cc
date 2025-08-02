@@ -21,7 +21,7 @@ void Client::GroupSettings() {
 
   bool isOpGroup = msgClient_.isGroupOp(msgClient_.LocalEmail(),msgClient_.peerEmail());
 
-  auto button1 = Button("设置管理员", [=]{ 
+  auto button1 = Button("设置管理员", [=]{
     setOp();
   });
 
