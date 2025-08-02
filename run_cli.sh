@@ -6,7 +6,7 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-if ! docker image inspect "chatroom-cli:v2.0" >/dev/null 2>&1; then
+if ! docker image inspect "chatroom-cli:v3.0" >/dev/null 2>&1; then
 
 #  获取客户端镜像
   if ! wget http://$1:9090/download/chatroom-cli.tar; then 
@@ -33,4 +33,4 @@ fi
 
 clear
 
-docker run -it --rm -v "/tmp/history:/Chatroom/history" -v "/tmp/download:/Chatroom/download" -v "/tmp/upload:/Chatroom/upload" chatroom-cli:v2.0 ./client $1
+docker run -it --rm -v "/tmp/history:/Chatroom/history" -v "/tmp/download:/Chatroom/download" -v "/tmp/upload:/Chatroom/upload" chatroom-cli:v3.0 ./client $1

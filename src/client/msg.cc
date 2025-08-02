@@ -307,6 +307,7 @@ bool MsgClient::isPeerGroup() const {
 void MsgClient::CancelAccount(const std::string & account) {
   SerializeSend(CANCEL,LocalEmail_,LocalEmail_);
   std::filesystem::remove("./history/" + LocalEmail_ + ".data");
+  messageMap.clear();
 }
 
 void MsgClient::enMapYouMessage(Message msgProto) {

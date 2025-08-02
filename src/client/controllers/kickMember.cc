@@ -24,7 +24,7 @@ void Client::kickMember() {
   mems.clear();
 
   for(int i = 0;i<m.size();i++) {
-    if( !msgClient_.isGroupOwner(me[i],group_name)) {
+    if( !msgClient_.isGroupOwner(me[i],group_name) && msgClient_.LocalEmail() != me[i]) {
       m[i].resize(m[i].size()-1);
       mems.push_back({me[i],m[i],false});
     }
