@@ -1,7 +1,6 @@
 #include"client.h"
 #include"sig.h"
 #include<iostream>
-#include <gperftools/profiler.h>
 
 int main(int argc,char *argv[]) {
   if(argc == 3) {
