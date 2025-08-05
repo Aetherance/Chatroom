@@ -163,6 +163,8 @@ public:
   void doRejected(Message msg);
 
   void doGroupBreak(Message msgProto);
+
+  void setNoUI() { isNoUi_ = true; }
 private:
   void sendMsgTo(const std::string & who,const std::string & msg);
 
@@ -205,6 +207,8 @@ private:
 
   /* 线程池 用于发送消息 */
   threadpool pool_;
+
+  bool isNoUi_;
 };
 
 void showInfo(const std::string);

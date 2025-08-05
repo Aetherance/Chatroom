@@ -17,6 +17,8 @@ public:
   ~Client();
   
   void run();
+
+  void run_without_ui();
 private:
   /* 登录注册 */
   void Verify();
@@ -111,6 +113,8 @@ private:
   bool isLogout = false;
 
   threadpool infoPool_;
+
+  bool isNoUi_;
 };
 
 void showInfo(const std::string info);

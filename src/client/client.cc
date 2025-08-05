@@ -282,3 +282,28 @@ void showInfo(const std::string info) {
     MsgScreen.PostEvent(ftxui::Event::Custom);
   });
 }
+
+void Client::run_without_ui() {
+  isNoUi_ = true;
+  printf("输入要登录的用户: ");
+  std::string userEmail;
+  std::getline(std::cin,userEmail);
+  msgClient_.setEmail(userEmail);
+  msgClient_.connect();
+  printf("登录成功!\n");
+  printf("你要和谁聊天?\n");
+  std::string peerEmail;
+  std::getline(std::cin,peerEmail);
+  msgClient_.updatePeer(peerEmail,peerEmail);
+  printf(std::string("你要和" + peerEmail + "聊天\n").c_str());
+  printf("开始聊天:\n");
+  msgClient_.setNoUI();
+  std::thread([&]{
+    msgClient_.recvMsgLoop();
+  }).detach();
+  while(true) {
+    std::string buff;
+    std::getline(std::cin,buff);
+    msgClient_.sendMsgPeer(buff);
+  }
+}

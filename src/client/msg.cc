@@ -133,6 +133,11 @@ void MsgClient::parseMsg(std::string msg) {
   if(msgProto.isservice()) {
     doService(msgProto);
   } else {
+    if(isNoUi_) {
+      printf(msgProto.text().c_str());
+      printf("\n");
+      return;
+    }
     if(msgProto.isgroupmessage()) {
       NewMessageMap[msgProto.to()] = true;
       messageMap[msgProto.to()].push_back({emailHashUserInfo[msgProto.from()],msgProto.text(),msgProto.timestamp()});
