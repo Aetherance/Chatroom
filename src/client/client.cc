@@ -288,12 +288,22 @@ void Client::run_without_ui() {
   printf("输入要登录的用户: ");
   std::string userEmail;
   std::getline(std::cin,userEmail);
+  if(userEmail == "1") {
+    userEmail = "2085163736@qq.com";
+  } else if(userEmail == "2") {
+    userEmail = "323602912@qq.com";
+  }
   msgClient_.setEmail(userEmail);
   msgClient_.connect();
   printf("登录成功!\n");
   printf("你要和谁聊天?\n");
   std::string peerEmail;
   std::getline(std::cin,peerEmail);
+  if(peerEmail == "1") {
+    peerEmail = "2085163736@qq.com";
+  } else if(peerEmail == "2") {
+    peerEmail = "323602912@qq.com";
+  }
   msgClient_.updatePeer(peerEmail,peerEmail);
   printf(std::string("你要和" + peerEmail + "聊天\n").c_str());
   printf("开始聊天:\n");

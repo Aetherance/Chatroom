@@ -5,10 +5,13 @@
 #include<jsoncpp/json/json.h>
 #include<map>
 #include<sstream>
+#include<unordered_set>
 
 using namespace net;
 
 #define USER_SERVER_REACTOR_NUM_ 4
+
+std::unordered_set<std::string> m_allUserSet;
 
 UserServer::UserServer()
           : addr_(SERVER_PORT),
@@ -91,6 +94,8 @@ void UserServer::onRegister2(const std::string & userInfo,const std::string & em
   redis_.sync_commit();
 
   makeEmailNameHash(userInfo,email);
+
+  m_allUserSet.insert(email);
 
   SendResponseCode(USER_OK,conn->fd());
 }

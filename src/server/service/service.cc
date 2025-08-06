@@ -8,6 +8,8 @@
 
 using namespace net;
 
+extern std::unordered_set<std::string> m_allUserSet;
+
 extern std::unordered_map<std::string,net::TcpConnectionPtr> userHashConn;
 
 ServiceHandler::ServiceHandler(ChatServer * server) : chatServer_(server) {
@@ -84,6 +86,8 @@ void ServiceHandler::onCancel(const net::TcpConnectionPtr & conn,Message msgProt
   chatServer_->redis_.hdel("email_userinfos",{user});
   chatServer_->redis_.hdel("emailHashUserName",{user});
   chatServer_->redis_.sync_commit();
+
+  m_allUserSet.erase(user);
 }
 
 bool ServiceHandler::isUserGroupOwner(const std::string useremail,const std::string & group) {

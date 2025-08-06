@@ -7,6 +7,8 @@
 
 extern std::unordered_map<std::string,net::TcpConnectionPtr> userHashConn;
 
+extern std::unordered_set<std::string> m_allUserSet;
+
 using namespace net;
 
 void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnectionPtr & conn) {
@@ -28,6 +30,7 @@ void ChatServer::parseMessage(const std::string & msg_str,const net::TcpConnecti
     redis_.sadd(onlineUserSet,{msg.text()});
     offlineMsgConsumer(conn);
     serviceHandler_.FriendBeOnline(conn);
+    onlineUserSet_.insert(msg.text());
     return ;
   }
 
@@ -84,17 +87,7 @@ void ChatServer::sendMsgToUser(const std::string & Msg,const net::TcpConnectionP
 }
 
 bool ChatServer::isUserOnline(const std::string & user_email) {
-  auto exists_future = redis_.sismember(onlineUserSet, user_email);
-  redis_.sync_commit();
-  cpp_redis::reply reply = exists_future.get();
-  if(reply.is_integer()) {
-    if(reply.as_integer()) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-  return false;
+  return onlineUserSet_.find(user_email) != onlineUserSet_.end();
 }
 
 void ChatServer::onOfflineMsg(const std::string & who,const std::string & msg) {
@@ -122,10 +115,7 @@ void ChatServer::offlineMsgConsumer(const TcpConnectionPtr & conn) {
 }
 
 bool ChatServer::isUserExist(const std::string & user) {
-  bool isExists = false;
-  redis_.sismember(allUserset,user,[&isExists](cpp_redis::reply & reply){ isExists = reply.as_integer(); });
-  redis_.sync_commit();
-  return isExists;
+  return m_allUserSet.find(user) != m_allUserSet.end();
 }
 
 void ChatServer::onGroupMessage(const std::string & group,Message & msgProto) {
@@ -152,14 +142,7 @@ void ChatServer::onGroupMessage(const std::string & group,Message & msgProto) {
 }
 
 bool ChatServer::isGroupMessage(const std::string & who) {
-  auto future = redis_.sismember(allGroupSet,who);
-  redis_.sync_commit();
-  auto reply = future.get();
-  if(reply.as_integer()) {
-    return true;
-  } else {
-    return false;
-  }
+  return groupSet_.find(who) != groupSet_.end();
 }
 
 void ChatServer::tellBlocked(const std::string & who,const std::string & by) {

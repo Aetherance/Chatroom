@@ -42,7 +42,7 @@ MsgClient::MsgClient(FtpClient & ftp,const std::string & ip) :
           chatServerAddr_(ip,7070),
           ftpClient_(ftp),
           heart(chatServerfd_),
-          pool_(8)
+          pool_(16)
 {
   initServiceCallbackMap();
   heart.setSendMessageCallback([this]{

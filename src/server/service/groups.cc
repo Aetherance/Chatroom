@@ -21,6 +21,7 @@ void ServiceHandler::onCreateGroup(const net::TcpConnectionPtr & conn,Message ms
     chatServer_->redis_.sadd(groupSet + creator,{group});
     chatServer_->redis_.sadd(chatServer_->groupMembers + group,{creator});
     LOG_INFO(creator + " 创建了群 " + group);
+    chatServer_->groupSet_.insert(group);
     for(int i = 0;i<msgProto.args_size();i++) {
       chatServer_->redis_.sadd(groupSet + msgProto.args(i),{group});
       chatServer_->redis_.sadd(chatServer_->groupMembers + group,{msgProto.args(i)});
@@ -45,11 +46,7 @@ void ServiceHandler::onCreateGroup(const net::TcpConnectionPtr & conn,Message ms
 }
 
 bool ServiceHandler::isGroupExist(const std::string & group) {
-  auto future = chatServer_->redis_.sismember(chatServer_->allGroupSet,group);
-  chatServer_->redis_.sync_commit();
-  auto reply = future.get();
-
-  return reply.as_integer();
+  return chatServer_->groupSet_.find(group) != chatServer_->groupSet_.end();
 }
 
 void ServiceHandler::onAddGroup(const net::TcpConnectionPtr & conn,Message msgProto) {
@@ -165,6 +162,7 @@ void ServiceHandler::onBreakGroup(const net::TcpConnectionPtr & conn,Message msg
     chatServer_->redis_.hdel(chatServer_->groupHashOwner,{group});
     chatServer_->redis_.del({chatServer_->groupMembers + group});
     chatServer_->redis_.sync_commit();
+    chatServer_->groupSet_.erase(group);
     LOG_INFO("Group " + group + " was broken!");
   }
 }

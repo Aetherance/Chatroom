@@ -46,7 +46,7 @@ public:
   
   void safeSend(const std::string & msg);
 
-  inline void sendMsgPeer(const std::string & msg) { /* pool_.enqueue([=]{ sendMsgTo(msgPeerEmail_,msg); }); */ sendMsgTo(msgPeerEmail_,msg); }
+  inline void sendMsgPeer(const std::string & msg) { /* pool_.enqueue([=]{ sendMsgTo(msgPeerEmail_,msg); });*/ sendMsgTo(msgPeerEmail_,msg); }
   
   void updatePeer(const std::string &newPeerEmail,const std::string & newPeerUsername);
   

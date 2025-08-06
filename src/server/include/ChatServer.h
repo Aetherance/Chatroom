@@ -6,6 +6,7 @@
 #include"msg.pb.h"
 #include"ServiceHandler.h"
 #include"ServerHeartBeat.h"
+#include"threadpool.h"
 
 using namespace ilib;
 
@@ -73,6 +74,11 @@ private:
   inline static const std::string allGroupSet = "allGroupSet";
   inline static const std::string groupMembers = "groupMembers:";
   inline static const std::string groupHashOwner = "groupHashOwner";
+  
+  std::unordered_set<std::string> groupSet_;
+  std::unordered_set<std::string> onlineUserSet_;
+
+  threadpool pool;
 };
 
 #endif

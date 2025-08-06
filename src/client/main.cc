@@ -3,6 +3,7 @@
 #include<iostream>
 
 int main(int argc,char *argv[]) {
+  
   if(argc == 3) {
     if( std::string(argv[2]) == "--tui=disable") {
       Client client(argv[1]);

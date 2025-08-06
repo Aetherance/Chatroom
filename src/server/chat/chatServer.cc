@@ -8,12 +8,15 @@ using namespace net;
 #define CHAT_SERVER_REACTOR_NUM_ 16
 #define TCP_HEAD_LEN sizeof(int)
 
+extern std::unordered_set<std::string> m_allUserSet;
+
 std::unordered_map<std::string,net::TcpConnectionPtr> userHashConn;
 
 ChatServer::ChatServer() : addr_(7070),
                            server_(&loop_,addr_),
                            serviceHandler_(this),
-                           heart_(&server_)
+                           heart_(&server_),
+                           pool(24)
 {
   server_.setThreadNum(CHAT_SERVER_REACTOR_NUM_);
   server_.setConnectionCallback([this](const TcpConnectionPtr & conn){ onConnection(conn); });
@@ -26,6 +29,14 @@ ChatServer::ChatServer() : addr_(7070),
 
   redis_.del({onlineUserSet});
   redis_.sync_commit();
+
+  auto user_list_future = redis_.smembers(allUserset);
+  redis_.sync_commit();
+  auto user_list_reply = user_list_future.get();
+
+  for(auto re : user_list_reply.as_array()) {
+    m_allUserSet.insert(re.as_string());
+  }
 }
 
 void ChatServer::run() {
@@ -58,7 +69,7 @@ void ChatServer::onMessage(const net::TcpConnectionPtr & conn,net::Buffer* buff,
       
       std::string msg(buff->peek(),headLen);
 
-      parseMessage(msg,conn);
+      pool.enqueue([=]{ parseMessage(msg,conn); });
 
       buff->retrieve(headLen);
     } else {
@@ -76,6 +87,7 @@ void ChatServer::onConnection(const net::TcpConnectionPtr & conn) {
     redis_.sync_commit();
     serviceHandler_.FriendBeOffline(conn);
     heart_.stopConn(conn->fd());
+    onlineUserSet_.erase(conn->user_email());
     LOG_INFO("User " + conn->user_email() + " left!");
   }
 }
