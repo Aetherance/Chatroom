@@ -92,6 +92,28 @@ make -j(nproc)
 
 在项目根目录执行 `docker compose up`
 
+# 架构
+
+服务端采用`主从reactor模式` 分为3个服务器 每个服务器各为一个主从reactor模型
+
+连接到来时 由各自的acceptor建立连接 并将连接交给子reactor进行管理
+
+客户端向服务器发送的请求 由子reactor交给线程池处理
+
+三个服务器分别为 `AuthServer` `ChatServer` 和 `FtpServer`, 分别负责用户验证服务，聊天服务和文件传输服务
+
+三个服务器共用一个redis 并通过redis来同步数据 三个服务器互相不建立连接 也不通过全局变量进行数据交换 可以编译成三个可执行文件
+
+![server](source/server.jpg)
+
+客户端使用ftxui实现图形化界面
+
+用一个EventLoop注册连接套接字 来实时接收服务器响应消息
+
+文件传输时单开一个线程 避免其他功能被文件传输阻塞
+
+![client](source/client.jpg)
+
 # 补充
 
 代码量约6700行
