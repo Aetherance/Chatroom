@@ -36,7 +36,7 @@ inline void ClientHeart::run() {
   std::thread([&]{
     while (true) {
       std::vector<::epoll_event> revents(16);
-      int n = ::epoll_wait(epfd_,revents.data(),16,/* 30*1000 */-1);
+      int n = ::epoll_wait(epfd_,revents.data(),16,30*1000);
       if(sendMessageCallback_) {
         sendMessageCallback_();
         recvdAck_ = false;

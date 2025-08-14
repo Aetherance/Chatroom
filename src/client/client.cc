@@ -165,7 +165,7 @@ bool Client::parseCommand(std::string & input) {
 }
 
 void Client::flush_terminal_input() {
-  struct TermiosGuard { // RAII自动恢复终端设置
+  struct TermiosGuard {
     termios original;
     TermiosGuard() { tcgetattr(STDIN_FILENO, &original); }
     ~TermiosGuard() { tcsetattr(STDIN_FILENO, TCSANOW, &original); }

@@ -41,8 +41,7 @@ MsgClient::MsgClient(FtpClient & ftp,const std::string & ip) :
           chatServerfd_(::socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)),
           chatServerAddr_(ip,7070),
           ftpClient_(ftp),
-          heart(chatServerfd_),
-          pool_(16)
+          heart(chatServerfd_)
 {
   initServiceCallbackMap();
   heart.setSendMessageCallback([this]{

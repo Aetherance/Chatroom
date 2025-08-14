@@ -59,7 +59,7 @@ inline ServerHeart::ServerHeart(ilib::net::TcpServer * server) {
     redis.connect(REDIS_HOST,REDIS_PORT);
     while (true) {
       std::vector<::epoll_event> revents(16);
-      int n = ::epoll_wait(epfd_,revents.data(),1,-1);
+      int n = ::epoll_wait(epfd_,revents.data(),1,60 * 1000);
       int i = 0;
       for(auto connIt = conns_.begin(); i<conns_.size() ; ++connIt,++i) {
         if(connIt != conns_.end()) {
